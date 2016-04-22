@@ -41,7 +41,7 @@ public class SafeSqlBuilder implements SafeSqlizable {
     }
     
     public SafeSqlBuilder appendJoined(String delimiter, Collection<? extends SafeSqlizable> collection) {
-        return appendJoined(SafeSqlUtils.fromConstant(delimiter), SafeSql.EMPTY, SafeSql.EMPTY, collection.stream());
+        return appendJoined(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, collection.stream());
     }
     
     public SafeSqlBuilder appendJoined(String delimiter, String prefix, String suffix, Collection<? extends SafeSqlizable> collection) {
@@ -49,7 +49,7 @@ public class SafeSqlBuilder implements SafeSqlizable {
     }
     
     public SafeSqlBuilder appendJoined(String delimiter, Stream<? extends SafeSqlizable> stream) {
-        return appendJoined(SafeSqlUtils.fromConstant(delimiter), SafeSql.EMPTY, SafeSql.EMPTY, stream);
+        return appendJoined(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, stream);
     }
 
     public SafeSqlBuilder appendJoined(String delimiter, String prefix, String suffix, Stream<? extends SafeSqlizable> stream) {
@@ -57,7 +57,7 @@ public class SafeSqlBuilder implements SafeSqlizable {
     }
     
     public SafeSqlBuilder appendJoined(SafeSql delimiter, Collection<? extends SafeSqlizable> collection) {
-        return appendJoined(delimiter, SafeSql.EMPTY, SafeSql.EMPTY, collection.stream());
+        return appendJoined(delimiter, SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, collection.stream());
     }
     
     public SafeSqlBuilder appendJoined(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Collection<? extends SafeSqlizable> collection) {
@@ -65,7 +65,7 @@ public class SafeSqlBuilder implements SafeSqlizable {
     }
     
     public SafeSqlBuilder appendJoined(SafeSql delimiter, Stream<? extends SafeSqlizable> stream) {
-        return appendJoined(delimiter, SafeSql.EMPTY, SafeSql.EMPTY, stream);
+        return appendJoined(delimiter, SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, stream);
     }
     
     public SafeSqlBuilder appendJoined(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Stream<? extends SafeSqlizable> stream) {
