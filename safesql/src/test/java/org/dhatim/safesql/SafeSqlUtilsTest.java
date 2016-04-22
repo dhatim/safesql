@@ -5,10 +5,6 @@ import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
 import java.math.BigDecimal;
-import org.dhatim.safesql.SafeSql;
-import org.dhatim.safesql.SafeSqlBuilder;
-import org.dhatim.safesql.SafeSqlUtils;
-import org.dhatim.safesql.SafeSqlizable;
 import org.junit.Test;
 
 public class SafeSqlUtilsTest {
@@ -88,7 +84,7 @@ public class SafeSqlUtilsTest {
     
     @Test
     public void testFormat() {
-        //assertThat()
+        assertThat(SafeSqlUtils.format("SELECT * FROM table WHERE col1 = {} AND col2 = {}", 5, "Hello"), is(safesql(equalTo("SELECT * FROM table WHERE col1 = ? AND col2 = ?"), arrayContaining(5, "Hello"))));
     }
     
 }
