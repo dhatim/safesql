@@ -1,49 +1,14 @@
 package org.dhatim.safesql;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 
 public class SafeSqlJoiner implements SafeSqlizable {
-    
-    private static class InternalBuilder {
-        
-        private final StringBuilder builder = new StringBuilder();
-        private final ArrayList<Object> parameters = new ArrayList<>();
-        
-        public InternalBuilder append(SafeSql sql) {
-            builder.append(sql.asSql());
-            for (Object param : sql.getParameters()) {
-                parameters.add(param);
-            }
-            return this;
-        }
-        
-        public void append(InternalBuilder other, SafeSql after) {
-            builder.append(other.builder, after.asSql().length(), other.builder.length());
-            int afterLength = after.getParameters().length;
-            parameters.addAll(Arrays.asList(other.parameters).subList(afterLength, other.parameters.size() - afterLength));
-        }
-        
-        public SafeSql toSafeSql() {
-            return new SafeSqlImpl(builder.toString(), parameters.toArray());
-        }
-        
-        public void setLength(int sqlLength, int paramCount) {
-            builder.setLength(sqlLength);
-            int currentSize = parameters.size();
-            if (paramCount < currentSize) {
-                parameters.subList(paramCount, currentSize).clear();
-            }
-        }
-        
-    }
     
     private final SafeSql prefix;
     private final SafeSql delimiter;
     private final SafeSql suffix;
     
-    private InternalBuilder value;
+    private SafeSqlBuilder value;
 
     private SafeSql emptyValue;
     
@@ -79,24 +44,29 @@ public class SafeSqlJoiner implements SafeSqlizable {
     public SafeSqlJoiner merge(SafeSqlJoiner other) {
         Objects.requireNonNull(other);
         if (other.value != null) {
-            InternalBuilder builder = prepareBuilder();
-            builder.append(other.value, other.prefix);
+            SafeSqlBuilder builder = prepareBuilder();
+            builder.append(other.value, SafeSqlBuilder.getLength(other.prefix));
         }
         return this;
     }
     
-    private InternalBuilder prepareBuilder() {
+    private SafeSqlBuilder prepareBuilder() {
         if (value != null) {
             value.append(delimiter);
         } else {
-            value = new InternalBuilder().append(prefix);
+            value = new SafeSqlBuilder().append(prefix);
         }
         return value;
     }
     
     @Override
     public void appendTo(SafeSqlBuilder builder) {
-        builder.append(toSafeSql());
+        if (value == null) {
+            builder.append(emptyValue);
+        } else {
+            builder.append(value);
+            builder.append(suffix);
+        }
     }
     
     @Override
@@ -107,10 +77,9 @@ public class SafeSqlJoiner implements SafeSqlizable {
             if (SafeSqlUtils.isEmpty(suffix)) {
                 return value.toSafeSql();
             } else {
-                int initialSqlLength = value.builder.length();
-                int initialParamCount = value.parameters.size();
+                SafeSqlBuilder.Position pos = value.getLength();
                 SafeSql result = value.append(suffix).toSafeSql();
-                value.setLength(initialSqlLength, initialParamCount);
+                value.setLength(pos);
                 return result;
             }
         }

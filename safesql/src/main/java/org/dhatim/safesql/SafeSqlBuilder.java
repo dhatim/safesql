@@ -7,6 +7,18 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class SafeSqlBuilder implements SafeSqlizable {
+    
+    static class Position {
+        
+        private final int sqlPosition;
+        private final int paramPosition;
+        
+        private Position(int sqlPosition, int paramPosition) {
+            this.sqlPosition = sqlPosition;
+            this.paramPosition = paramPosition;
+        }
+        
+    }
 
     private final StringBuilder sqlBuilder = new StringBuilder();
     private final List<Object> parameters = new ArrayList<>();
@@ -130,6 +142,28 @@ public class SafeSqlBuilder implements SafeSqlizable {
     private void appendObject(Object o) {
         sqlBuilder.append('?');
         parameters.add(o);
+    }
+    
+    Position getLength() {
+        return new Position(sqlBuilder.length(), parameters.size());
+    }
+    
+    void setLength(Position position) {
+        sqlBuilder.setLength(position.sqlPosition);
+        int currentSize = parameters.size();
+        if (position.paramPosition < currentSize) {
+            parameters.subList(position.paramPosition, currentSize).clear();
+        }
+    }
+    
+    void append(SafeSqlBuilder other, Position after) {
+        sqlBuilder.append(other.sqlBuilder, after.sqlPosition, other.sqlBuilder.length());
+        int afterLength = after.paramPosition;
+        parameters.addAll(Arrays.asList(other.parameters).subList(afterLength, other.parameters.size() - afterLength));
+    }
+    
+    static Position getLength(SafeSql sql) {
+        return new Position(sql.asSql().length(), sql.getParameters().length);
     }
     
 }
