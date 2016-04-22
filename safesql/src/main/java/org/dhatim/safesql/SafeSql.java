@@ -5,8 +5,6 @@ package org.dhatim.safesql;
  */
 public interface SafeSql {
     
-    final SafeSql EMPTY = SafeSqlUtils.EMPTY;
-    
     /**
      * Retrieves the sql query that may contain one or more <code>'?'</code> parameter placeholder
      * @return the sql query

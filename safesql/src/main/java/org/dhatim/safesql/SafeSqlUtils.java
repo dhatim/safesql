@@ -46,6 +46,7 @@ public final class SafeSqlUtils {
     }
     
     public static SafeSql fromConstant(String s) {
+        Objects.requireNonNull(s);
         if (s.isEmpty()) {
             return EMPTY;
         }

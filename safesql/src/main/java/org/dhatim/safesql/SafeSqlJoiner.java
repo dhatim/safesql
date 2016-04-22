@@ -48,7 +48,7 @@ public class SafeSqlJoiner implements SafeSqlizable {
     private SafeSql emptyValue;
     
     public SafeSqlJoiner(SafeSql delimiter) {
-        this(delimiter, SafeSql.EMPTY, SafeSql.EMPTY);
+        this(delimiter, SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY);
     }
     
     public SafeSqlJoiner(SafeSql delimiter, SafeSql prefix, SafeSql suffix) {
