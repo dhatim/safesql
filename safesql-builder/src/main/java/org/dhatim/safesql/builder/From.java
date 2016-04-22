@@ -1,7 +1,6 @@
 package org.dhatim.safesql.builder;
 
 import java.util.List;
-import org.dhatim.safesql.SafeSql;
 import org.dhatim.safesql.SafeSqlBuilder;
 import org.dhatim.safesql.SafeSqlizable;
 
@@ -59,17 +58,15 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
     protected abstract void render(SafeSqlBuilder sb);
 
     @Override
-    public SafeSql toSafeSql() {
-        SafeSqlBuilder sb = new SafeSqlBuilder();
-        render(sb);
+    public void appendTo(SafeSqlBuilder builder) {
+        render(builder);
         if (alias != null) {
-            sb.appendConstant(" ").append(alias);
+            builder.appendConstant(" ").append(alias);
         }
         List<Jointure> jointures = getJointures();
         if (!jointures.isEmpty()) {
-            sb.appendConstant(" ").appendJoined(" ", jointures);
+            builder.appendConstant(" ").appendJoined(" ", jointures);
         }
-        return sb.toSafeSql();
     }
     
     public static From table(String schema, String tableName, Alias alias) {

@@ -3,7 +3,6 @@ package org.dhatim.safesql.builder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.dhatim.safesql.SafeSql;
 import org.dhatim.safesql.SafeSqlBuilder;
 import org.dhatim.safesql.SafeSqlizable;
 
@@ -34,8 +33,7 @@ public class Jointure extends AbstractHasJointure implements WhereClause, SafeSq
     }
 
     @Override
-    public SafeSql toSafeSql() {
-        SafeSqlBuilder sb = new SafeSqlBuilder();
+    public void appendTo(SafeSqlBuilder sb) {
         sb.append(type).appendConstant(" ");
         if (hasJointures()) {
             sb.appendConstant("(");
@@ -55,7 +53,6 @@ public class Jointure extends AbstractHasJointure implements WhereClause, SafeSq
         if (!conditions.isEmpty()) {
             sb.appendJoined(" AND ", conditions);
         }
-        return sb.toSafeSql();
     }
 
 }

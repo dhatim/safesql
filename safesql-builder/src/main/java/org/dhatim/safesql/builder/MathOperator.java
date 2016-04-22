@@ -1,6 +1,7 @@
 package org.dhatim.safesql.builder;
 
 import org.dhatim.safesql.SafeSql;
+import org.dhatim.safesql.SafeSqlBuilder;
 import org.dhatim.safesql.SafeSqlUtils;
 
 public enum MathOperator implements Operator {
@@ -23,6 +24,11 @@ public enum MathOperator implements Operator {
     @Override
     public SafeSql toSafeSql() {
         return SafeSqlUtils.fromConstant(sql);
+    }
+    
+    @Override
+    public void appendTo(SafeSqlBuilder builder) {
+        builder.appendConstant(sql);
     }
     
 }

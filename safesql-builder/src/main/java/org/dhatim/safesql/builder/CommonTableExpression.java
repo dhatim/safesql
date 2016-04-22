@@ -1,6 +1,5 @@
 package org.dhatim.safesql.builder;
 
-import org.dhatim.safesql.SafeSql;
 import org.dhatim.safesql.SafeSqlBuilder;
 import org.dhatim.safesql.SafeSqlizable;
 
@@ -19,13 +18,11 @@ public class CommonTableExpression implements SafeSqlizable {
     }
     
     @Override
-    public SafeSql toSafeSql() {
-        return new SafeSqlBuilder()
-                .appendIdentifier(name)
+    public void appendTo(SafeSqlBuilder builder) {
+        builder.appendIdentifier(name)
                 .appendConstant(" AS (")
                 .append(query)
-                .appendConstant(")")
-                .toSafeSql();
+                .appendConstant(")");
     }
     
 }

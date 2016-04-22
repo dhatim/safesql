@@ -1,6 +1,5 @@
 package org.dhatim.safesql.builder;
 
-import org.dhatim.safesql.SafeSql;
 import org.dhatim.safesql.SafeSqlBuilder;
 
 public class Cast implements Operand {
@@ -14,12 +13,10 @@ public class Cast implements Operand {
     }
 
     @Override
-    public SafeSql toSafeSql() {
-        return new SafeSqlBuilder()
-                .append(operand)
+    public void appendTo(SafeSqlBuilder builder) {
+        builder.append(operand)
                 .appendConstant("::")
-                .appendConstant(sqlType)
-                .toSafeSql();
+                .appendConstant(sqlType);
     }
 
     public Operand getOperand() {

@@ -21,12 +21,11 @@ public class ConditionGroup implements Condition {
     }
 
     @Override
-    public SafeSql toSafeSql() {
-        return new SafeSqlBuilder()
-                .appendConstant("(")
-                .appendJoined(operator, conditions)
-                .appendConstant(")")
-                .toSafeSql();
+    public void appendTo(SafeSqlBuilder builder) {
+        SafeSql spacedOperator = new SafeSqlBuilder().appendConstant(' ').append(operator).appendConstant(' ').toSafeSql();
+        builder.appendConstant("(")
+                .appendJoined(spacedOperator, conditions)
+                .appendConstant(")");
     }
     
     @Override

@@ -2,8 +2,14 @@ package org.dhatim.safesql;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -12,7 +18,10 @@ import javax.xml.bind.DatatypeConverter;
 
 public final class SafeSqlUtils {
     
-    private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSX");
+    private static final DateTimeFormatter TIMESTAMP_FORMATTER_WITH_TZ = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSX");
+    private static final DateTimeFormatter TIMESTAMP_FORMATTER_WITHOUT_TZ = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    private static final DateTimeFormatter TIME_FORMATTER_WITH_TZ = DateTimeFormatter.ofPattern("HH:mm:ss.SSSX");
+    private static final DateTimeFormatter TIME_FORMATTER_WITHOUT_TZ = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     
     private static final int STATE_0 = 0;
@@ -70,6 +79,18 @@ public final class SafeSqlUtils {
      */
     public static SafeSql format(String sql, Object... arguments) {
         SafeSqlBuilder sb = new SafeSqlBuilder();
+        format(sb, sql, arguments);
+        return sb.toSafeSql();
+    }
+    
+    /**
+     * Returns a formatted sql string using the specified arguments.
+     * @param builder {@code SafeSqlBuilder} where is appened the formatted sql
+     * @param sql string query with some <code>{}</code> argument place. The argument can have a number inside to force a argument index (start at 1). The escape sequence is <code>{{.*}}</code>.
+     * @param arguments arguments list
+     * @return <code>SafeSql</code> with parameters
+     */
+    public static void format(SafeSqlBuilder builder, String sql, Object... arguments) {
         Matcher matcher = PATTERN.matcher(sql);
         int lastIndex = 0;
         int argIndex = 0;
@@ -77,21 +98,32 @@ public final class SafeSqlUtils {
             String before = sql.substring(lastIndex, matcher.start());
             String parameter = matcher.group(1);
             lastIndex = matcher.end();
-            sb.appendConstant(before);
+            builder.appendConstant(before);
             if (parameter.isEmpty()) {
-                sb.append(arguments[argIndex++]);
+                builder.append(arguments[argIndex++]);
             } else if (parameter.startsWith("{")) {
-                sb.appendConstant(parameter);
+                builder.appendConstant(parameter);
             } else {
                 int customArgIndex = Integer.parseInt(parameter);
-                sb.append(arguments[customArgIndex - 1]);
+                builder.append(arguments[customArgIndex - 1]);
             }
         }
         String lastPart = sql.substring(lastIndex);
         if (!lastPart.isEmpty()) {
-            sb.appendConstant(lastPart);
+            builder.appendConstant(lastPart);
         }
-        return sb.toSafeSql();
+    }
+    
+    public static SafeSql concat(SafeSql s1, SafeSql s2) {
+        String sql = s1.asSql() + s2.asSql();
+        Object[] p1 = s1.getParameters(), p2 = s2.getParameters();
+        Object[] params = Arrays.copyOf(p1, p1.length + p2.length);
+        System.arraycopy(p2, 0, params, p1.length, p2.length);
+        return new SafeSqlImpl(sql, params);
+    }
+    
+    public static boolean isEmpty(SafeSql s) {
+        return s.asSql().isEmpty();
     }
     
     static String escapeIdentifier(String identifier) {
@@ -110,7 +142,11 @@ public final class SafeSqlUtils {
         Objects.requireNonNull(identifier, "null identifier");
         return !identifier.equals(identifier.toLowerCase()) || identifier.contains(IDENTIFIER_QUOTE);
     }
-
+    
+    static String mayEscapeIdentifier(String identifier) {
+        return mustEscapeIdentifier(identifier) ? escapeIdentifier(identifier) : identifier;
+    }
+    
     static String toString(SafeSql sql) {
         Object[] parameters = sql.getParameters();
         StringBuilder sb = new StringBuilder();
@@ -156,9 +192,19 @@ public final class SafeSqlUtils {
         } else if (obj instanceof Number) {
             return ((Number) obj).toString();
         } else if (obj instanceof Timestamp) {
-            return STRING_QUOTE + TIMESTAMP_FORMATTER.format(((Timestamp) obj).toLocalDateTime()) + STRING_QUOTE;
+            return "TIMESTAMP " + STRING_QUOTE + TIMESTAMP_FORMATTER_WITH_TZ.format(((Timestamp) obj).toLocalDateTime()) + STRING_QUOTE; 
+        } else if (obj instanceof Time) {
+            return "TIME " + STRING_QUOTE + TIME_FORMATTER_WITH_TZ.format(((Time) obj).toLocalTime()) + STRING_QUOTE;
         } else if (obj instanceof Date) {
-            return STRING_QUOTE + DATE_FORMATTER.format(((Date) obj).toLocalDate()) + STRING_QUOTE;
+            return "DATE " + STRING_QUOTE + DATE_FORMATTER.format(((Date) obj).toLocalDate()) + STRING_QUOTE;
+        } else if (obj instanceof LocalDate) {
+            return "DATE " + STRING_QUOTE + DATE_FORMATTER.format((LocalDate) obj) + STRING_QUOTE;
+        } else if (obj instanceof LocalTime) {
+            return "TIME " + STRING_QUOTE + TIME_FORMATTER_WITHOUT_TZ.format((LocalTime) obj) + STRING_QUOTE;
+        } else if (obj instanceof LocalDateTime) {
+            return "TIMESTAMP " + STRING_QUOTE + TIMESTAMP_FORMATTER_WITHOUT_TZ.format((LocalDateTime) obj) + STRING_QUOTE;
+        } else if (obj instanceof OffsetTime) {
+            return "TIMESTAMP " + STRING_QUOTE + TIMESTAMP_FORMATTER_WITH_TZ.format((OffsetTime) obj) + STRING_QUOTE;
         } else if (obj instanceof byte[]) {
             return escapeByteArray((byte[]) obj);
         } else {

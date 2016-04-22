@@ -6,11 +6,11 @@ import org.dhatim.safesql.SafeSqlizable;
 public interface Query extends SafeSqlizable {
 
     static Query fromSqlizable(SafeSqlizable sqlizable) {
-        return () -> sqlizable.toSafeSql();
+        return sqlizable::appendTo;
     }
     
     static Query fronConstant(SafeSql sql) {
-        return () -> sql;
+        return builder -> builder.append(sql);
     }
     
 }

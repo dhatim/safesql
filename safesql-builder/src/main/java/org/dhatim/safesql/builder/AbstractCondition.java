@@ -1,6 +1,5 @@
 package org.dhatim.safesql.builder;
 
-import org.dhatim.safesql.SafeSql;
 import org.dhatim.safesql.SafeSqlBuilder;
 
 public abstract class AbstractCondition<L extends Operand, O extends ConditionalOperator, R extends Operand> implements Condition {
@@ -15,18 +14,16 @@ public abstract class AbstractCondition<L extends Operand, O extends Conditional
         this.right = right;
         
     }
-
+    
     @Override
-    public SafeSql toSafeSql() {
-        return new SafeSqlBuilder()
-                //.appendConstant("(")
-                .append(left)
-                .appendConstant(" ")
-                .append(operator)
-                .appendConstant(" ")
-                .append(right)
-                //.appendConstant(")")
-                .toSafeSql();
+    public void appendTo(SafeSqlBuilder builder) {
+        //.appendConstant("(")
+        builder.append(left)
+        .appendConstant(" ")
+        .append(operator)
+        .appendConstant(" ")
+        .append(right);
+        //.appendConstant(")")
     }
     
     protected L getLeft() {

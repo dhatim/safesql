@@ -3,7 +3,6 @@ package org.dhatim.safesql.builder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.dhatim.safesql.SafeSql;
 import org.dhatim.safesql.SafeSqlBuilder;
 
 public class QueryBuilder2 implements WhereClause, Query {
@@ -153,8 +152,7 @@ public class QueryBuilder2 implements WhereClause, Query {
     }
 
     @Override
-    public SafeSql toSafeSql() {
-        SafeSqlBuilder sb = new SafeSqlBuilder();
+    public void appendTo(SafeSqlBuilder sb) {
         if (!ctes.isEmpty()) {
             sb.appendConstant("WITH ");
             sb.appendJoined(", ", ctes);
@@ -180,7 +178,6 @@ public class QueryBuilder2 implements WhereClause, Query {
         if (!windows.isEmpty()) {
             sb.appendConstant(" WINDOW ").appendJoined(", ", windows);
         }
-        return sb.toSafeSql();
     }
 
     @Override

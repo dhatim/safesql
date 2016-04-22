@@ -1,6 +1,5 @@
 package org.dhatim.safesql.builder;
 
-import org.dhatim.safesql.SafeSql;
 import org.dhatim.safesql.SafeSqlBuilder;
 
 public class NullCondition implements Condition {
@@ -14,13 +13,12 @@ public class NullCondition implements Condition {
     }
     
     @Override
-    public SafeSql toSafeSql() {
-        SafeSqlBuilder sb = new SafeSqlBuilder().append(operand).appendConstant(" IS " );
+    public void appendTo(SafeSqlBuilder sb) {
+        sb.append(operand).appendConstant(" IS " );
         if (!nullTest) {
             sb.appendConstant("NOT ");
         }
         sb.appendConstant("NULL");
-        return sb.toSafeSql();
     }
     
     @Override

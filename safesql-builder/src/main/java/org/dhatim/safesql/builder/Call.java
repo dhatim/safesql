@@ -1,7 +1,6 @@
 package org.dhatim.safesql.builder;
 
 import java.util.Arrays;
-import org.dhatim.safesql.SafeSql;
 import org.dhatim.safesql.SafeSqlBuilder;
 
 public class Call implements Operand {
@@ -23,12 +22,10 @@ public class Call implements Operand {
     }
 
     @Override
-    public SafeSql toSafeSql() {
-        SafeSqlBuilder sb = new SafeSqlBuilder();
-        sb.appendConstant(functionName).appendConstant("(");
-        sb.appendJoined(", ", Arrays.asList(arguments));
-        sb.appendConstant(")");
-        return sb.toSafeSql();
+    public void appendTo(SafeSqlBuilder builder) {
+        builder.appendConstant(functionName).appendConstant("(");
+        builder.appendJoined(", ", Arrays.asList(arguments));
+        builder.appendConstant(")");
     }
 
     @Override

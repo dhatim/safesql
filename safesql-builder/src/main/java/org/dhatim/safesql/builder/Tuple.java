@@ -2,7 +2,6 @@ package org.dhatim.safesql.builder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import org.dhatim.safesql.SafeSql;
 import org.dhatim.safesql.SafeSqlBuilder;
 
 public class Tuple implements Operand {
@@ -14,14 +13,12 @@ public class Tuple implements Operand {
         operands.add(operand2);
         operands.addAll(Arrays.asList(others));
     }
-
+    
     @Override
-    public SafeSql toSafeSql() {
-        return new SafeSqlBuilder()
-                .appendConstant("(")
-                .appendJoined(", ", operands)
-                .appendConstant(")")
-                .toSafeSql();
+    public void appendTo(SafeSqlBuilder builder) {
+        builder.appendConstant("(")
+            .appendJoined(", ", operands)
+            .appendConstant(")");
     }
 
 }

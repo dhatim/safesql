@@ -29,6 +29,11 @@ public class SafeSqlUtilsTest {
         public SafeSql toSafeSql() {
             return sql;
         }
+        
+        @Override
+        public void appendTo(SafeSqlBuilder builder) {
+            builder.append(sql);
+        }
     }
     
     @Test
@@ -79,6 +84,11 @@ public class SafeSqlUtilsTest {
     public void testLiteralize() {
         assertThat(SafeSqlUtils.literalize(new CustomSafeSql("SELECT * FORM table WHERE column = ", "Hello the world", "").toSafeSql()), 
                 safesql(is("SELECT * FORM table WHERE column = 'Hello the world'"), emptyArray()));
+    }
+    
+    @Test
+    public void testFormat() {
+        //assertThat()
     }
     
 }

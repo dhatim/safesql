@@ -1,6 +1,5 @@
 package org.dhatim.safesql.builder;
 
-import org.dhatim.safesql.SafeSql;
 import org.dhatim.safesql.SafeSqlBuilder;
 
 public class Compute implements Operand {
@@ -28,16 +27,14 @@ public class Compute implements Operand {
     }
     
     @Override
-    public SafeSql toSafeSql() {
-        return new SafeSqlBuilder()
-                .appendConstant("(")
-                .append(left)
-                .appendConstant(" ")
-                .append(operator)
-                .appendConstant(" ")
-                .append(right)
-                .appendConstant(")")
-                .toSafeSql();
+    public void appendTo(SafeSqlBuilder builder) {
+        builder.appendConstant("(")
+            .append(left)
+            .appendConstant(" ")
+            .append(operator)
+            .appendConstant(" ")
+            .append(right)
+            .appendConstant(")");
     }
     
     public static Compute add(Operand op1, Operand op2) {

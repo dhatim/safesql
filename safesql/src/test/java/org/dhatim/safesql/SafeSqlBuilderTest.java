@@ -6,10 +6,6 @@ import static org.hamcrest.Matchers.*;
 
 import java.util.Arrays;
 import java.util.List;
-import org.dhatim.safesql.SafeSql;
-import org.dhatim.safesql.SafeSqlBuilder;
-import org.dhatim.safesql.SafeSqlUtils;
-import org.dhatim.safesql.SafeSqlizable;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
@@ -20,12 +16,10 @@ public class SafeSqlBuilderTest {
         private static final String MUST_BE = "SELECT * FROM table WHERE column = ? GROUP BY id";
         
         @Override
-        public SafeSql toSafeSql() {
-            return new SafeSqlBuilder()
-                    .appendConstant("SELECT * FROM table WHERE column = ")
+        public void appendTo(SafeSqlBuilder builder) {
+            builder.appendConstant("SELECT * FROM table WHERE column = ")
                     .append(5)
-                    .appendConstant(" GROUP BY id")
-                    .toSafeSql();
+                    .appendConstant(" GROUP BY id");
         }
     }
 

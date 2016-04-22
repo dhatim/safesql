@@ -1,7 +1,6 @@
 package org.dhatim.safesql.builder;
 
 import java.util.Arrays;
-import org.dhatim.safesql.SafeSql;
 import org.dhatim.safesql.SafeSqlBuilder;
 
 public class InCondition extends AbstractCondition<Operand, RelationalOperator, Values> {
@@ -24,12 +23,10 @@ class Values implements Operand {
     public Values(Operand[] elements) {
         this.elements = elements.clone();
     }
-
+    
     @Override
-    public SafeSql toSafeSql() {
-        SafeSqlBuilder sb = new SafeSqlBuilder();
-        sb.appendConstant("(").appendJoined(", ", Arrays.asList(elements)).appendConstant(")");
-        return sb.toSafeSql();
+    public void appendTo(SafeSqlBuilder builder) {
+        builder.appendConstant("(").appendJoined(", ", Arrays.asList(elements)).appendConstant(")");
     }
 
 }

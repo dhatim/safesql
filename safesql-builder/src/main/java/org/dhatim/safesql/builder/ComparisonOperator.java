@@ -1,6 +1,7 @@
 package org.dhatim.safesql.builder;
 
 import org.dhatim.safesql.SafeSql;
+import org.dhatim.safesql.SafeSqlBuilder;
 import org.dhatim.safesql.SafeSqlUtils;
 
 public enum ComparisonOperator implements ConditionalOperator {
@@ -24,6 +25,11 @@ public enum ComparisonOperator implements ConditionalOperator {
     @Override
     public String toString() {
         return sql;
+    }
+    
+    @Override
+    public void appendTo(SafeSqlBuilder builder) {
+        builder.appendConstant(sql);
     }
 
     @Override

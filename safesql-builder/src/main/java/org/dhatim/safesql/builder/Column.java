@@ -1,7 +1,6 @@
 package org.dhatim.safesql.builder;
 
 import java.util.Objects;
-import org.dhatim.safesql.SafeSql;
 import org.dhatim.safesql.SafeSqlBuilder;
 
 public class Column implements Operand {
@@ -15,8 +14,8 @@ public class Column implements Operand {
         }
         
         @Override
-        public SafeSql toSafeSql() {
-            return new SafeSqlBuilder().appendConstant("DISTINCT ").append(operand).toSafeSql();
+        public void appendTo(SafeSqlBuilder builder) {
+            builder.appendConstant("DISTINCT ").append(operand);
         }
         
     }
@@ -45,12 +44,11 @@ public class Column implements Operand {
     }
 
     @Override
-    public SafeSql toSafeSql() {
-        SafeSqlBuilder sb = new SafeSqlBuilder();
+    public void appendTo(SafeSqlBuilder builder) {
         if (alias != null) {
-            sb.append(alias).appendConstant(".");
+            builder.append(alias).appendConstant(".");
         }
-        return sb.appendIdentifier(name).toSafeSql();
+        builder.appendIdentifier(name);
     }
     
     @Override

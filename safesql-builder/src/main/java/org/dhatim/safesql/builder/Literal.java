@@ -1,6 +1,7 @@
 package org.dhatim.safesql.builder;
 
 import org.dhatim.safesql.SafeSql;
+import org.dhatim.safesql.SafeSqlBuilder;
 import org.dhatim.safesql.SafeSqlUtils;
 
 public class Literal implements Operand {
@@ -23,8 +24,8 @@ public class Literal implements Operand {
     }
     
     @Override
-    public SafeSql toSafeSql() {
-        return SafeSqlUtils.literalize(SafeSqlUtils.escape(value));
+    public void appendTo(SafeSqlBuilder builder) {
+        builder.appendStringLiteral(value);
     }
     
 }

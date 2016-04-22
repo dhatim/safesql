@@ -1,6 +1,5 @@
 package org.dhatim.safesql.builder;
 
-import org.dhatim.safesql.SafeSql;
 import org.dhatim.safesql.SafeSqlBuilder;
 
 public class BooleanOperand implements Operand, Condition {
@@ -18,8 +17,11 @@ public class BooleanOperand implements Operand, Condition {
     }
     
     @Override
-    public SafeSql toSafeSql() {
-        return (not ? new SafeSqlBuilder().appendConstant("NOT ").append(operand) : operand).toSafeSql();
+    public void appendTo(SafeSqlBuilder builder) {
+        if (not) {
+            builder.appendConstant("NOT ");
+        }
+        builder.append(operand);
     }
 
     @Override
