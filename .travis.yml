@@ -17,12 +17,14 @@ env:
 deploy:
   - provider: script
     script: .deploy.sh
+    skip_cleanup: true
     on:
       repo: dhatim/safesql
       branch: master
       jdk: oraclejdk8
   - provider: script
     script: .deploy.sh
+    skip_cleanup: true
     on:
       repo: dhatim/safesql
       tags: true
