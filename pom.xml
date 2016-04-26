@@ -11,6 +11,7 @@
 
     <name>SafeSql Project</name>
     <description>Toolbox and helpers to generate valid Postgres SQL</description>
+    <url>https://github.com/dhatim/safesql</url>
 
     <modules>
         <module>safesql</module>
@@ -110,7 +111,6 @@
                         </executions>
                     </plugin>
                 </plugins>
-
             </build>
         </profile>
     </profiles>
