@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mvn -B cobertura:cobertura coveralls:report
+mvn -B jacoco:report coveralls:report
 
 if [[ -n ${TRAVIS_TAG} ]]; then
     echo "Skipping deployment for tag \"${TRAVIS_TAG}\""
