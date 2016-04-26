@@ -8,6 +8,11 @@ public class Literal implements Operand {
     
     private static final Literal NULL_LITERAL = new Literal(null) {
         @Override
+        public void appendTo(SafeSqlBuilder builder) {
+            builder.appendConstant("NULL");
+        }
+        
+        @Override
         public SafeSql toSafeSql() {
             return SafeSqlUtils.fromConstant("NULL");
         }

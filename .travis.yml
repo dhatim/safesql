@@ -2,7 +2,10 @@ language: java
 jdk:
   - oraclejdk8
 after_success:
-  - bash .travis_after_success.sh
+  - mvn -B jacoco:report coveralls:report
+before_install:
+  - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
+  - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
 cache:
   directories:
     - $HOME/.m2
@@ -10,3 +13,17 @@ env:
   global:
     - secure: "BFd9+UEyNyxTod+M8VPzluy55zrwXv2H8riv57qIRA4s3hWOVlZJLYdroUEWkK7esPO4pRPAQcVh5E1snJMzSd8E1bVFl0bTqskRcI1x6wIVJbOs+rxE1If5P77hsbGtMLtE1vSj3dZe2K17q6PPIqT5Xhn6UwM7m4GgJYxNBmJP2HmZ1LVan2PQCgxmLhH9e0Bo/8QVUIalnoRdAWIa5lpnKaXgEx0M3lQe++V4CYNhi2lsMWmrPHvPI3wRnoZxMBYFTt8uNMAO9wvmvoUqaTgnesqK7fN/MvUWYzwMpUQZpTt4hA9P94b1hDb4s0PZTI6eZB6j9fu6+oyTbht+c/erGom1eEcH06VFbE9dxMj27zqiIwrsfm7XfBsYkqjEgoxHzB8vL8gcyXwy77NQZGYp8ny9MvEnV9cDhH4VyPUfqjOT8mGwpK3Cq2IedyPI1GbZDhrWqineQyty6gal7svdAUAngU809StmN+b9tfDipGKPKAhhppb2HMDcp78ncu0zccYox1JyWxHdrAgMOQjA/wWsahk0JENqchTYGFdKzLj9jUJvfMFpeFaa0wwAiidyvDKXVoKhrCY7wCxH3JKyur+Qj7SLdhbShq4oLUUhjNrlZolmqYFaQAx/UScShMMe+xiiQXng2ZpJJZ50Sj7D3/Qc5BARvx+k6p9HbxQ="
     - secure: "zRjstR5qr1Ci0sLcEDTvSvsuVpJL6gAKk4awfxgQCRLo6y1Eji0ngxl1D/faAd8mjShdxy6vdC/Jfaqgi+IzPq6Pnhkr08JvZRJBJiOnV3d9jUlhfrPtOTY2XWbsGvtWyqsXXKBkB3NWBy5XNq3PGPiZK6Dkf1NsojNzuO5LomKGY7COVJrzbGJ1gcgbGneZURCD8vIsYu/PTgWVtdlgVqH0LkOIqbDjMN7Y+ucibh5BsiSoP9bKH+xQfVSQLjm28XVnU4t5eqCvmUXDOX74+ju16KFc6CJ61VJaw5FEhA4XD9MTNvfXIidue+jMo29SzEFal4D7fcZsyybJM7vJUk9xky+WNiilRUXq3ftzY5NIq2tuSI6eCiTRgie+TBmmIFmiiS0t+4THeDOpgfh2ne8k19RypdeRutY83SiFVcEjzZI09lSVjJUWr7XdumrXhd/3FJ0NEbvUtddvL2l9YF0VhCK477BXYnN5uO+U0AsfP1uwGYYgnMQkHmwzA39tIDOW3C5Ei0LVJOugZAjjqtk+/kluS96oltpvUsCVFCA8LJ/fwv4s4gUATLjXnA13kCWByyY0c/fEVvmqoi7GjNRnpwvX7cMKS0GTNptKCP/0+QUnG9xLFO9vq0ZxHzZSJacVAKtcs6gFxi4h2oV9z+KGdMrfTP6xCAQy+GcvOZU="
+
+deploy:
+  - provider: script
+    script: .deploy.sh
+    on:
+      repo: dhatim/safesql
+      branch: master
+      jdk: oraclejdk8
+  - provider: script
+    script: .deploy.sh
+    on:
+      repo: dhatim/safesql
+      tags: true
+      jdk: oraclejdk8
