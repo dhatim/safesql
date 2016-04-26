@@ -111,8 +111,8 @@ public class SafeSqlBuilder implements SafeSqlizable {
     
     /**
      * write a string literal by escaping 
-     * @param s
-     * @return
+     * @param s Append this string as literal string in SQL code
+     * @return a reference to this object.
      */
     public SafeSqlBuilder appendStringLiteral(String s) {
         sqlBuilder.append(SafeSqlUtils.escapeString(s));

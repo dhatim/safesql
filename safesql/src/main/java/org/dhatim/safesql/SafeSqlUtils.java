@@ -66,6 +66,7 @@ public final class SafeSqlUtils {
     
     /**
      * Creates a new {@link SafeSql} that contains a literal version of the given <code>SafeSql</code>.
+     * @param sql {@code SafeSql} that will be converted with no parameters
      * @return a literalized version of the given SafeSql
      */
     public static SafeSql literalize(SafeSql sql) {
@@ -85,11 +86,10 @@ public final class SafeSqlUtils {
     }
     
     /**
-     * Returns a formatted sql string using the specified arguments.
+     * Appends to a {@code SafeSqlBuilder} a formatted sql string using the specified arguments.
      * @param builder {@code SafeSqlBuilder} where is appened the formatted sql
      * @param sql string query with some <code>{}</code> argument place. The argument can have a number inside to force a argument index (start at 1). The escape sequence is <code>{{.*}}</code>.
      * @param arguments arguments list
-     * @return <code>SafeSql</code> with parameters
      */
     public static void format(SafeSqlBuilder builder, String sql, Object... arguments) {
         Matcher matcher = PATTERN.matcher(sql);
