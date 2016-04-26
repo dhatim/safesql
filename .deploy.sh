@@ -17,4 +17,4 @@ else
 		fi
 fi
 
-mvn -B deploy --settings maven_deploy_settings.xml -Dmaven.test.skip=true -Dfindbugs.skip=true
+mvn -B deploy --settings maven_deploy_settings.xml -DskipTests=true -Dfindbugs.skip=true -Djacoco.skip=true
