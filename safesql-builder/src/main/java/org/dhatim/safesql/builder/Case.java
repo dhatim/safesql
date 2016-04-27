@@ -49,7 +49,7 @@ public abstract class Case<T extends SafeSqlizable> implements Operand {
 
     }
     
-    private ArrayList<When<T>> whens = new ArrayList<>();
+    private final ArrayList<When<T>> whens = new ArrayList<>();
     private Operand elseOperand;
 
     private Case() {

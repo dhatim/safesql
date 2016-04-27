@@ -178,6 +178,7 @@ public final class SafeSqlUtils {
                 break;
             default:
                 sb.append(token);
+                break;
             }
         }
         return sb.toString();

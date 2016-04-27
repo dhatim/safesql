@@ -10,15 +10,15 @@ public class BetweenCondition extends AbstractCondition<Operand, RelationalOpera
     
     @Override
     public Condition negate() {
-        return new BetweenCondition(getLeft(), getOperator() == RelationalOperator.NOT_BETWEEN, getRight().low, getRight().high);
+        return new BetweenCondition(getLeft(), getOperator() == RelationalOperator.NOT_BETWEEN, getRight().getLow(), getRight().getHigh());
     }
 
 }
 
 class LowHighOperand implements Operand {
 
-    final Operand low;
-    final Operand high;
+    private final Operand low;
+    private final Operand high;
     
     public LowHighOperand(Operand low, Operand high) {
         this.low = low;
@@ -28,6 +28,14 @@ class LowHighOperand implements Operand {
     @Override
     public void appendTo(SafeSqlBuilder builder) {
         builder.append(low).appendConstant(" AND ").append(high);
+    }
+    
+    public Operand getHigh() {
+        return high;
+    }
+    
+    public Operand getLow() {
+        return low;
     }
     
 }

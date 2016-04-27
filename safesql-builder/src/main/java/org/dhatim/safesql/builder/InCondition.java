@@ -11,14 +11,14 @@ public class InCondition extends AbstractCondition<Operand, RelationalOperator, 
     
     @Override
     public Condition negate() {
-        return new InCondition(getLeft(), getOperator() == RelationalOperator.IN, getRight().elements);
+        return new InCondition(getLeft(), getOperator() == RelationalOperator.IN, getRight().getElements());
     }
     
 }
 
 class Values implements Operand {
 
-    final Operand[] elements;
+    private final Operand[] elements;
 
     public Values(Operand[] elements) {
         this.elements = elements.clone();
@@ -27,6 +27,10 @@ class Values implements Operand {
     @Override
     public void appendTo(SafeSqlBuilder builder) {
         builder.appendConstant("(").appendJoined(", ", Arrays.asList(elements)).appendConstant(")");
+    }
+    
+    public Operand[] getElements() {
+        return elements;
     }
 
 }
