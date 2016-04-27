@@ -19,7 +19,7 @@ public class BooleanColumn extends Column implements Condition {
     @Override
     public SafeSql toSafeSql() {
         if (not) {
-            return new SafeSqlBuilder().appendConstant("NOT ").append(super.toSafeSql()).toSafeSql();
+            return new SafeSqlBuilder().append("NOT ").append(super.toSafeSql()).toSafeSql();
         } else {
             return super.toSafeSql();
         }

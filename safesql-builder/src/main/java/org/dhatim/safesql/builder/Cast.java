@@ -15,8 +15,8 @@ public class Cast implements Operand {
     @Override
     public void appendTo(SafeSqlBuilder builder) {
         builder.append(operand)
-                .appendConstant("::")
-                .appendConstant(sqlType);
+                .append("::")
+                .append(sqlType);
     }
 
     public Operand getOperand() {

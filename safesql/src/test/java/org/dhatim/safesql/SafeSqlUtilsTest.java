@@ -15,9 +15,9 @@ public class SafeSqlUtilsTest {
         
         public CustomSafeSql(String start, Object value, String end) {
             sql = new SafeSqlBuilder()
-                    .appendConstant(start)
-                    .append(value)
-                    .appendConstant(end)
+                    .append(start)
+                    .param(value)
+                    .append(end)
                     .toSafeSql();
         }
         

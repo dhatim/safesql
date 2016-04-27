@@ -28,13 +28,13 @@ public class Compute implements Operand {
     
     @Override
     public void appendTo(SafeSqlBuilder builder) {
-        builder.appendConstant("(")
+        builder.append("(")
             .append(left)
-            .appendConstant(" ")
+            .append(" ")
             .append(operator)
-            .appendConstant(" ")
+            .append(" ")
             .append(right)
-            .appendConstant(")");
+            .append(")");
     }
     
     public static Compute add(Operand op1, Operand op2) {

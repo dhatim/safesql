@@ -27,7 +27,7 @@ class LowHighOperand implements Operand {
     
     @Override
     public void appendTo(SafeSqlBuilder builder) {
-        builder.append(low).appendConstant(" AND ").append(high);
+        builder.append(low).append(" AND ").append(high);
     }
     
     public Operand getHigh() {

@@ -25,7 +25,7 @@ public class NamedOperand implements Operand {
     public SafeSql toSafeSql() {
         return new SafeSqlBuilder()
                 .append(operand)
-                .appendConstant(" AS ")
+                .append(" AS ")
                 .append(alias)
                 .toSafeSql();
     }
@@ -33,7 +33,7 @@ public class NamedOperand implements Operand {
     @Override
     public void appendTo(SafeSqlBuilder builder) {
         builder.append(operand)
-                .appendConstant(" AS ")
+                .append(" AS ")
                 .append(alias);
     }
 

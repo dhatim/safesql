@@ -19,7 +19,7 @@ public class SafeSqlTest {
     
     @Test
     public void testAsString() {
-        SafeSql sql = new SafeSqlBuilder().appendConstant("SELECT abc, ").append(42).appendConstant(" FROM mytable").toSafeSql();
+        SafeSql sql = new SafeSqlBuilder().append("SELECT abc, ").param(42).append(" FROM mytable").toSafeSql();
         assertThat(sql, safesql(is("SELECT abc, ? FROM mytable"), Matchers.<Object>arrayContaining(42)));
         assertThat(sql.asString(), is("SELECT abc, 42 FROM mytable"));
     }

@@ -15,7 +15,7 @@ public class Column implements Operand {
         
         @Override
         public void appendTo(SafeSqlBuilder builder) {
-            builder.appendConstant("DISTINCT ").append(operand);
+            builder.append("DISTINCT ").append(operand);
         }
         
     }
@@ -46,7 +46,7 @@ public class Column implements Operand {
     @Override
     public void appendTo(SafeSqlBuilder builder) {
         if (alias != null) {
-            builder.append(alias).appendConstant(".");
+            builder.append(alias).append(".");
         }
         builder.appendIdentifier(name);
     }

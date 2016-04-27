@@ -31,9 +31,9 @@ public class Window implements SafeSqlizable {
 
     @Override
     public void appendTo(SafeSqlBuilder builder) {
-        builder.appendConstant("(PARTITION BY ")
+        builder.append("(PARTITION BY ")
                 .appendJoined(", ", partition)
-                .appendConstant(')');
+                .append(')');
     }
     
 }

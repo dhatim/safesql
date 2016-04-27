@@ -29,7 +29,7 @@ public enum ComparisonOperator implements ConditionalOperator {
     
     @Override
     public void appendTo(SafeSqlBuilder builder) {
-        builder.appendConstant(sql);
+        builder.append(sql);
     }
 
     @Override

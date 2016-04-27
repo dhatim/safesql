@@ -34,22 +34,22 @@ public class Jointure extends AbstractHasJointure implements WhereClause, SafeSq
 
     @Override
     public void appendTo(SafeSqlBuilder sb) {
-        sb.append(type).appendConstant(" ");
+        sb.append(type).append(" ");
         if (hasJointures()) {
-            sb.appendConstant("(");
+            sb.append("(");
         }
         if (schema != null) {
-            sb.appendConstant(schema).appendConstant(".");
+            sb.append(schema).append(".");
         }
         sb.appendIdentifier(tableName);
         if (alias != null) {
-            sb.appendConstant(" ").append(alias);
+            sb.append(" ").append(alias);
         }
         List<Jointure> jointures = getJointures();
         if (!jointures.isEmpty()) {
-            sb.appendConstant(" ").appendJoined(" ", jointures).appendConstant(")");
+            sb.append(" ").appendJoined(" ", jointures).append(")");
         }
-        sb.appendConstant(" ON ");
+        sb.append(" ON ");
         if (!conditions.isEmpty()) {
             sb.appendJoined(" AND ", conditions);
         }

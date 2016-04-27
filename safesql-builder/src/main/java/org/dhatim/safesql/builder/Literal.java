@@ -9,7 +9,7 @@ public class Literal implements Operand {
     private static final Literal NULL_LITERAL = new Literal(null) {
         @Override
         public void appendTo(SafeSqlBuilder builder) {
-            builder.appendConstant("NULL");
+            builder.append("NULL");
         }
         
         @Override

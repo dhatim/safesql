@@ -19,7 +19,7 @@ public class Value implements Operand {
     
     @Override
     public void appendTo(SafeSqlBuilder builder) {
-        builder.append(data);
+        builder.param(data);
     }
 
     public Object value() {

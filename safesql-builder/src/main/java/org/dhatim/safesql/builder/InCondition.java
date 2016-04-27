@@ -26,7 +26,7 @@ class Values implements Operand {
     
     @Override
     public void appendTo(SafeSqlBuilder builder) {
-        builder.appendConstant("(").appendJoined(", ", Arrays.asList(elements)).appendConstant(")");
+        builder.append("(").appendJoined(", ", Arrays.asList(elements)).append(")");
     }
     
     public Operand[] getElements() {

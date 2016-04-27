@@ -1,5 +1,6 @@
 package org.dhatim.safesql;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,24 +24,41 @@ public class SafeSqlBuilder implements SafeSqlizable {
     private final StringBuilder sqlBuilder = new StringBuilder();
     private final List<Object> parameters = new ArrayList<>();
     
-    // TODO rename to param
-    public SafeSqlBuilder append(int num) {
-        appendObject(num);
-        return this;
-    }
-
-    // TODO rename to param
-    public SafeSqlBuilder append(double num) {
+    public SafeSqlBuilder param(int num) {
         appendObject(num);
         return this;
     }
     
-    // TODO rename to param
-    public SafeSqlBuilder append(Object obj) {
-        appendObject(obj);
+    public SafeSqlBuilder param(long num) {
+        appendObject(num);
         return this;
     }
 
+    public SafeSqlBuilder param(double num) {
+        appendObject(num);
+        return this;
+    }
+    
+    public SafeSqlBuilder param(boolean bool) {
+        appendObject(bool);
+        return this;
+    }
+    
+    public SafeSqlBuilder param(String s) {
+        appendObject(s);
+        return this;
+    }
+    
+    public SafeSqlBuilder param(BigDecimal num) {
+        appendObject(num);
+        return this;
+    }
+    
+    public SafeSqlBuilder param(Object obj) {
+        appendObject(obj);
+        return this;
+    }
+    
     public SafeSqlBuilder append(SafeSql sql) {
         sqlBuilder.append(sql.asSql());
         parameters.addAll(Arrays.asList(sql.getParameters()));
@@ -91,20 +109,12 @@ public class SafeSqlBuilder implements SafeSqlizable {
         return this;
     }
 
-    // TODO rename to param
-    public SafeSqlBuilder appendEscaped(String s) {
-        appendObject(s);
-        return this;
-    }
-
-    // TODO rename to append
-    public SafeSqlBuilder appendConstant(String s) {
+    public SafeSqlBuilder append(String s) {
         sqlBuilder.append(s);
         return this;
     }
     
-    // TODO rename to append
-    public SafeSqlBuilder appendConstant(char ch) {
+    public SafeSqlBuilder append(char ch) {
         sqlBuilder.append(ch);
         return this;
     }
@@ -136,7 +146,8 @@ public class SafeSqlBuilder implements SafeSqlizable {
     
     @Override
     public void appendTo(SafeSqlBuilder builder) {
-        builder.append(toSafeSql());
+        builder.parameters.addAll(parameters);
+        builder.sqlBuilder.append(sqlBuilder);
     }
 
     private void appendObject(Object o) {

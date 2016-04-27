@@ -25,7 +25,7 @@ public enum JointureType implements SafeSqlizable {
     
     @Override
     public void appendTo(SafeSqlBuilder builder) {
-        builder.appendConstant(sql);
+        builder.append(sql);
     }
     
 }

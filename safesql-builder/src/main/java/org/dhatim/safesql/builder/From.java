@@ -20,7 +20,7 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
         @Override
         protected void render(SafeSqlBuilder sb) {
             if (schema != null) {
-                sb.appendConstant(schema).appendConstant(".");
+                sb.append(schema).append(".");
             }
             sb.appendIdentifier(tableName);
         }
@@ -38,9 +38,9 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
         
         @Override
         protected void render(SafeSqlBuilder sb) {
-            sb.appendConstant('(');
+            sb.append('(');
             sb.append(query);
-            sb.appendConstant(')');
+            sb.append(')');
         }
         
     }
@@ -61,11 +61,11 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
     public void appendTo(SafeSqlBuilder builder) {
         render(builder);
         if (alias != null) {
-            builder.appendConstant(" ").append(alias);
+            builder.append(" ").append(alias);
         }
         List<Jointure> jointures = getJointures();
         if (!jointures.isEmpty()) {
-            builder.appendConstant(" ").appendJoined(" ", jointures);
+            builder.append(" ").appendJoined(" ", jointures);
         }
     }
     

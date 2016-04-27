@@ -27,7 +27,7 @@ public abstract class Case<T extends SafeSqlizable> implements Operand {
 
         @Override
         protected SafeSql getCaseClause() {
-            return new SafeSqlBuilder().appendConstant("CASE ").append(expression).toSafeSql();
+            return new SafeSqlBuilder().append("CASE ").append(expression).toSafeSql();
         }
         
     }
@@ -44,7 +44,7 @@ public abstract class Case<T extends SafeSqlizable> implements Operand {
         
         @Override
         public void appendTo(SafeSqlBuilder builder) {
-            builder.appendConstant("WHEN ").append(expression).appendConstant(" THEN ").append(result);
+            builder.append("WHEN ").append(expression).append(" THEN ").append(result);
         }
 
     }
@@ -67,12 +67,12 @@ public abstract class Case<T extends SafeSqlizable> implements Operand {
     
     @Override
     public void appendTo(SafeSqlBuilder builder) {
-        builder.append(getCaseClause()).appendConstant(" ");
-        builder.appendJoined(" ", whens).appendConstant(" ");
+        builder.append(getCaseClause()).append(" ");
+        builder.appendJoined(" ", whens).append(" ");
         if (elseOperand != null) {
-            builder.appendConstant("ELSE ").append(elseOperand).appendConstant(" ");
+            builder.append("ELSE ").append(elseOperand).append(" ");
         }
-        builder.appendConstant("END");
+        builder.append("END");
     }
     
     public static ConditionalCase create(Condition condition, Operand result) {

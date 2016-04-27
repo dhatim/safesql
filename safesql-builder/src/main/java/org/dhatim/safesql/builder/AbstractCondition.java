@@ -19,9 +19,9 @@ public abstract class AbstractCondition<L extends Operand, O extends Conditional
     public void appendTo(SafeSqlBuilder builder) {
         //.appendConstant("(")
         builder.append(left)
-        .appendConstant(" ")
+        .append(" ")
         .append(operator)
-        .appendConstant(" ")
+        .append(" ")
         .append(right);
         //.appendConstant(")")
     }

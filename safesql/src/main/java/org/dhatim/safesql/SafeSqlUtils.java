@@ -99,19 +99,19 @@ public final class SafeSqlUtils {
             String before = sql.substring(lastIndex, matcher.start());
             String parameter = matcher.group(1);
             lastIndex = matcher.end();
-            builder.appendConstant(before);
+            builder.append(before);
             if (parameter.isEmpty()) {
-                builder.append(arguments[argIndex++]);
+                builder.param(arguments[argIndex++]);
             } else if (parameter.startsWith("{")) {
-                builder.appendConstant(parameter);
+                builder.append(parameter);
             } else {
                 int customArgIndex = Integer.parseInt(parameter);
-                builder.append(arguments[customArgIndex - 1]);
+                builder.param(arguments[customArgIndex - 1]);
             }
         }
         String lastPart = sql.substring(lastIndex);
         if (!lastPart.isEmpty()) {
-            builder.appendConstant(lastPart);
+            builder.append(lastPart);
         }
     }
     
