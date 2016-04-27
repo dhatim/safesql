@@ -66,7 +66,7 @@ public class SafeSqlBuilder implements SafeSqlizable {
     }
     
     public SafeSqlBuilder appendFormatted(String sql, Object... args) {
-        SafeSqlUtils.format(this, sql, args);
+        SafeSqlUtils.formatTo(this, sql, args);
         return this;
     }
     
@@ -116,6 +116,11 @@ public class SafeSqlBuilder implements SafeSqlizable {
     
     public SafeSqlBuilder append(char ch) {
         sqlBuilder.append(ch);
+        return this;
+    }
+    
+    public SafeSqlBuilder append(int i) {
+        sqlBuilder.append(i);
         return this;
     }
     

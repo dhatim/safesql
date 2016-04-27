@@ -83,7 +83,7 @@ public final class SafeSqlUtils {
      */
     public static SafeSql format(String sql, Object... arguments) {
         SafeSqlBuilder sb = new SafeSqlBuilder();
-        format(sb, sql, arguments);
+        formatTo(sb, sql, arguments);
         return sb.toSafeSql();
     }
     
@@ -93,7 +93,7 @@ public final class SafeSqlUtils {
      * @param sql string query with some <code>{}</code> argument place. The argument can have a number inside to force a argument index (start at 1). The escape sequence is <code>{{.*}}</code>.
      * @param arguments arguments list
      */
-    public static void format(SafeSqlBuilder builder, String sql, Object... arguments) {
+    public static void formatTo(SafeSqlBuilder builder, String sql, Object... arguments) {
         Matcher matcher = PATTERN.matcher(sql);
         int lastIndex = 0;
         int argIndex = 0;
