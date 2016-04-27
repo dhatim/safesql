@@ -125,7 +125,7 @@ public class SafeSqlBuilder implements SafeSqlizable {
      * @return a reference to this object.
      */
     public SafeSqlBuilder appendStringLiteral(String s) {
-        sqlBuilder.append(SafeSqlUtils.escapeString(s));
+        SafeSqlUtils.appendEscapedString(sqlBuilder, s);
         return this;
     }
 

@@ -7,20 +7,20 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.OffsetTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.xml.bind.DatatypeConverter;
 
 public final class SafeSqlUtils {
     
     private static final DateTimeFormatter TIMESTAMP_FORMATTER_WITH_TZ = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSX");
     private static final DateTimeFormatter TIMESTAMP_FORMATTER_WITHOUT_TZ = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-    private static final DateTimeFormatter TIME_FORMATTER_WITH_TZ = DateTimeFormatter.ofPattern("HH:mm:ss.SSSX");
+    //private static final DateTimeFormatter TIME_FORMATTER_WITH_TZ = DateTimeFormatter.ofPattern("HH:mm:ss.SSSX");
     private static final DateTimeFormatter TIME_FORMATTER_WITHOUT_TZ = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     
@@ -41,6 +41,8 @@ public final class SafeSqlUtils {
     public static final SafeSql EMPTY = new SafeSqlImpl("", EMPTY_PARAMETERS);
     
     private static Pattern PATTERN = Pattern.compile("(?:\\{((?:\\d+|\\{(?:.*)\\})?)\\})");
+    
+    private static final char[] HEX_CODE = "0123456789ABCDEF".toCharArray();
     
     private SafeSqlUtils() {
     }
@@ -131,12 +133,17 @@ public final class SafeSqlUtils {
         return IDENTIFIER_QUOTE_CHAR + identifier.replace(IDENTIFIER_QUOTE, ESCAPED_IDENTIFIER_QUOTE) + IDENTIFIER_QUOTE_CHAR;
     }
     
-    static String escapeString(String string) {
-        return STRING_QUOTE_CHAR + string.replace(STRING_QUOTE, ESCAPED_STRING_QUOTE) + STRING_QUOTE_CHAR;
+    static void appendEscapedString(StringBuilder sb, String string) {
+        sb.append(STRING_QUOTE_CHAR).append(string.replace(STRING_QUOTE, ESCAPED_STRING_QUOTE)).append(STRING_QUOTE_CHAR);
     }
     
-    static String escapeByteArray(byte[] array) {
-        return "'\\x" + DatatypeConverter.printHexBinary(array) + "'";
+    static void appendEscapedByteArray(StringBuilder sb, byte[] array) {
+        sb.append("'\\x");
+        for (byte b : array) {
+            sb.append(HEX_CODE[(b >> 4) & 0xF]);
+            sb.append(HEX_CODE[(b & 0xF)]);
+        }
+        sb.append('\'');
     }
 
     static boolean mustEscapeIdentifier(String identifier) {
@@ -174,7 +181,11 @@ public final class SafeSqlUtils {
                 sb.append(token);
                 break;
             case "?":
-                sb.append(state != STATE_0 ? token : escapeParam(parameters[index++]));
+                if (state != STATE_0) {
+                    sb.append(token);
+                } else {
+                    appendEscapedParam(sb, parameters[index++]);
+                }
                 break;
             default:
                 sb.append(token);
@@ -183,34 +194,49 @@ public final class SafeSqlUtils {
         }
         return sb.toString();
     }
-
-    private static String escapeParam(Object obj) {
+    
+    private static void appendEscapedParam(StringBuilder sb, Object obj) {
         if (obj == null) {
-            return "NULL";
+            sb.append("NULL");
         } else if (obj instanceof Boolean) {
-            return (Boolean) obj ? "TRUE" : "FALSE";
+            sb.append((Boolean) obj ? "TRUE" : "FALSE");
         } else if (obj instanceof BigDecimal) {
-            return obj.toString() + "::numeric"; 
+            sb.append(obj.toString()).append("::numeric");
         } else if (obj instanceof Number) {
-            return ((Number) obj).toString();
+            sb.append(((Number) obj).toString());
         } else if (obj instanceof Timestamp) {
-            return "TIMESTAMP " + STRING_QUOTE + TIMESTAMP_FORMATTER_WITH_TZ.format(((Timestamp) obj).toLocalDateTime()) + STRING_QUOTE; 
+            ZoneId zone = ZoneId.of("UTC");
+            sb.append("TIMESTAMP WITH TIME ZONE ").append(STRING_QUOTE);
+            TIMESTAMP_FORMATTER_WITH_TZ.formatTo(((Timestamp) obj).toLocalDateTime().atZone(zone), sb);
+            sb.append(STRING_QUOTE);
         } else if (obj instanceof Time) {
-            return "TIME " + STRING_QUOTE + TIME_FORMATTER_WITH_TZ.format(((Time) obj).toLocalTime()) + STRING_QUOTE;
+            sb.append("TIME ").append(STRING_QUOTE);
+            TIME_FORMATTER_WITHOUT_TZ.formatTo(((Time) obj).toLocalTime(), sb);
+            sb.append(STRING_QUOTE);
         } else if (obj instanceof Date) {
-            return "DATE " + STRING_QUOTE + DATE_FORMATTER.format(((Date) obj).toLocalDate()) + STRING_QUOTE;
+            sb.append("DATE ").append(STRING_QUOTE);
+            DATE_FORMATTER.formatTo(((Date) obj).toLocalDate(), sb);
+            sb.append(STRING_QUOTE);
         } else if (obj instanceof LocalDate) {
-            return "DATE " + STRING_QUOTE + DATE_FORMATTER.format((LocalDate) obj) + STRING_QUOTE;
+            sb.append("DATE ").append(STRING_QUOTE);
+            DATE_FORMATTER.formatTo((LocalDate) obj, sb);
+            sb.append(STRING_QUOTE);
         } else if (obj instanceof LocalTime) {
-            return "TIME " + STRING_QUOTE + TIME_FORMATTER_WITHOUT_TZ.format((LocalTime) obj) + STRING_QUOTE;
+            sb.append("TIME ").append(STRING_QUOTE);
+            TIME_FORMATTER_WITHOUT_TZ.formatTo((LocalTime) obj, sb);
+            sb.append(STRING_QUOTE);
         } else if (obj instanceof LocalDateTime) {
-            return "TIMESTAMP " + STRING_QUOTE + TIMESTAMP_FORMATTER_WITHOUT_TZ.format((LocalDateTime) obj) + STRING_QUOTE;
-        } else if (obj instanceof OffsetTime) {
-            return "TIMESTAMP " + STRING_QUOTE + TIMESTAMP_FORMATTER_WITH_TZ.format((OffsetTime) obj) + STRING_QUOTE;
+            sb.append("TIMESTAMP ").append(STRING_QUOTE);
+            TIMESTAMP_FORMATTER_WITHOUT_TZ.formatTo((LocalDateTime) obj, sb);
+            sb.append(STRING_QUOTE);
+        } else if (obj instanceof OffsetDateTime) {
+            sb.append("TIMESTAMP WITH TIME ZONE ").append(STRING_QUOTE);
+            TIMESTAMP_FORMATTER_WITH_TZ.formatTo((OffsetDateTime) obj, sb);
+            sb.append(STRING_QUOTE);
         } else if (obj instanceof byte[]) {
-            return escapeByteArray((byte[]) obj);
+            appendEscapedByteArray(sb, (byte[]) obj);
         } else {
-            return escapeString(obj.toString());
+            appendEscapedString(sb, obj.toString());
         }
     }
 
