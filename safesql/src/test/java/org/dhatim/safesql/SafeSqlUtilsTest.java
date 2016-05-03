@@ -10,8 +10,8 @@ public class SafeSqlUtilsTest {
 
     @Test
     public void testFromConstant() {
-        assertThat(SafeSqlUtils.fromConstant("select")).hasSql("select").hasEmptyParamters();
-        assertThat(SafeSqlUtils.fromConstant("")).hasEmptySql().hasEmptyParamters();
+        assertThat(SafeSqlUtils.fromConstant("select")).hasSql("select").hasEmptyParameters();
+        assertThat(SafeSqlUtils.fromConstant("")).hasEmptySql().hasEmptyParameters();
     }
     
     @Test
@@ -23,7 +23,7 @@ public class SafeSqlUtilsTest {
     public void testFromIdentifier() {
         assertThat(SafeSqlUtils.fromIdentifier("file")).as("Without upper letter").hasSql("file");
         assertThat(SafeSqlUtils.fromIdentifier("S21.G00.23")).as("With upper letter").hasSql("\"S21.G00.23\"");
-        assertThat(SafeSqlUtils.fromIdentifier("file")).hasEmptyParamters();
+        assertThat(SafeSqlUtils.fromIdentifier("file")).hasEmptyParameters();
     }
     
     @Test
@@ -57,7 +57,7 @@ public class SafeSqlUtilsTest {
     public void testLiteralize() {
         assertThat(SafeSqlUtils.literalize(safesql("SELECT * FORM table WHERE column = {}", "Hello the world")))
                 .hasSql("SELECT * FORM table WHERE column = 'Hello the world'")
-                .hasEmptyParamters();
+                .hasEmptyParameters();
     }
     
     @Test

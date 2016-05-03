@@ -24,7 +24,7 @@ public class SafeSqlBuilderTest {
     public void testAppendConstant() {
         assertThat(new SafeSqlBuilder().append("SELECT").append(" * ").append("FROM table").toSafeSql())
                 .hasSql("SELECT * FROM table")
-                .hasEmptyParamters();
+                .hasEmptyParameters();
     }
     
     @Test
@@ -45,11 +45,11 @@ public class SafeSqlBuilderTest {
     public void testAppendIdentifier() {
         assertThat(new SafeSqlBuilder().append("SELECT ").appendIdentifier("S21.G00.32.001").toSafeSql())
                 .hasSql("SELECT \"S21.G00.32.001\"")
-                .hasEmptyParamters();
+                .hasEmptyParameters();
         
         assertThat(new SafeSqlBuilder().append("SELECT ").appendIdentifier("hello").toSafeSql())
                 .hasSql("SELECT hello")
-                .hasEmptyParamters();
+                .hasEmptyParameters();
     }
     
     @Test
@@ -64,7 +64,7 @@ public class SafeSqlBuilderTest {
         assertThat(new SafeSqlBuilder().append("SELECT").append(SafeSqlUtils.fromConstant(" * FROM table")).toSafeSql())
                 .as("Without parameters")
                 .hasSql("SELECT * FROM table")
-                .hasEmptyParamters();
+                .hasEmptyParameters();
         
         assertThat(new SafeSqlBuilder().append("SELECT ").append(SafeSqlUtils.escape("Hello the world")).toSafeSql())
                 .as("With parameters")
@@ -91,7 +91,7 @@ public class SafeSqlBuilderTest {
                 .hasParameters(5);
         assertThat(new SafeSqlBuilder().appendJoined(", ", Arrays.asList()).toSafeSql())
                 .hasEmptySql()
-                .hasEmptyParamters();
+                .hasEmptyParameters();
     }
     
 }

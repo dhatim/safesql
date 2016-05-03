@@ -3,12 +3,9 @@ package org.dhatim.safesql.assertion;
 import java.util.Arrays;
 import java.util.Objects;
 import org.assertj.core.api.AbstractAssert;
-import org.assertj.core.internal.ObjectArrays;
 import org.dhatim.safesql.SafeSql;
 
 public class SafeSqlAssert extends AbstractAssert<SafeSqlAssert, SafeSql> {
-
-    //private final ObjectArrays arrays = ObjectArrays.instance();
 
     public SafeSqlAssert hasLiteralizedSql(String sql) {
         isNotNull();
@@ -65,7 +62,7 @@ public class SafeSqlAssert extends AbstractAssert<SafeSqlAssert, SafeSql> {
         return myself;
     }
     
-    public SafeSqlAssert hasEmptyParamters() {
+    public SafeSqlAssert hasEmptyParameters() {
         isNotNull();
         int actualSize = actual.getParameters().length;
         if (actualSize != 0) {
