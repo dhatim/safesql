@@ -1,12 +1,7 @@
 package org.dhatim.safesql;
 
+import org.dhatim.safesql.assertion.Assertions;
 import org.junit.Test;
-
-import static org.dhatim.safesql.fixtures.IsSafeSql.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-
-import org.hamcrest.Matchers;
 
 public class SafeSqlRewriterTest {
     
@@ -26,7 +21,9 @@ public class SafeSqlRewriterTest {
         
         SafeSql newSql = rewriter.write(sql);
         
-        assertThat(newSql, safesql(is("SELECT * FROM table WHERE \"FILE\" = (NULL) AND name = ?"), Matchers.<Object>arrayContaining("Hello")));
+        Assertions.assertThat(newSql)
+                .hasSql("SELECT * FROM table WHERE \"FILE\" = (NULL) AND name = ?")
+                .hasParameters("Hello");
     }
 
 }
