@@ -20,6 +20,8 @@ public class SafeSqlBuilder implements SafeSqlizable {
         }
         
     }
+    
+    private static final char[] HEX_CODE = "0123456789ABCDEF".toCharArray();
 
     private final StringBuilder sqlBuilder = new StringBuilder();
     private final List<Object> parameters = new ArrayList<>();
@@ -41,11 +43,6 @@ public class SafeSqlBuilder implements SafeSqlizable {
     
     public SafeSqlBuilder param(boolean bool) {
         appendObject(bool);
-        return this;
-    }
-    
-    public SafeSqlBuilder param(String s) {
-        appendObject(s);
         return this;
     }
     
@@ -130,7 +127,22 @@ public class SafeSqlBuilder implements SafeSqlizable {
      * @return a reference to this object.
      */
     public SafeSqlBuilder appendStringLiteral(String s) {
-        SafeSqlUtils.appendEscapedString(sqlBuilder, s);
+        sqlBuilder.append(SafeSqlUtils.escapeString(s));
+        return this;
+    }
+    
+    /**
+     * Write a byte array as literal in PostgreSQL
+     * @param bytes bytes to write as literal
+     * @return a reference to this object.
+     */
+    public SafeSqlBuilder appendBytesLiteral(byte[] bytes) {
+        sqlBuilder.append("'\\x");
+        for (byte b : bytes) {
+            sqlBuilder.append(HEX_CODE[(b >> 4) & 0xF]);
+            sqlBuilder.append(HEX_CODE[(b & 0xF)]);
+        }
+        sqlBuilder.append('\'');
         return this;
     }
 
