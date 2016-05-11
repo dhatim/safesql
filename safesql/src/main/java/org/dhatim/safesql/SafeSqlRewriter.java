@@ -4,7 +4,7 @@ import java.util.StringTokenizer;
 
 public class SafeSqlRewriter {
     
-    interface ParameterWriter {
+    public interface ParameterWriter {
         void writeTo(SafeSqlBuilder sb, Object oldParameter);
     }
     
