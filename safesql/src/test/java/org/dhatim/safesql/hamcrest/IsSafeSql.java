@@ -1,4 +1,4 @@
-package org.dhatim.safesql.fixtures;
+package org.dhatim.safesql.hamcrest;
 
 import java.util.Arrays;
 import org.dhatim.safesql.SafeSql;
