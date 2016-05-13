@@ -22,6 +22,8 @@ public class SafeSqlBuilder implements SafeSqlizable {
     }
     
     private static final char[] HEX_CODE = "0123456789ABCDEF".toCharArray();
+    
+    private static final SafeSql DEFAULT_SEPARATOR = SafeSqlUtils.fromConstant(", ");
 
     private final StringBuilder sqlBuilder = new StringBuilder();
     private final List<Object> parameters = new ArrayList<>();
@@ -56,6 +58,77 @@ public class SafeSqlBuilder implements SafeSqlizable {
         return this;
     }
     
+    public SafeSqlBuilder params(Object... parameters) {
+        switch (parameters.length) {
+            case 0: break; // Do nothing 
+            case 1: param(parameters[0]); break;
+            case 2: params(parameters[0], parameters[1]); break;
+            case 3: params(parameters[0], parameters[1], parameters[2]);
+            default: params(DEFAULT_SEPARATOR, Arrays.stream(parameters));
+        }
+        return this;
+    }
+    
+    public SafeSqlBuilder params(Object param1, Object param2) {
+        appendObject(param1);
+        append(DEFAULT_SEPARATOR);
+        appendObject(param2);
+        return this;
+    }
+    
+    public SafeSqlBuilder params(Object param1, Object param2, Object param3) {
+        appendObject(param1);
+        append(DEFAULT_SEPARATOR);
+        appendObject(param2);
+        append(DEFAULT_SEPARATOR);
+        appendObject(param3);
+        return this;
+    }
+    
+    public SafeSqlBuilder params(Collection<?> collection) {
+        return params(DEFAULT_SEPARATOR, collection.stream());
+    }
+    
+    public SafeSqlBuilder params(Stream<?> stream) {
+        return params(DEFAULT_SEPARATOR, stream);
+    }
+    
+    public SafeSqlBuilder params(String delimiter, Collection<?> collection) {
+        return params(SafeSqlUtils.fromConstant(delimiter), collection.stream());
+    }
+    
+    public SafeSqlBuilder params(String delimiter, String prefix, String suffix, Collection<?> collection) {
+        return params(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.fromConstant(prefix), SafeSqlUtils.fromConstant(suffix), collection.stream());
+    }
+    
+    public SafeSqlBuilder params(String delimiter, Stream<?> stream) {
+        return params(SafeSqlUtils.fromConstant(delimiter), stream);
+    }
+    
+    public SafeSqlBuilder params(String delimiter, String prefix, String suffix, Stream<?> stream) {
+        return params(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.fromConstant(prefix), SafeSqlUtils.fromConstant(suffix), stream);
+    }
+    
+    public SafeSqlBuilder params(SafeSql delimiter, Collection<?> collection) {
+        return params(delimiter, collection.stream());
+    }
+    
+    public SafeSqlBuilder params(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Collection<?> collection) {
+        return params(delimiter, prefix, suffix, collection.stream());
+    }
+    
+    public SafeSqlBuilder params(SafeSql delimiter, Stream<?> stream) {
+        SafeSqlJoiner joiner = stream.collect(() -> new SafeSqlJoiner(delimiter), SafeSqlJoiner::addParameter, SafeSqlJoiner::merge);
+        joiner.appendTo(this);
+        return this;
+    }
+    
+    public SafeSqlBuilder params(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Stream<?> stream) {
+        SafeSqlJoiner joiner = stream.collect(() -> new SafeSqlJoiner(delimiter, prefix, suffix), SafeSqlJoiner::addParameter, SafeSqlJoiner::merge);
+        joiner.appendTo(this);
+        return this;
+    }
+    
     public SafeSqlBuilder append(SafeSql sql) {
         sqlBuilder.append(sql.asSql());
         parameters.addAll(Arrays.asList(sql.getParameters()));
@@ -68,7 +141,7 @@ public class SafeSqlBuilder implements SafeSqlizable {
     }
     
     public SafeSqlBuilder appendJoined(String delimiter, Collection<? extends SafeSqlizable> collection) {
-        return appendJoined(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, collection.stream());
+        return appendJoined(SafeSqlUtils.fromConstant(delimiter), collection.stream());
     }
     
     public SafeSqlBuilder appendJoined(String delimiter, String prefix, String suffix, Collection<? extends SafeSqlizable> collection) {
@@ -76,7 +149,7 @@ public class SafeSqlBuilder implements SafeSqlizable {
     }
     
     public SafeSqlBuilder appendJoined(String delimiter, Stream<? extends SafeSqlizable> stream) {
-        return appendJoined(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, stream);
+        return appendJoined(SafeSqlUtils.fromConstant(delimiter), stream);
     }
 
     public SafeSqlBuilder appendJoined(String delimiter, String prefix, String suffix, Stream<? extends SafeSqlizable> stream) {
@@ -84,7 +157,7 @@ public class SafeSqlBuilder implements SafeSqlizable {
     }
     
     public SafeSqlBuilder appendJoined(SafeSql delimiter, Collection<? extends SafeSqlizable> collection) {
-        return appendJoined(delimiter, SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, collection.stream());
+        return appendJoined(delimiter, collection.stream());
     }
     
     public SafeSqlBuilder appendJoined(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Collection<? extends SafeSqlizable> collection) {
@@ -92,7 +165,9 @@ public class SafeSqlBuilder implements SafeSqlizable {
     }
     
     public SafeSqlBuilder appendJoined(SafeSql delimiter, Stream<? extends SafeSqlizable> stream) {
-        return appendJoined(delimiter, SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, stream);
+        SafeSqlJoiner joiner = stream.collect(() -> new SafeSqlJoiner(delimiter), SafeSqlJoiner::add, SafeSqlJoiner::merge);
+        joiner.appendTo(this);
+        return this;
     }
     
     public SafeSqlBuilder appendJoined(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Stream<? extends SafeSqlizable> stream) {
@@ -100,7 +175,7 @@ public class SafeSqlBuilder implements SafeSqlizable {
         joiner.appendTo(this);
         return this;
     }
-
+    
     public SafeSqlBuilder append(SafeSqlizable sqlizable) {
         sqlizable.appendTo(this);
         return this;

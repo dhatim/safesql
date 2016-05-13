@@ -41,6 +41,11 @@ public class SafeSqlJoiner implements SafeSqlizable {
         return this;
     }
     
+    public SafeSqlJoiner addParameter(Object newParameter) {
+        prepareBuilder().param(newParameter);
+        return this;
+    }
+    
     public SafeSqlJoiner merge(SafeSqlJoiner other) {
         Objects.requireNonNull(other);
         if (other.value != null) {
