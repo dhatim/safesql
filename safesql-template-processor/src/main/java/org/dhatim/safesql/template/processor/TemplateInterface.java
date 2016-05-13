@@ -8,12 +8,12 @@ import javax.lang.model.element.TypeElement;
 
 public class TemplateInterface {
 
-    private final PackageElement packageElement;
+    /*private final PackageElement packageElement;
     private final TypeElement type;
     private final List<Element> elements = new ArrayList<>();
     
     public TemplateInterface() {
         // TODO Auto-generated constructor stub
-    }
+    }*/
     
 }
