@@ -22,7 +22,7 @@ public class UnaryCompute implements Operand {
     
     @Override
     public void appendTo(SafeSqlBuilder builder) {
-        builder.append(operator).appendConstant("(").append(operand).appendConstant(")");
+        builder.append(operator).append("(").append(operand).append(")");
     }
 
 }

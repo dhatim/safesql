@@ -23,9 +23,9 @@ public class Call implements Operand {
 
     @Override
     public void appendTo(SafeSqlBuilder builder) {
-        builder.appendConstant(functionName).appendConstant("(");
+        builder.append(functionName).append("(");
         builder.appendJoined(", ", Arrays.asList(arguments));
-        builder.appendConstant(")");
+        builder.append(")");
     }
 
     @Override

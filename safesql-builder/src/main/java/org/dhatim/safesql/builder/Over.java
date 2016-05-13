@@ -23,7 +23,7 @@ public class Over implements Operand {
     @Override
     public void appendTo(SafeSqlBuilder sb) {
         sb.append(windowFunction);
-        sb.appendConstant(" OVER ");
+        sb.append(" OVER ");
         if (window instanceof NamedWindow) {
             sb.appendIdentifier(((NamedWindow) window).getName());
         } else {

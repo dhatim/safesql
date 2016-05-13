@@ -14,11 +14,11 @@ public class NullCondition implements Condition {
     
     @Override
     public void appendTo(SafeSqlBuilder sb) {
-        sb.append(operand).appendConstant(" IS " );
+        sb.append(operand).append(" IS " );
         if (!nullTest) {
-            sb.appendConstant("NOT ");
+            sb.append("NOT ");
         }
-        sb.appendConstant("NULL");
+        sb.append("NULL");
     }
     
     @Override

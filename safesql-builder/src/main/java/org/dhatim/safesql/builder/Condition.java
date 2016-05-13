@@ -30,6 +30,10 @@ public interface Condition extends SafeSqlizable {
     /**
      * Create a equals condition '='
      * 
+     * @param left left operand
+     * @param right right operand
+     * @return new equals {@code Condition}
+     * 
      * @see ComparisonOperator#EQ
      */
     public static Condition eq(Operand left, Operand right) {

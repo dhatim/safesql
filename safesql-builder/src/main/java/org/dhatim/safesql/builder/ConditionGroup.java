@@ -22,10 +22,10 @@ public class ConditionGroup implements Condition {
 
     @Override
     public void appendTo(SafeSqlBuilder builder) {
-        SafeSql spacedOperator = new SafeSqlBuilder().appendConstant(' ').append(operator).appendConstant(' ').toSafeSql();
-        builder.appendConstant("(")
+        SafeSql spacedOperator = new SafeSqlBuilder().append(' ').append(operator).append(' ').toSafeSql();
+        builder.append("(")
                 .appendJoined(spacedOperator, conditions)
-                .appendConstant(")");
+                .append(")");
     }
     
     @Override

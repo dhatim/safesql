@@ -16,9 +16,9 @@ public class Tuple implements Operand {
     
     @Override
     public void appendTo(SafeSqlBuilder builder) {
-        builder.appendConstant("(")
+        builder.append("(")
             .appendJoined(", ", operands)
-            .appendConstant(")");
+            .append(")");
     }
 
 }

@@ -1,90 +1,74 @@
 package org.dhatim.safesql;
 
-import static org.dhatim.safesql.fixtures.IsSafeSql.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.dhatim.safesql.assertion.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import org.junit.Test;
 
 public class SafeSqlUtilsTest {
 
-    private static class CustomSafeSql implements SafeSqlizable {
-        
-        private final SafeSql sql;
-        
-        public CustomSafeSql(String start, Object value, String end) {
-            sql = new SafeSqlBuilder()
-                    .appendConstant(start)
-                    .append(value)
-                    .appendConstant(end)
-                    .toSafeSql();
-        }
-        
-        @Override
-        public SafeSql toSafeSql() {
-            return sql;
-        }
-        
-        @Override
-        public void appendTo(SafeSqlBuilder builder) {
-            builder.append(sql);
-        }
-    }
-    
     @Test
     public void testFromConstant() {
-        assertThat(SafeSqlUtils.fromConstant("select"), safesql(equalTo("select"), emptyArray()));
-        assertThat(SafeSqlUtils.fromConstant(""), safesql(isEmptyString(), emptyArray()));
+        assertThat(SafeSqlUtils.fromConstant("select")).hasSql("select").hasEmptyParameters();
+        assertThat(SafeSqlUtils.fromConstant("")).hasEmptySql().hasEmptyParameters();
     }
     
     @Test
     public void testEscape() {
-        assertThat(SafeSqlUtils.escape(5), safesql(is("?"), arrayContaining(5)));
+        assertThat(SafeSqlUtils.escape(5)).hasSql("?").hasParameters(5);
     }
     
     @Test
     public void testFromIdentifier() {
-       assertThat("Without upper letter", SafeSqlUtils.fromIdentifier("file").asSql(), equalTo("file"));
-       assertThat("With upper letter", SafeSqlUtils.fromIdentifier("S21.G00.23").asSql(), equalTo("\"S21.G00.23\""));
-       assertThat(SafeSqlUtils.fromIdentifier("file").getParameters(), emptyArray());
+        assertThat(SafeSqlUtils.fromIdentifier("file")).as("Without upper letter").hasSql("file");
+        assertThat(SafeSqlUtils.fromIdentifier("S21.G00.23")).as("With upper letter").hasSql("\"S21.G00.23\"");
+        assertThat(SafeSqlUtils.fromIdentifier("file")).hasEmptyParameters();
     }
     
     @Test
     public void testEscapeIdentifier() {
-        assertThat(SafeSqlUtils.escapeIdentifier("Char string \" with double quote"), equalTo("\"Char string \"\" with double quote\""));
+        assertThat(SafeSqlUtils.escapeIdentifier("Char string \" with double quote")).isEqualTo("\"Char string \"\" with double quote\"");
     }
     
     @Test
     public void testMustEscapeIdentifier() {
-        assertThat("Upper", SafeSqlUtils.mustEscapeIdentifier("aA"), is(true));
-        assertThat("Lower", SafeSqlUtils.mustEscapeIdentifier("aa"), is(false));
-        assertThat("double quote", SafeSqlUtils.mustEscapeIdentifier("a\"a"), is(true));
+        assertThat(SafeSqlUtils.mustEscapeIdentifier("aA")).as("Upper").isTrue();
+        assertThat(SafeSqlUtils.mustEscapeIdentifier("aa")).as("Lower").isFalse();
+        assertThat(SafeSqlUtils.mustEscapeIdentifier("a\"a")).as("Double quote").isTrue();
     }
     
     @Test
     public void testToString() {
-        assertThat(SafeSqlUtils.toString(new CustomSafeSql("SELECT ", 5, " FROM table").toSafeSql()), is("SELECT 5 FROM table"));
-        assertThat(SafeSqlUtils.toString(new CustomSafeSql("SELECT ", "Cheveux d'ange", " FROM table").toSafeSql()), is("SELECT 'Cheveux d''ange' FROM table"));
-        assertThat(SafeSqlUtils.toString(new CustomSafeSql("SELECT '?', ", 5, " FROM table").toSafeSql()), is("SELECT '?', 5 FROM table"));
-        assertThat(SafeSqlUtils.toString(new CustomSafeSql("SELECT \"?\", ", 5, " FROM table").toSafeSql()), is("SELECT \"?\", 5 FROM table"));
-        assertThat(SafeSqlUtils.toString(new CustomSafeSql("SELECT \"hello\"\"world\", ", 5, " FROM table").toSafeSql()), is("SELECT \"hello\"\"world\", 5 FROM table"));
-        assertThat(SafeSqlUtils.toString(new CustomSafeSql("SELECT \"hello'world\", ", 5, " FROM table").toSafeSql()), is("SELECT \"hello'world\", 5 FROM table"));
-        assertThat(SafeSqlUtils.toString(new CustomSafeSql("SELECT 'hello\"world', ", 5, " FROM table").toSafeSql()), is("SELECT 'hello\"world', 5 FROM table"));
-        assertThat("Boolean true", SafeSqlUtils.toString(new CustomSafeSql("SELECT ", true, " FROM table").toSafeSql()), is("SELECT TRUE FROM table"));
-        assertThat("Boolean false", SafeSqlUtils.toString(new CustomSafeSql("SELECT ", false, " FROM table").toSafeSql()), is("SELECT FALSE FROM table"));
-        assertThat("BigDecimal", SafeSqlUtils.toString(new CustomSafeSql("SELECT ", new BigDecimal("0"), " FROM table").toSafeSql()), is("SELECT 0::numeric FROM table"));
+        assertThat(SafeSqlUtils.toString(safesql("SELECT {} FROM table", 5))).isEqualTo("SELECT 5 FROM table");
+        assertThat(SafeSqlUtils.toString(safesql("SELECT {} FROM table", "Cheveux d'ange"))).isEqualTo("SELECT 'Cheveux d''ange' FROM table");
+        assertThat(SafeSqlUtils.toString(safesql("SELECT '?', {} FROM table", 5))).isEqualTo("SELECT '?', 5 FROM table");
+        assertThat(SafeSqlUtils.toString(safesql("SELECT \"?\", {} FROM table", 5))).isEqualTo("SELECT \"?\", 5 FROM table");
+        assertThat(SafeSqlUtils.toString(safesql("SELECT \"hello\"\"world\", {} FROM table", 5))).isEqualTo("SELECT \"hello\"\"world\", 5 FROM table");
+        assertThat(SafeSqlUtils.toString(safesql("SELECT \"hello'world\", {} FROM table", 5))).isEqualTo("SELECT \"hello'world\", 5 FROM table");
+        assertThat(SafeSqlUtils.toString(safesql("SELECT 'hello\"world', {} FROM table", 5))).isEqualTo("SELECT 'hello\"world', 5 FROM table");
+        
+        assertThat(SafeSqlUtils.toString(safesql("SELECT {} FROM table", true))).as("Boolean true").isEqualTo("SELECT TRUE FROM table");
+        assertThat(SafeSqlUtils.toString(safesql("SELECT {} FROM table", false))).as("Boolean false").isEqualTo("SELECT FALSE FROM table");
+        assertThat(SafeSqlUtils.toString(safesql("SELECT {} FROM table", new BigDecimal("0")))).as("BigDecimal").isEqualTo("SELECT 0::numeric FROM table");
     }
     
     @Test
     public void testLiteralize() {
-        assertThat(SafeSqlUtils.literalize(new CustomSafeSql("SELECT * FORM table WHERE column = ", "Hello the world", "").toSafeSql()), 
-                safesql(is("SELECT * FORM table WHERE column = 'Hello the world'"), emptyArray()));
+        assertThat(SafeSqlUtils.literalize(safesql("SELECT * FORM table WHERE column = {}", "Hello the world")))
+                .hasSql("SELECT * FORM table WHERE column = 'Hello the world'")
+                .hasEmptyParameters();
     }
     
     @Test
     public void testFormat() {
-        assertThat(SafeSqlUtils.format("SELECT * FROM table WHERE col1 = {} AND col2 = {}", 5, "Hello"), is(safesql(equalTo("SELECT * FROM table WHERE col1 = ? AND col2 = ?"), arrayContaining(5, "Hello"))));
+        assertThat(SafeSqlUtils.format("SELECT * FROM table WHERE col1 = {} AND col2 = {}", 5, "Hello"))
+                .hasSql("SELECT * FROM table WHERE col1 = ? AND col2 = ?")
+                .hasParameters(5, "Hello");
+    }
+    
+    private static SafeSql safesql(String sql, Object... args) {
+        return SafeSqlUtils.format(sql, args);
     }
     
 }

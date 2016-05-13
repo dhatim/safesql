@@ -154,29 +154,29 @@ public class QueryBuilder2 implements WhereClause, Query {
     @Override
     public void appendTo(SafeSqlBuilder sb) {
         if (!ctes.isEmpty()) {
-            sb.appendConstant("WITH ");
+            sb.append("WITH ");
             sb.appendJoined(", ", ctes);
-            sb.appendConstant(" ");
+            sb.append(" ");
         }
-        sb.appendConstant("SELECT ");
+        sb.append("SELECT ");
         if (distinct) {
-            sb.appendConstant("DISTINCT ");
+            sb.append("DISTINCT ");
         }
         sb.appendJoined(", ", selects);
         if (!froms.isEmpty()) {
-            sb.appendConstant(" FROM ").appendJoined(", ", froms);
+            sb.append(" FROM ").appendJoined(", ", froms);
         }
         if (!conditions.isEmpty()) {
-            sb.appendConstant(" WHERE ").appendJoined(" AND ", conditions);
+            sb.append(" WHERE ").appendJoined(" AND ", conditions);
         }
         if (!groupBy.isEmpty()) {
-            sb.appendConstant(" GROUP BY ").appendJoined(", ", groupBy);
+            sb.append(" GROUP BY ").appendJoined(", ", groupBy);
         }
         if (!havings.isEmpty()) {
-            sb.appendConstant(" HAVING ").appendJoined(" AND ", havings);
+            sb.append(" HAVING ").appendJoined(" AND ", havings);
         }
         if (!windows.isEmpty()) {
-            sb.appendConstant(" WINDOW ").appendJoined(", ", windows);
+            sb.append(" WINDOW ").appendJoined(", ", windows);
         }
     }
 

@@ -13,10 +13,10 @@ public class SimpleCondition extends AbstractCondition<Operand, ConditionalOpera
         {
             OPS.put(ComparisonOperator.EQ, ComparisonOperator.NE);
             OPS.put(ComparisonOperator.NE, ComparisonOperator.EQ);
-            OPS.put(ComparisonOperator.GT, ComparisonOperator.LT);
-            OPS.put(ComparisonOperator.LT, ComparisonOperator.GT);
-            OPS.put(ComparisonOperator.GE, ComparisonOperator.LE);
-            OPS.put(ComparisonOperator.LE, ComparisonOperator.GE);
+            OPS.put(ComparisonOperator.GT, ComparisonOperator.LE);
+            OPS.put(ComparisonOperator.LT, ComparisonOperator.GE);
+            OPS.put(ComparisonOperator.GE, ComparisonOperator.LT);
+            OPS.put(ComparisonOperator.LE, ComparisonOperator.GT);
             OPS.put(RelationalOperator.IN, RelationalOperator.NOT_IN);
             OPS.put(RelationalOperator.BETWEEN, RelationalOperator.NOT_BETWEEN);
         }

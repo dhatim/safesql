@@ -20,9 +20,9 @@ public class CommonTableExpression implements SafeSqlizable {
     @Override
     public void appendTo(SafeSqlBuilder builder) {
         builder.appendIdentifier(name)
-                .appendConstant(" AS (")
+                .append(" AS (")
                 .append(query)
-                .appendConstant(")");
+                .append(")");
     }
     
 }

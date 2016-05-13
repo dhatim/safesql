@@ -13,7 +13,7 @@ public class Rows implements Operand {
 
     @Override
     public void appendTo(SafeSqlBuilder builder) {
-        builder.appendConstant("(").appendJoined(", ", Arrays.asList(items)).appendConstant(")");
+        builder.append("(").appendJoined(", ", Arrays.asList(items)).append(")");
     }
 
 }
