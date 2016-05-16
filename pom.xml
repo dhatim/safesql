@@ -16,6 +16,7 @@
     <modules>
         <module>safesql</module>
         <module>safesql-builder</module>
+        <module>safesql-formatter</module>
     </modules>
 
     <developers>
