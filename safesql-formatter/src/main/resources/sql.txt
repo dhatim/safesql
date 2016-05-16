@@ -1,0 +1,63 @@
+lexer sql;
+
+nonZeroDigit
+	: [1-9]
+	;
+
+zeroDigit
+	: '0'
+	;
+
+digit 
+	: zeroDigit
+	| nonZeroDigit
+	;
+
+letter
+	: [a-zA-Z]
+	;
+
+underscore: '_';
+
+Identifier: (letter | unserscore) (letter | underscore | digit | '$')* ;
+
+DelimitedIdentifier: '"' ('""' | ~["])* '"';
+
+UnicodeDelimitedIdentifier: 'U&'? DelimitedIdentifier;
+
+String: '\'' ('\'\'' | ~['])* '\'';
+
+UnicodeString: 'U&'? String;
+
+DollarString: '$' (~[$])* '$' .* '$' (~[$])* '$';
+
+BitString: [bB] '\'' [01]+ '\'';
+
+HexString: [xX] '\'' [0-9A-Fa-f]+ '\'';
+
+digits: digit+;
+
+Number
+	: digits
+	| digits '.' digits? ('e' [+-] digits)?
+	| digits? '.' digits ('e' [+-] digits)?
+	| digits 'e' [+-] digits
+	;
+
+LParen: '(';
+RParen: ')';
+LBrack: '[';
+RBrack: ']';
+Comma: ',';
+Semicolon: ';';
+Colon: ':';
+Asterisk: '*';
+Period: '.';
+Cast: '::';
+
+Operator: [+\-*/<>=~!@#%^&|`?];
+
+PositionalParamter: '$' digits;
+
+Comment: '--' ~[\n]*;
+multilineComment: {push}('/*') .* {pop}('*/')
