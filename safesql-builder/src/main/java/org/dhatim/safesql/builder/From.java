@@ -29,9 +29,9 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
     
     private static class SubQueryFrom extends From {
         
-        private final Query query;
+        private final SqlQuery query;
 
-        private SubQueryFrom(Query query, Alias alias) {
+        private SubQueryFrom(SqlQuery query, Alias alias) {
             super(alias);
             this.query = query;
         }
@@ -73,7 +73,7 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
         return new TableFrom(schema, tableName, alias);
     }
     
-    public static From query(Query query, Alias alias) {
+    public static From query(SqlQuery query, Alias alias) {
         return new SubQueryFrom(query, alias);
     }
 

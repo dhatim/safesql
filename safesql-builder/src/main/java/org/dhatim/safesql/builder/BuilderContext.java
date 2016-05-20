@@ -5,21 +5,21 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class QueryBuilderContext implements AliasOwner {
+public class BuilderContext implements AliasOwner {
     
     private static final Pattern PATTERN = Pattern.compile("(.*_)([0-9]+)$");
 
     private final Set<Alias> generatedAliases = new HashSet<>();
     private final Set<String> generatedIdentifiers = new HashSet<>();
     
-    public QueryBuilderContext() {
+    public BuilderContext() {
     }
     
-    QueryBuilderContext(QueryBuilderContext other) {
+    BuilderContext(BuilderContext other) {
         this(other.generatedAliases, other.generatedIdentifiers);
     }
     
-    private QueryBuilderContext(Set<Alias> generatedAliases, Set<String> generatedIdentifiers) {
+    private BuilderContext(Set<Alias> generatedAliases, Set<String> generatedIdentifiers) {
         this.generatedAliases.addAll(generatedAliases);
         this.generatedIdentifiers.addAll(generatedIdentifiers);
     }

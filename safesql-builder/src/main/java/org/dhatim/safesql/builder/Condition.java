@@ -1,5 +1,6 @@
 package org.dhatim.safesql.builder;
 
+import java.util.Arrays;
 import org.dhatim.safesql.SafeSqlizable;
 
 public interface Condition extends SafeSqlizable {
@@ -49,11 +50,11 @@ public interface Condition extends SafeSqlizable {
     }
 
     public static Condition in(Operand left, Operand... values) {
-        return new InCondition(left, false, values);
+        return new InCondition(left, false, Arrays.asList(values));
     }
     
     public static Condition notIn(Operand left, Operand... values) {
-        return new InCondition(left, true, values);
+        return new InCondition(left, true, Arrays.asList(values));
     }
     
     public static Condition isNotNull(Operand operand) {

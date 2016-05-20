@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 import org.dhatim.safesql.SafeSqlBuilder;
 
-public class QueryBuilder2 implements WhereClause, Query {
+public class SelectQuery implements WhereClause, SqlQuery {
     
-    private final QueryBuilderContext context;
+    private final BuilderContext context;
     
     private final List<CommonTableExpression> ctes = new ArrayList<>();
 
@@ -24,21 +24,21 @@ public class QueryBuilder2 implements WhereClause, Query {
     
     private boolean distinct;
     
-    public QueryBuilder2() {
-         this(new QueryBuilderContext());
+    public SelectQuery() {
+         this(new BuilderContext());
     }
     
-    public QueryBuilder2(QueryBuilder2 other) {
+    public SelectQuery(SelectQuery other) {
         this(other.context, other.ctes, other.selects, other.froms, other.conditions, other.havings, other.groupBy, other.windows, other.distinct);
     }
     
-    private QueryBuilder2(QueryBuilderContext context) {
+    private SelectQuery(BuilderContext context) {
         this.context = context;
     }
     
-    private QueryBuilder2(QueryBuilderContext context, List<CommonTableExpression> ctes, List<Operand> selects, List<From> froms, List<Condition> conditions, 
+    private SelectQuery(BuilderContext context, List<CommonTableExpression> ctes, List<Operand> selects, List<From> froms, List<Condition> conditions, 
             List<Condition> havings, List<Operand> groupBy, List<NamedWindow> windows, boolean distinct) {
-        this(new QueryBuilderContext(context));
+        this(new BuilderContext(context));
         this.ctes.addAll(ctes);
         this.selects.addAll(selects);
         this.froms.addAll(froms);
@@ -49,29 +49,29 @@ public class QueryBuilder2 implements WhereClause, Query {
         this.windows.addAll(windows);
     }
 
-    public QueryBuilder2 select(Operand operand) {
+    public SelectQuery select(Operand operand) {
         selects.add(operand);
         return this;
     }
     
-    public QueryBuilder2 with(String name, Query query) {
+    public SelectQuery with(String name, SqlQuery query) {
         ctes.add(new CommonTableExpression(name, query));
         return this;
     }
     
-    public QueryBuilder2 select(String columnName) {
+    public SelectQuery select(String columnName) {
         return select(new Column(columnName));
     }
 
-    public QueryBuilder2 select(Alias alias, String columnName) {
+    public SelectQuery select(Alias alias, String columnName) {
         return select(new Column(alias, columnName));
     }
 
-    public QueryBuilder2 select(String columnName, From from) {
+    public SelectQuery select(String columnName, From from) {
         return select(new Column(from.getAlias(), columnName));
     }
     
-    public QueryBuilder2 select(Operand operand, Alias alias) {
+    public SelectQuery select(Operand operand, Alias alias) {
         return select(new NamedOperand(operand, alias));
     }
 
@@ -91,7 +91,7 @@ public class QueryBuilder2 implements WhereClause, Query {
         return from(From.table(schema, tableName, alias));
     }
     
-    public From from(Query query, Alias alias) {
+    public From from(SqlQuery query, Alias alias) {
         return from(From.query(query, alias));
     }
 
@@ -100,17 +100,17 @@ public class QueryBuilder2 implements WhereClause, Query {
         return from;
     }
     
-    public QueryBuilder2 groupBy(Column... columns) {
+    public SelectQuery groupBy(Column... columns) {
         groupBy.addAll(Arrays.asList(columns));
         return this;
     }
     
-    public QueryBuilder2 groupBy(Column column) {
+    public SelectQuery groupBy(Column column) {
         groupBy.add(column);
         return this;
     }
 
-    public QueryBuilder2 having(Condition condition) {
+    public SelectQuery having(Condition condition) {
         having().and(condition);
         return this;
     }
@@ -125,12 +125,12 @@ public class QueryBuilder2 implements WhereClause, Query {
         };
     }
     
-    public QueryBuilder2 windows(NamedWindow... namedWindows) {
+    public SelectQuery windows(NamedWindow... namedWindows) {
         windows.addAll(Arrays.asList(namedWindows));
         return this;
     }
     
-    public QueryBuilder2 window(NamedWindow window) {
+    public SelectQuery window(NamedWindow window) {
         windows.add(window);
         return this;
     }
@@ -181,18 +181,18 @@ public class QueryBuilder2 implements WhereClause, Query {
     }
 
     @Override
-    public QueryBuilder2 and(Condition condition) {
+    public SelectQuery and(Condition condition) {
         conditions.add(condition);
         return this;
     }
     
-    public QueryBuilder2 distinct() {
+    public SelectQuery distinct() {
         this.distinct = true;
         return this;
     }
     
-    public static QueryBuilder2 withContextOf(QueryBuilder2 other) {
-        return new QueryBuilder2(other.context);
+    public static SelectQuery withContextOf(SelectQuery other) {
+        return new SelectQuery(other.context);
     }
 
 }

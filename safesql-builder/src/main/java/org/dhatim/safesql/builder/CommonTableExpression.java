@@ -5,10 +5,10 @@ import org.dhatim.safesql.SafeSqlizable;
 
 public class CommonTableExpression implements SafeSqlizable {
 
-    private String name;
-    private Query query;
+    private final String name;
+    private final SqlQuery query;
 
-    public CommonTableExpression(String name, Query query) {
+    public CommonTableExpression(String name, SqlQuery query) {
         this.name = name;
         this.query = query;
     }
