@@ -10,11 +10,11 @@ import java.util.stream.StreamSupport;
 
 public class SqlTokenizer {
     
-    enum TokenClass {
+    public enum TokenClass {
         KEYWORD, IDENTIFIER, QUOTED_IDENTIFIER, LITERAL, SYMBOL, WHITESPACE
     }
 
-    enum TokenType {
+    public enum TokenType {
         KEYWORD                     (TokenClass.KEYWORD), 
         IDENTIFIER                  (TokenClass.IDENTIFIER), 
         QUOTED_IDENTIFIER           (TokenClass.QUOTED_IDENTIFIER), 
@@ -25,10 +25,11 @@ public class SqlTokenizer {
         DOLLAR_QUOTED_STRING        (TokenClass.LITERAL), 
         BITSTRING                   (TokenClass.LITERAL), 
         HEXSTRING                   (TokenClass.LITERAL), 
-        NUMBER                      (TokenClass.LITERAL), 
+        NUMERIC                     (TokenClass.LITERAL),
         OPERATOR                    (TokenClass.SYMBOL), 
         WHITESPACE                  (TokenClass.WHITESPACE), 
-        COMMENT                     (TokenClass.WHITESPACE), 
+        LINE_COMMENT                (TokenClass.WHITESPACE), 
+        BLOCK_COMMENT               (TokenClass.WHITESPACE), 
         POSITIONAL_PARAMETER        (TokenClass.SYMBOL), 
         LPAREN                      (TokenClass.SYMBOL), 
         RPAREN                      (TokenClass.SYMBOL), 
@@ -36,8 +37,7 @@ public class SqlTokenizer {
         RBRACK                      (TokenClass.SYMBOL), 
         SEMI                        (TokenClass.SYMBOL), 
         COMMA                       (TokenClass.SYMBOL), 
-        DOT                         (TokenClass.SYMBOL),
-        NUMERIC                     (TokenClass.LITERAL);
+        DOT                         (TokenClass.SYMBOL);
         
         private final TokenClass tokenClass;
         
@@ -52,7 +52,7 @@ public class SqlTokenizer {
 
     enum CharType {
         UNKNOWN, LETTER, UNDERSCORE, DIGIT, DOLLAR, QUOTE, DOUBLE_QUOTE, WHITESPACE, LPAREN, RPAREN, LBRACK, RBRACK, AMPERSAND, SEMI, COMMA, DOT, PLUS, MINUS, 
-        ASTERISK, DIV, LT, GT, EQUAL, TILDE, BANG, AT, DIESE, HASH, PERCENT, CARET, PIPE, GRAVE, QUESTION, EOF
+        ASTERISK, DIV, LT, GT, EQUAL, TILDE, BANG, AT, DIESE, HASH, PERCENT, CARET, PIPE, GRAVE, QUESTION, EOF, EOL, COLON
     }
 
     public static class Token {
@@ -114,18 +114,25 @@ public class SqlTokenizer {
     }
 
     enum State {
-        STATE_0, STATE_IDENT, STATE_EOT, STATE_WHITESPACE, STATE_OP, STATE_NUM, STATE_NUM_AFTER_DOT, STATE_NUM_AFTER_E, 
+        STATE_0, STATE_IDENT, STATE_EOT, STATE_SONT, STATE_WHITESPACE, STATE_OP, STATE_NUM, STATE_NUM_AFTER_DOT, STATE_NUM_AFTER_E, 
         STATE_NUM_AFTER_E_SIGN, STATE_QUOTED_IDENT, STATE_QUOTED_IDENT_QUOTE, STATE_MAY_UNICODE_VARIANT_OR_IDENT, STATE_UNICODE_VARIANT,
         STATE_STRING, STATE_STRING_QUOTE, STATE_MAY_ESCAPED_STRING_OR_IDENT, STATE_MAY_BITSTRING_OR_IDENT, STATE_MAY_HEXSTRING_OR_IDENT,
-        STATE_BITSTRING, STATE_HEXSTRING
+        STATE_BITSTRING, STATE_HEXSTRING, STATE_MAY_PARAMETER_OR_DOLLAR_QUOTED_STRING, STATE_MAY_DOLLAR_QUOTED_STRING, STATE_DOLLAR_QUOTED_STRING,
+        STATE_MAY_END_DOLLAR_QUOTED_STRING, STATE_POSITIONAL_PARAMETER,
+        STATE_OP_START, STATE_OPX, STATE_MAY_OP_OR_LINE_COMMENT, STATE_MAY_OP_OR_BLOCK_COMMENT, STATE_OP_WITHOUT_FINAL_PLUS, STATE_MAY_OP_OR_FUTURE_LINE_COMMENT,
+        STATE_MAY_OP_OR_FUTURE_BLOCK_COMMENT, STATE_MAY_OPX_OR_FUTURE_LINE_COMMENT, STATE_MAY_OPX_OR_FUTURE_BLOCK_COMMENT,
+        STATE_LINE_COMMENT, STATE_BLOCK_COMMENT,
+        STATE_MAY_BLOCK_COMMENT_LEVEL, STATE_MAY_END_BLOCK_LEVEL, STATE_MAY_CAST_OR_SLICE, STATE_MAY_NUM_OR_OP
     }
     
     enum Modifier {
         NONE, UNICODE, ESCAPED, HEX
     }
+    
+    private static final int NAMEDATALEN = 64-1;
 
     private static boolean isSpace(char ch) {
-        return ch == ' ' || ch == '\t' || ch == '\n';
+        return ch == ' ' || ch == '\t';
     }
 
     private static boolean isLetter(char ch) {
@@ -163,6 +170,45 @@ public class SqlTokenizer {
             case '-':
                 result = MINUS;
                 break;
+            case '/':
+                result = DIV;
+                break;
+            case '*':
+                result = ASTERISK;
+                break;
+            case '<':
+                result = LT;
+                break;
+            case '>':
+                result = GT;
+                break;
+            case '~':
+                result = TILDE;
+                break;
+            case '!':
+                result = BANG;
+                break;
+            case '@':
+                result = AT;
+                break;
+            case '#':
+                result = HASH;
+                break;
+            case '%':
+                result = PERCENT;
+                break;
+            case '^':
+                result = CARET;
+                break;
+            case '|':
+                result = PIPE;
+                break;
+            case '`':
+                result = GRAVE;
+                break;
+            case '?':
+                result = QUESTION;
+                break;
             case '.':
                 result = DOT;
                 break;
@@ -172,6 +218,30 @@ public class SqlTokenizer {
             case '&':
                 result = AMPERSAND;
                 break;
+            case '\n':
+                result = EOL;
+                break;
+            case '(':
+                result = CharType.LPAREN;
+                break;
+            case ')':
+                result = CharType.RPAREN;
+                break;
+            case '[':
+                result = CharType.LBRACK;
+                break;
+            case ']':
+                result = CharType.RBRACK;
+                break;
+            case ',':
+                result = CharType.COMMA;
+                break;
+            case ';':
+                result = CharType.SEMI;
+                break;
+            case ':':
+                result = CharType.COLON;
+                break;
             default:
                 result = UNKNOWN;
             }
@@ -179,7 +249,6 @@ public class SqlTokenizer {
         return result;
     }
 
-    //private State state = State.STATE_0;
     private int position = 0;
     
     private final String origin;
@@ -200,17 +269,21 @@ public class SqlTokenizer {
     private void debug(String s) {
         System.out.println("## " + s);
     }
-
+    
     public String nextTokenValue() {
         StringBuilder sb = new StringBuilder();
         Modifier modifier = Modifier.NONE;
         TokenType nextType = null;
         State state = State.STATE_0;
-        boolean appendLast = false;
-        while (position <= chars.length && state != STATE_EOT) {
-            debug("state = " + state + " (" + position + "/" + chars.length + ")");
-            char ch = position == chars.length ? '\0' : chars[position++];
-            CharType type = toCharType(ch);
+        int exitPatternPosition = 0;
+        String exitPattern = "";
+        int commentLevel = 0;
+        int tooManyChars = 0;
+        while (position <= chars.length && state != STATE_EOT && state != STATE_SONT) {
+            debug("-- state = " + state + " (" + position + "/" + chars.length + ")");
+            boolean isEof = position == chars.length;
+            char ch = isEof ? '\0' : chars[position];
+            CharType type = isEof ? EOF : toCharType(ch);
             debug("char = " + type);
             if (state == STATE_0) {
                 switch (type) {
@@ -221,7 +294,7 @@ public class SqlTokenizer {
                             state = State.STATE_MAY_ESCAPED_STRING_OR_IDENT;
                         } else if (ch == 'B' || ch == 'b') {
                             state = State.STATE_MAY_BITSTRING_OR_IDENT;
-                        } else if (ch == 'H' || ch == 'h') {
+                        } else if (ch == 'X' || ch == 'x') {
                             state = State.STATE_MAY_HEXSTRING_OR_IDENT;
                         } else {
                             state = STATE_IDENT;
@@ -231,10 +304,8 @@ public class SqlTokenizer {
                         state = STATE_IDENT;
                         break;
                     case WHITESPACE:
+                    case EOL:
                         state = STATE_WHITESPACE;
-                        break;
-                    case EQUAL:
-                        state = STATE_OP;
                         break;
                     case DIGIT:
                         state = STATE_NUM;
@@ -245,8 +316,66 @@ public class SqlTokenizer {
                     case QUOTE:
                         state = STATE_STRING;
                         break;
+                    case DOLLAR:
+                        state = STATE_MAY_PARAMETER_OR_DOLLAR_QUOTED_STRING;
+                        break;
+                    case PLUS:
+                    case ASTERISK:
+                    case LT:
+                    case GT:
+                    case EQUAL:
+                        state = STATE_OP_START;
+                        break;
+                    case TILDE:
+                    case BANG:
+                    case AT:
+                    case HASH:
+                    case PERCENT:
+                    case CARET:
+                    case AMPERSAND:
+                    case PIPE:
+                    case GRAVE:
+                    case QUESTION:
+                        state = STATE_OPX;
+                        break;
+                    case MINUS:
+                        state = STATE_MAY_OP_OR_LINE_COMMENT;
+                        break;
+                    case DIV:
+                        state = STATE_MAY_OP_OR_BLOCK_COMMENT;
+                        break;
+                    case LPAREN:
+                        nextType = TokenType.LPAREN;
+                        state = STATE_EOT;
+                        break;
+                    case RPAREN:
+                        nextType = TokenType.RPAREN;
+                        state = STATE_EOT;
+                        break;
+                    case LBRACK:
+                        nextType = TokenType.LBRACK;
+                        state = STATE_EOT;
+                        break;
+                    case RBRACK:
+                        nextType = TokenType.RBRACK;
+                        state = STATE_EOT;
+                        break;
+                    case COMMA:
+                        nextType = TokenType.COMMA;
+                        state = STATE_EOT;
+                        break;
+                    case SEMI:
+                        nextType = TokenType.SEMI;
+                        state = STATE_EOT;
+                        break;
+                    case DOT:
+                        state = STATE_MAY_NUM_OR_OP;
+                        break;
+                    case COLON:
+                        state = STATE_MAY_CAST_OR_SLICE;
+                        break;
                     default:
-                        parseError("Unknown character [" + ch + "]");
+                        parseError("Unknown character [" + ch + "] of type " + type);
                 }
             } else if (state == STATE_IDENT) {
                 switch (type) {
@@ -258,22 +387,14 @@ public class SqlTokenizer {
                         break;
                     default:
                         nextType = TokenType.IDENTIFIER;
-                        state = STATE_EOT;
+                        state = STATE_SONT;
                 }
             } else if (state == STATE_WHITESPACE) {
-                if (type == WHITESPACE) {
+                if (type == WHITESPACE || type == EOL) {
                     state = STATE_WHITESPACE;
                 } else {
                     nextType = TokenType.WHITESPACE;
-                    state = STATE_EOT;
-                }
-            } else if (state == STATE_OP) {
-                switch (type) {
-                    case EQUAL:
-                        break;
-                    default:
-                        nextType = TokenType.OPERATOR;
-                        state = STATE_EOT;
+                    state = STATE_SONT;
                 }
             } else if (state == STATE_NUM) {
                 switch (type) {
@@ -283,7 +404,8 @@ public class SqlTokenizer {
                         if (ch == 'e') {
                             state = STATE_NUM_AFTER_E;
                         } else {
-                            parseError();
+                            nextType = TokenType.NUMERIC;
+                            state = STATE_SONT;
                         }
                         break;
                     case DOT:
@@ -291,7 +413,7 @@ public class SqlTokenizer {
                         break;
                     default:
                         nextType = TokenType.NUMERIC;
-                        state = STATE_EOT;
+                        state = STATE_SONT;
                 }
             } else if (state == STATE_NUM_AFTER_DOT) {
                 switch (type) {
@@ -306,7 +428,7 @@ public class SqlTokenizer {
                         break;
                     default:
                         nextType = TokenType.NUMERIC;
-                        state = STATE_EOT;
+                        state = STATE_SONT;
                 }
             } else if (state == STATE_NUM_AFTER_E) {
                 switch (type) {
@@ -325,8 +447,17 @@ public class SqlTokenizer {
                     case DIGIT:
                         break;
                     default:
-                        state = STATE_EOT;
+                        state = STATE_SONT;
                         nextType = TokenType.NUMERIC;
+                }
+            } else if (state == STATE_MAY_NUM_OR_OP) {
+                switch (type) {
+                    case DIGIT:
+                        state = STATE_NUM_AFTER_DOT;
+                        break;
+                    default:
+                        nextType = TokenType.DOT;
+                        state = STATE_SONT;
                 }
             } else if (state == STATE_QUOTED_IDENT) {
                 switch (type) {
@@ -343,7 +474,7 @@ public class SqlTokenizer {
                         state = STATE_QUOTED_IDENT;
                         break;
                     default:
-                        state = STATE_EOT;
+                        state = STATE_SONT;
                         nextType = TokenType.QUOTED_IDENTIFIER;
                 }
             } else if (state == STATE_MAY_UNICODE_VARIANT_OR_IDENT) {
@@ -359,7 +490,7 @@ public class SqlTokenizer {
                         break;
                     default:
                         nextType = TokenType.IDENTIFIER;
-                        state = STATE_EOT;
+                        state = STATE_SONT;
                 }
             } else if (state == STATE_UNICODE_VARIANT) {
                 if (type == CharType.DOUBLE_QUOTE) {
@@ -369,9 +500,9 @@ public class SqlTokenizer {
                     modifier = Modifier.UNICODE;
                     state = State.STATE_STRING;
                 } else {
-                    state = STATE_EOT;
-                    position--;
+                    state = STATE_SONT;
                     nextType = TokenType.IDENTIFIER;
+                    position--;
                 }
             } else if (state == STATE_STRING) {
                 switch (type) {
@@ -388,7 +519,7 @@ public class SqlTokenizer {
                         state = STATE_STRING;
                         break;
                     default:
-                        state = STATE_EOT;
+                        state = STATE_SONT;
                         nextType = TokenType.STRING;
                 }
             } else if (state == STATE_MAY_ESCAPED_STRING_OR_IDENT) {
@@ -405,7 +536,7 @@ public class SqlTokenizer {
                         break;
                     default:
                         nextType = TokenType.IDENTIFIER;
-                        state = STATE_EOT;
+                        state = STATE_SONT;
                 }
             } else if (state == State.STATE_MAY_BITSTRING_OR_IDENT) {
                 switch (type) {
@@ -420,7 +551,7 @@ public class SqlTokenizer {
                         break;
                     default:
                         nextType = TokenType.IDENTIFIER;
-                        state = STATE_EOT;
+                        state = STATE_SONT;
                 }
             } else if (state == State.STATE_MAY_HEXSTRING_OR_IDENT) {
                 switch (type) {
@@ -435,7 +566,8 @@ public class SqlTokenizer {
                         break;
                     default:
                         nextType = TokenType.IDENTIFIER;
-                        state = STATE_EOT;
+                        state = STATE_SONT;
+                        position++;
                 }
             } else if (state == State.STATE_BITSTRING) {
                 switch (type) {
@@ -459,19 +591,431 @@ public class SqlTokenizer {
                             parseError("Hexstring can only contains hexadecimal characters (0123456789ABCDEF)");
                         }
                 }
-            }
-            
-            if (state == STATE_EOT) {
-                if (type != EOF) {
-                    debug("recule");
-                    position--;
+            } else if (state == State.STATE_MAY_PARAMETER_OR_DOLLAR_QUOTED_STRING) {
+                switch (type) {
+                    case DOLLAR:
+                        state = STATE_DOLLAR_QUOTED_STRING;
+                        exitPattern = "";
+                        debug("exitPattern empty");
+                        break;
+                    case DIGIT:
+                        state = STATE_POSITIONAL_PARAMETER;
+                        break;
+                    case UNDERSCORE:
+                    case LETTER:
+                        state = STATE_MAY_DOLLAR_QUOTED_STRING;
+                        break;
+                    default:
+                        parseError("syntax error at or near [$]");
+                }
+            } else if (state == STATE_DOLLAR_QUOTED_STRING) {
+                if (type == DOLLAR) {
+                    state = STATE_MAY_END_DOLLAR_QUOTED_STRING;
+                    exitPatternPosition = 0;
+                } else if (type == EOF) {
+                    parseError("unterminated dollar-quoted string at or near [" + sb.toString() + "]");
+                }
+            } else if (state == STATE_MAY_END_DOLLAR_QUOTED_STRING) {
+                if (type == DOLLAR) {
+                    if (exitPatternPosition == exitPattern.length()) {
+                        state = STATE_EOT;
+                        nextType = TokenType.DOLLAR_QUOTED_STRING;
+                    } else {
+                        state = STATE_DOLLAR_QUOTED_STRING;
+                    }
+                } else if (type == EOF) {
+                    parseError("unterminated dollar-quoted string at or near [" + sb.toString() + "]");
+                } else {
+                    if (exitPattern.charAt(exitPatternPosition++) != ch) {
+                        state = STATE_DOLLAR_QUOTED_STRING;
+                    }
+                }
+            } else if (state == STATE_MAY_DOLLAR_QUOTED_STRING) {
+                switch (type) {
+                    case LETTER:
+                    case DIGIT:
+                    case UNDERSCORE:
+                        break;
+                    case DOLLAR:
+                        state = STATE_DOLLAR_QUOTED_STRING;
+                        exitPattern = sb.toString().substring(1);
+                        debug("exitPattern " + exitPattern);
+                        break;
+                    default:
+                        parseError("syntax error at or near [$]");
+                }
+            } else if (state == STATE_POSITIONAL_PARAMETER) {
+                if (type != DIGIT) {
+                    nextType = TokenType.POSITIONAL_PARAMETER;
+                    state = STATE_SONT;
+                }
+            } else if (state == STATE_OP_START) {
+                switch (type) {
+                    case PLUS:
+                        state = STATE_OP_WITHOUT_FINAL_PLUS;
+                        break;
+                    case ASTERISK:
+                    case LT:
+                    case GT:
+                    case EQUAL:
+                        state = STATE_OP;
+                        break;
+                    case TILDE:
+                    case BANG:
+                    case AT:
+                    case HASH:
+                    case PERCENT:
+                    case CARET:
+                    case AMPERSAND:
+                    case PIPE:
+                    case GRAVE:
+                    case QUESTION:
+                        state = STATE_OPX;
+                        break;
+                    case MINUS:
+                        state = STATE_MAY_OP_OR_FUTURE_LINE_COMMENT;
+                        break;
+                    case DIV:
+                        state = STATE_MAY_OP_OR_FUTURE_BLOCK_COMMENT;
+                        break;
+                    case EOF:
+                    default:
+                        nextType = TokenType.OPERATOR;
+                        state = STATE_SONT;
+                }
+            } else if (state == STATE_OP) {
+                switch (type) {
+                    case PLUS:
+                        state = STATE_OP_WITHOUT_FINAL_PLUS;
+                        break;
+                    case ASTERISK:
+                    case LT:
+                    case GT:
+                    case EQUAL:
+                        state = STATE_OP;
+                        break;
+                    case TILDE:
+                    case BANG:
+                    case AT:
+                    case HASH:
+                    case PERCENT:
+                    case CARET:
+                    case AMPERSAND:
+                    case PIPE:
+                    case GRAVE:
+                    case QUESTION:
+                        state = STATE_OPX;
+                        break;
+                    case MINUS:
+                        state = STATE_MAY_OP_OR_FUTURE_LINE_COMMENT;
+                        break;
+                    case DIV:
+                        state = STATE_MAY_OP_OR_FUTURE_BLOCK_COMMENT;
+                        break;
+                    case EOF:
+                    default:
+                        nextType = TokenType.OPERATOR;
+                        state = STATE_SONT;
+                }
+            } else if (state == STATE_OPX) {
+                switch (type) {
+                    case PLUS:
+                    case ASTERISK:
+                    case LT:
+                    case GT:
+                    case EQUAL:
+                    case TILDE:
+                    case BANG:
+                    case AT:
+                    case HASH:
+                    case PERCENT:
+                    case CARET:
+                    case AMPERSAND:
+                    case PIPE:
+                    case GRAVE:
+                    case QUESTION:
+                        state = STATE_OPX;
+                        break;
+                    case MINUS:
+                        state = STATE_MAY_OPX_OR_FUTURE_LINE_COMMENT;
+                        break;
+                    case DIV:
+                        state = STATE_MAY_OPX_OR_FUTURE_BLOCK_COMMENT;
+                        break;
+                    case EOF:
+                    default:
+                        nextType = TokenType.OPERATOR;
+                        state = STATE_SONT;
+                }
+            } else if (state == STATE_OP_WITHOUT_FINAL_PLUS) {
+                switch (type) {
+                    case PLUS:
+                        state = STATE_OP_WITHOUT_FINAL_PLUS;
+                        break;
+                    case ASTERISK:
+                    case LT:
+                    case GT:
+                    case EQUAL:
+                        state = STATE_OP;
+                        break;
+                    case TILDE:
+                    case BANG:
+                    case AT:
+                    case HASH:
+                    case PERCENT:
+                    case CARET:
+                    case AMPERSAND:
+                    case PIPE:
+                    case GRAVE:
+                    case QUESTION:
+                        state = STATE_OPX;
+                        break;
+                    case MINUS:
+                        state = STATE_MAY_OP_OR_FUTURE_LINE_COMMENT;
+                        break;
+                    case DIV:
+                        state = STATE_MAY_OP_OR_FUTURE_BLOCK_COMMENT;
+                        break;
+                    case EOF:
+                    default:
+                        parseError("Cannot end and operator with [+] when there is no [~ ! @ # % ^ & | ` ?] before");
+                }
+            } else if (state == STATE_MAY_OP_OR_FUTURE_LINE_COMMENT) {
+                switch (type) {
+                    case PLUS:
+                        state = STATE_OP_WITHOUT_FINAL_PLUS;
+                        break;
+                    case ASTERISK:
+                    case LT:
+                    case GT:
+                    case EQUAL:
+                        state = STATE_OP;
+                        break;
+                    case TILDE:
+                    case BANG:
+                    case AT:
+                    case HASH:
+                    case PERCENT:
+                    case CARET:
+                    case AMPERSAND:
+                    case PIPE:
+                    case GRAVE:
+                    case QUESTION:
+                        state = STATE_OPX;
+                        break;
+                    case MINUS:
+                        position-=2;
+                        nextType = TokenType.OPERATOR;
+                        tooManyChars = 2;
+                        state = STATE_EOT;
+                        break;
+                    case DIV:
+                        state = STATE_MAY_OP_OR_FUTURE_BLOCK_COMMENT;
+                        break;
+                    case EOF:
+                    default:
+                        parseError("Cannot end and operator with [+] when there is no [~ ! @ # % ^ & | ` ?] before");
+                }
+            } else if (state == STATE_MAY_OP_OR_FUTURE_BLOCK_COMMENT) {
+                switch (type) {
+                    case PLUS:
+                        state = STATE_OP_WITHOUT_FINAL_PLUS;
+                        break;
+                    case ASTERISK:
+                        position-=2;
+                        nextType = TokenType.OPERATOR;
+                        state = STATE_EOT;
+                        tooManyChars = 2;
+                        break;
+                    case LT:
+                    case GT:
+                    case EQUAL:
+                        state = STATE_OP;
+                        break;
+                    case TILDE:
+                    case BANG:
+                    case AT:
+                    case HASH:
+                    case PERCENT:
+                    case CARET:
+                    case AMPERSAND:
+                    case PIPE:
+                    case GRAVE:
+                    case QUESTION:
+                        state = STATE_OPX;
+                        break;
+                    case MINUS:
+                        state = STATE_MAY_OP_OR_FUTURE_LINE_COMMENT;
+                        break;
+                    case DIV:
+                        state = STATE_MAY_OP_OR_FUTURE_BLOCK_COMMENT;
+                        break;
+                    case EOF:
+                    default:
+                        parseError("Cannot end and operator with [+] when there is no [~ ! @ # % ^ & | ` ?] before");
+                }
+            } else if (state == STATE_MAY_OPX_OR_FUTURE_LINE_COMMENT) {
+                switch (type) {
+                    case PLUS:
+                    case ASTERISK:
+                    case LT:
+                    case GT:
+                    case EQUAL:
+                    case TILDE:
+                    case BANG:
+                    case AT:
+                    case HASH:
+                    case PERCENT:
+                    case CARET:
+                    case AMPERSAND:
+                    case PIPE:
+                    case GRAVE:
+                    case QUESTION:
+                        state = STATE_OPX;
+                        break;
+                    case MINUS:
+                        position--;
+                        nextType = TokenType.OPERATOR;
+                        state = STATE_SONT;
+                        break;
+                    case DIV:
+                        state = STATE_MAY_OPX_OR_FUTURE_BLOCK_COMMENT;
+                        break;
+                    case EOF:
+                    default:
+                        nextType = TokenType.OPERATOR;
+                        state = STATE_SONT;
+                }
+            } else if (state == STATE_MAY_OPX_OR_FUTURE_BLOCK_COMMENT) {
+                switch (type) {
+                    case PLUS:
+                    case ASTERISK:
+                        position--;
+                        nextType = TokenType.OPERATOR;
+                        state = STATE_SONT;
+                        break;
+                    case LT:
+                    case GT:
+                    case EQUAL:
+                    case TILDE:
+                    case BANG:
+                    case AT:
+                    case HASH:
+                    case PERCENT:
+                    case CARET:
+                    case AMPERSAND:
+                    case PIPE:
+                    case GRAVE:
+                    case QUESTION:
+                        state = STATE_OPX;
+                        break;
+                    case MINUS:
+                        state = STATE_MAY_OPX_OR_FUTURE_LINE_COMMENT;
+                        break;
+                    case DIV:
+                        state = STATE_OPX;
+                        break;
+                    case EOF:
+                    default:
+                        parseError("Cannot end and operator with [+] when there is no [~ ! @ # % ^ & | ` ?] before");
+                }
+            } else if (state == STATE_MAY_OP_OR_LINE_COMMENT) {
+                switch (type) {
+                    case PLUS:
+                        state = STATE_OP_WITHOUT_FINAL_PLUS;
+                        break;
+                    case ASTERISK:
+                    case LT:
+                    case GT:
+                    case EQUAL:
+                        state = STATE_OP;
+                        break;
+                    case TILDE:
+                    case BANG:
+                    case AT:
+                    case HASH:
+                    case PERCENT:
+                    case CARET:
+                    case AMPERSAND:
+                    case PIPE:
+                    case GRAVE:
+                    case QUESTION:
+                        state = STATE_OPX;
+                        break;
+                    case MINUS:
+                        state = STATE_LINE_COMMENT;
+                        break;
+                    case DIV:
+                        state = STATE_MAY_OP_OR_FUTURE_BLOCK_COMMENT;
+                        break;
+                    case EOF:
+                    default:
+                        nextType = TokenType.OPERATOR;
+                        state = STATE_SONT;
+                }
+            } else if (state == STATE_MAY_OP_OR_BLOCK_COMMENT) {
+                if (type == ASTERISK) {
+                    state = STATE_BLOCK_COMMENT;
+                } else {
+                    state = STATE_OP;
+                }
+            } else if (state == STATE_LINE_COMMENT) {
+                if (type == EOL || type == EOF) {
+                    nextType = TokenType.LINE_COMMENT;
+                    state = STATE_SONT;
+                }
+            } else if (state == STATE_BLOCK_COMMENT) {
+                if (type == DIV) {
+                    state = STATE_MAY_BLOCK_COMMENT_LEVEL;
+                } else if (type == ASTERISK) {
+                    state = STATE_MAY_END_BLOCK_LEVEL;
+                } else if (type == EOF) {
+                    parseError("unterminated comment at or near");
+                } 
+            } else if (state == STATE_MAY_END_BLOCK_LEVEL) {
+                if (type == DIV) {
+                    if (commentLevel > 0) {
+                        commentLevel--;
+                    } else {
+                        nextType = TokenType.BLOCK_COMMENT;
+                        state = STATE_EOT;
+                    }
+                } else if (type == EOF) {
+                    parseError("unterminated comment at or near");
+                } else {
+                    state = STATE_BLOCK_COMMENT;
+                }
+            } else if (state == STATE_MAY_BLOCK_COMMENT_LEVEL) {
+                if (type == ASTERISK) {
+                    commentLevel++;
+                    state = STATE_BLOCK_COMMENT;
+                } else if (type == EOF) {
+                    parseError("unterminated comment at or near");
+                } else {
+                    state = STATE_BLOCK_COMMENT;
+                }
+            } else if (state == STATE_MAY_CAST_OR_SLICE) {
+                if (type == COLON) {
+                    nextType = TokenType.OPERATOR;
+                    state = STATE_EOT;
+                } else {
+                    nextType = TokenType.OPERATOR;
+                    state = State.STATE_SONT;
                 }
             } else {
-                sb.append(ch);
+                parseError("Unknown state " + state);
             }
-            debug(" state => " + state);
+            
+            if ((state != STATE_SONT) || (state == STATE_EOT)) {
+                sb.append(ch);
+                position++;
+            }
+            debug("state => " + state);
+            debug("text => " + sb.toString());
         }
-        state = STATE_0;
+        if (tooManyChars > 0) {
+            sb.delete(sb.length() - tooManyChars, sb.length());
+        }
         token = sb.toString();
         tokenType = modify(nextType, modifier);
         debug("==> return " + token + " " + nextType);
