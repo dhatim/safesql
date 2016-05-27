@@ -38,6 +38,20 @@ public class SqlTokenizerTest {
         assertThat(tokenize("_abc123")).hasTokens(IDENTIFIER).hasValues("_abc123");
     }
     
+    @Test
+    public void testIdentifier2() {
+        assertThat(tokenize("U$")).hasTokens(IDENTIFIER).hasValues("U$");
+        assertThat(tokenize("Ub")).hasTokens(IDENTIFIER).hasValues("Ub");
+        assertThat(tokenize("U%")).hasTokens(IDENTIFIER, OPERATOR).hasValues("U", "%");
+        assertThat(tokenize("E$")).hasTokens(IDENTIFIER).hasValues("E$");
+        assertThat(tokenize("E=")).hasTokens(IDENTIFIER, OPERATOR).hasValues("E", "=");
+        assertThat(tokenize("b$")).hasTokens(IDENTIFIER).hasValues("b$");
+        assertThat(tokenize("b=")).hasTokens(IDENTIFIER, OPERATOR).hasValues("b", "=");
+        assertThat(tokenize("X5")).hasTokens(IDENTIFIER).hasValues("X5");
+        assertThat(tokenize("X=")).hasTokens(IDENTIFIER, OPERATOR).hasValues("X", "=");
+
+    }
+    
     @Test 
     public void testNumeric() {
         assertThat(tokenize("42")).hasTokens(NUMERIC).hasValues("42");
@@ -69,8 +83,6 @@ public class SqlTokenizerTest {
     public void testUnicodeQuotedIndentifier() {
         assertThat(tokenize("U&\"d\\0061t\\+000061\"")).hasTokens(TokenType.UNICODE_QUOTED_IDENTIFIER).hasValues("U&\"d\\0061t\\+000061\"");
         assertThat(tokenize("u&\"d\\0061t\\+000061\"")).hasTokens(TokenType.UNICODE_QUOTED_IDENTIFIER).hasValues("u&\"d\\0061t\\+000061\"");
-        assertThat(tokenize("U$")).hasTokens(IDENTIFIER).hasValues("U$");
-        assertThat(tokenize("Ub")).hasTokens(IDENTIFIER).hasValues("Ub");
     }
     
     @Test
@@ -83,6 +95,11 @@ public class SqlTokenizerTest {
         assertThat(tokenize("'SELECT'")).hasTokens(STRING).hasValues("'SELECT'");
         assertThat(tokenize("'SELECT WHERE'")).hasTokens(STRING).hasValues("'SELECT WHERE'");
         assertThat(tokenize("'Dianne''s horse'")).hasTokens(TokenType.STRING).hasValues("'Dianne''s horse'");
+    }
+    
+    @Test(expected=SqlParseException.class)
+    public void testNonTerminatedString() {
+    	tokenize("'SELECT");
     }
     
     @Test
@@ -127,6 +144,7 @@ public class SqlTokenizerTest {
     
     @Test
     public void testDollarQuotedString() {
+    	assertThat(tokenize("$$hello\nthis is it$$")).hasTokens(DOLLAR_QUOTED_STRING).hasValues("$$hello\nthis is it$$");
         assertThat(tokenize("$abc$hello i'm here$abc$")).hasTokens(DOLLAR_QUOTED_STRING).hasValues("$abc$hello i'm here$abc$");
         assertThat(tokenize("$abc$hello $cba$ here$abc$")).hasTokens(DOLLAR_QUOTED_STRING).hasValues("$abc$hello $cba$ here$abc$");
     }
@@ -158,11 +176,17 @@ public class SqlTokenizerTest {
         assertThat(tokenize("/<")).hasTokens(OPERATOR).hasValues("/<");
         assertThat(tokenize("%%")).hasTokens(OPERATOR).hasValues("%%");
         assertThat(tokenize("@-")).hasTokens(OPERATOR).hasValues("@-");
+        assertThat(tokenize("*?")).hasTokens(OPERATOR).hasValues("*?");
     }
     
     @Test(expected=SqlParseException.class)
     public void testInvalidMultiCharacterOperator() {
-        assertThat(tokenize("*-")).hasTokens(OPERATOR).hasValues("*-");
+       tokenize("*-");
+    }
+    
+    @Test(expected=SqlParseException.class)
+    public void testInvalidMultiCharacterOperator2() {
+    	tokenize("**+");
     }
     
     @Test
@@ -170,11 +194,56 @@ public class SqlTokenizerTest {
         assertThat(tokenize("/=<")).hasTokens(OPERATOR).hasValues("/=<");
         assertThat(tokenize("%=%")).hasTokens(OPERATOR).hasValues("%=%");
         assertThat(tokenize("@=-")).hasTokens(OPERATOR).hasValues("@=-");
+        assertThat(tokenize("**~")).hasTokens(OPERATOR).hasValues("**~");
+    }
+    
+    @Test
+    public void testMultiCharacterOperatorOthers() {
+    	assertThat(tokenize("/=+=")).hasTokens(OPERATOR).hasValues("/=+=");
+    	assertThat(tokenize("/=+-=")).hasTokens(OPERATOR).hasValues("/=+-=");
+    	assertThat(tokenize("/=+/=")).hasTokens(OPERATOR).hasValues("/=+/=");
+    	assertThat(tokenize("/=+-?")).hasTokens(OPERATOR).hasValues("/=+-?");
+    	assertThat(tokenize("/=+-/")).hasTokens(OPERATOR).hasValues("/=+-/");
+    	assertThat(tokenize("/=+-/!")).hasTokens(OPERATOR).hasValues("/=+-/!");
+    	assertThat(tokenize("/=+-/?")).hasTokens(OPERATOR).hasValues("/=+-/?");
+    	assertThat(tokenize("/=+-//")).hasTokens(OPERATOR).hasValues("/=+-//");
+    	assertThat(tokenize("/=~-?")).hasTokens(OPERATOR).hasValues("/=~-?");
+    	assertThat(tokenize("/=~-")).hasTokens(OPERATOR).hasValues("/=~-");
+    	assertThat(tokenize("/=~-/")).hasTokens(OPERATOR).hasValues("/=~-/");
+    	assertThat(tokenize("~=/?")).hasTokens(OPERATOR).hasValues("~=/?");
+    	assertThat(tokenize("~=/-")).hasTokens(OPERATOR).hasValues("~=/-");
+    	assertThat(tokenize("/=-*")).hasTokens(OPERATOR).hasValues("/=-*");
+    	assertThat(tokenize("/=-~")).hasTokens(OPERATOR).hasValues("/=-~");
+    	assertThat(tokenize("/=-/")).hasTokens(OPERATOR).hasValues("/=-/");
+    	assertThat(tokenize("-+>")).hasTokens(OPERATOR).hasValues("-+>");
+    	assertThat(tokenize("->")).hasTokens(OPERATOR).hasValues("->");
+    	assertThat(tokenize("-~")).hasTokens(OPERATOR).hasValues("-~");
+    	assertThat(tokenize("-/")).hasTokens(OPERATOR).hasValues("-/");
+    }
+    
+    @Test
+    public void testMultiCharacterOperatorOthersFollowed() {
+    	assertThat(tokenize("~=/-a")).hasTokens(OPERATOR, IDENTIFIER).hasValues("~=/-", "a");
+    }
+    
+    @Test(expected=SqlParseException.class)
+    public void testMultiCharacterOperatorWithFinalPlusWithIdent() {
+    	tokenize("++-a");
+    }
+    
+    @Test(expected=SqlParseException.class)
+    public void testInvalidMultiCharacterOperatorOther() {
+    	tokenize("/=+-+");
     }
     
     @Test(expected=SqlParseException.class)
     public void testInvalidMultiCharacterOperator3() {
-        assertThat(tokenize("*/-")).hasTokens(OPERATOR).hasValues("*/-");
+        tokenize("*/-");
+    }
+    
+    @Test(expected=SqlParseException.class)
+    public void testInvalidMultiCharacterOperatorOthers() {
+    	tokenize("*/+");
     }
     
     @Test
@@ -201,7 +270,8 @@ public class SqlTokenizerTest {
     
     @Test
     public void testOperatorLineComment() {
-        assertThat(tokenize("+=--")).hasTokens(OPERATOR, LINE_COMMENT).hasValues("+=", "--");
+    	assertThat(tokenize("+=--")).hasTokens(OPERATOR, LINE_COMMENT).hasValues("+=", "--");
+        assertThat(tokenize("~=--")).hasTokens(OPERATOR, LINE_COMMENT).hasValues("~=", "--");
         assertThat(tokenize("+=--++")).hasTokens(OPERATOR, LINE_COMMENT).hasValues("+=", "--++");
     }
     
@@ -210,6 +280,7 @@ public class SqlTokenizerTest {
         assertThat(tokenize("/**/")).hasTokens(BLOCK_COMMENT).hasValues("/**/");
         assertThat(tokenize("/*Hello*/")).hasTokens(BLOCK_COMMENT).hasValues("/*Hello*/");
         assertThat(tokenize("/*Lorem ipsum*/")).hasTokens(BLOCK_COMMENT).hasValues("/*Lorem ipsum*/");
+        assertThat(tokenize("/*Lorem ipsum* Hello*/")).hasTokens(BLOCK_COMMENT).hasValues("/*Lorem ipsum* Hello*/");
     }
     
     @Test
@@ -225,12 +296,13 @@ public class SqlTokenizerTest {
     @Test
     public void testOperatorBlockComment() {
         assertThat(tokenize("+=/**/")).hasTokens(OPERATOR, BLOCK_COMMENT).hasValues("+=", "/**/");
+        assertThat(tokenize("~=/**/")).hasTokens(OPERATOR, BLOCK_COMMENT).hasValues("~=", "/**/");
         assertThat(tokenize("+=/*++*/")).hasTokens(OPERATOR, BLOCK_COMMENT).hasValues("+=", "/*++*/");
     }
     
     @Test(expected=SqlParseException.class)
     public void testUnterminatedBlockComment() {
-        assertThat(tokenize("/*"));
+        assertThat(tokenize("/*HEllo"));
     }
     
     @Test(expected=SqlParseException.class)
@@ -257,6 +329,11 @@ public class SqlTokenizerTest {
         assertThat(tokenize(",")).hasTokens(COMMA).hasValues(",");
         assertThat(tokenize(";")).hasTokens(SEMI).hasValues(";");
         assertThat(tokenize(".")).hasTokens(DOT).hasValues(".");
+    }
+    
+    @Test(expected=SqlParseException.class)
+    public void testUnknownCharacter() {
+    	tokenize("¶");
     }
     
     private static List<Token> tokenize(String sql) {

@@ -19,39 +19,5 @@ public class SqlTokenizer {
 		len = data.length;
 	}
 
-	public String nextToken() {
-        while (pos < len) {
-        	char cur = data[pos++];
-        	if (Character.isLetter(cur)) {
-        		if (state == STATE_0) {
-        			
-        		}
-        	} else if (Character.isDigit(cur)) {
-        		
-        	} else if (Character.isWhitespace(cur)) {
-        		
-        	} else {
-        		switch (cur) {
-	            	case '"':
-	            		if (state == STATE_0) {
-	            			state = STATE_DELIM_IDENT;
-	            		} else {
-	            			state = STATE_0;
-	            		}
-	            		sb.append(cur);
-	            		break;
-	            	case '\'':
-	            		 if (state == STATE_0) {
-	                         state = STATE_STRING;
-	                     } else if (state == STATE_STRING) {
-	                         state = STATE_0;
-	                     }
-	                     sb.append(cur);
-	                     break;
-            	}
-        	}
-        	
-        }
-	}
 	
 }
