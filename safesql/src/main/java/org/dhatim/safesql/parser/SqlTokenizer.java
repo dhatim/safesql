@@ -3,6 +3,9 @@ package org.dhatim.safesql.parser;
 import static org.dhatim.safesql.parser.SqlTokenizer.CharType.*;
 import static org.dhatim.safesql.parser.SqlTokenizer.State.*;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Locale;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -53,6 +56,63 @@ public class SqlTokenizer {
     enum CharType {
         UNKNOWN, LETTER, UNDERSCORE, DIGIT, DOLLAR, QUOTE, DOUBLE_QUOTE, WHITESPACE, LPAREN, RPAREN, LBRACK, RBRACK, AMPERSAND, SEMI, COMMA, DOT, PLUS, MINUS, 
         ASTERISK, DIV, LT, GT, EQUAL, TILDE, BANG, AT, DIESE, HASH, PERCENT, CARET, PIPE, GRAVE, QUESTION, EOF, EOL, COLON
+    }
+    
+    public static class Reserved {
+    	
+		private static final String[] RESERVED = { 
+				"all", "analyse", "analyze", "and", "any", "array", "as", "asc", "asymmetric", "authorization", "between", 
+				"binary", "both", "case", "cast", "check", "collate", "column", "constraint", "create", "cross", "current_date", 
+				"current_role", "current_time", "current_timestamp", "current_user", "default", "deferrable", "desc", "distinct", 
+				"do", "else", "end", "except", "false", "for", "foreign", "freeze", "from", "full", "grant", "group", "having", 
+				"ilike", "in", "initially", "inner", "intersect", "into", "is", "isnull", "join", "leading", "left", "like", 
+				"limit", "localtime", "localtimestamp", "natural", "new", "not", "notnull", "null", "off", "offset", "old", 
+				"on", "only", "or", "order", "outer", "overlaps", "placing", "primary", "references", "right", "select", 
+				"session_user", "similar", "some", "symmetric", "table", "then", "to", "trailing", "true", "union", "unique", 
+				"user", "using", "verbose", "when", "where" 
+		};
+		
+		private static final String[] NON_RESERVED = { "abort", "absolute", "access", "action", "add", "admin", "after", "aggregate", 
+				"also", "alter", "assertion", "assignment", "at", "backward", "before", "begin", "bigint", "bit", "boolean", "by", 
+				"cache", "called", "cascade", "chain", "char", "character", "characteristics", "checkpoint", "class", "close", 
+				"cluster", "coalesce", "comment", "commit", "committed", "connection", "constraints", "conversion", "convert", 
+				"copy", "createdb", "createrole", "createuser", "csv", "cursor", "cycle", "database", "day", "deallocate", "dec", 
+				"decimal", "declare", "defaults", "deferred", "definer", "delete", "delimiter", "delimiters", "disable", "domain", 
+				"double", "drop", "each", "enable", "encoding", "encrypted", "escape", "excluding", "exclusive", "execute", "exists", 
+				"explain", "external", "extract", "fetch", "first", "float", "force", "forward", "function", "global", "granted", 
+				"greatest", "handler", "header", "hold", "hour", "immediate", "immutable", "implicit", "including", "increment", 
+				"index", "inherit", "inherits", "inout", "input", "insensitive", "insert", "instead", "int", "integer", "interval", 
+				"invoker", "isolation", "key", "lancompiler", "language", "large", "last", "least", "level", "listen", "load", "local", 
+				"location", "lock", "login", "match", "maxvalue", "minute", "minvalue", "mode", "month", "move", "names", "national", 
+				"nchar", "next", "no", "nocreatedb", "nocreaterole", "nocreateuser", "noinherit", "nologin", "none", "nosuperuser", 
+				"nothing", "notify", "nowait", "nullif", "numeric", "object", "of", "oids", "operator", "option", "out", "overlay", 
+				"owner", "partial", "password", "position", "precision", "prepare", "prepared", "preserve", "prior", "privileges", 
+				"procedural", "procedure", "quote", "read", "real", "recheck", "reindex", "relative", "release", "rename", 
+				"repeatable", "replace", "reset", "restart", "restrict", "returns", "revoke", "role", "rollback", "row", "rows", 
+				"rule", "savepoint", "schema", "scroll", "second", "security", "sequence", "serializable", "session", "set", "setof", 
+				"share", "show", "simple", "smallint", "stable", "start", "statement", "statistics", "stdin", "stdout", "storage", 
+				"strict", "substring", "superuser", "sysid", "system", "tablespace", "temp", "template", "temporary", "time", 
+				"timestamp", "toast", "transaction", "treat", "trigger", "trim", "truncate", "trusted", "type", "uncommitted", 
+				"unencrypted", "unknown", "unlisten", "until", "update", "vacuum", "valid", "validator", "values", "varchar", 
+				"varying", "view", "volatile", "with", "without", "work", "write", "year", "zone"
+		};
+    	
+    	private static final HashSet<String> RESERVED_KEYWORDS = new HashSet<>(Arrays.asList(RESERVED));
+    	private static final HashSet<String> NON_RESERVED_KEYWORDS = new HashSet<>(Arrays.asList(NON_RESERVED));
+    	
+    	public static boolean isReserved(String keyword) {
+    		return RESERVED_KEYWORDS.contains(keyword.toLowerCase(Locale.ROOT));
+    	}
+    	
+    	public static boolean isNonReserved(String keyword) {
+    		return NON_RESERVED_KEYWORDS.contains(keyword.toLowerCase(Locale.ROOT));
+    	}
+    	
+    	public static boolean isKeyword(String keyword) {
+    		final String lowerKeyword = keyword.toLowerCase(Locale.ROOT);
+			return RESERVED_KEYWORDS.contains(lowerKeyword) ||  NON_RESERVED_KEYWORDS.contains(lowerKeyword);
+    	}
+    	
     }
 
     public static class Token {
@@ -113,23 +173,23 @@ public class SqlTokenizer {
         
     }
 
-    enum State {
-        STATE_0, STATE_IDENT, STATE_EOT, /*STATE_SONT, */STATE_WHITESPACE, STATE_OP, STATE_NUM, STATE_NUM_AFTER_DOT, STATE_NUM_AFTER_E, 
-        STATE_NUM_AFTER_E_SIGN, STATE_QUOTED_IDENT, STATE_QUOTED_IDENT_QUOTE, STATE_MAY_UNICODE_VARIANT_OR_IDENT, STATE_UNICODE_VARIANT,
-        STATE_STRING, STATE_STRING_QUOTE, STATE_MAY_ESCAPED_STRING_OR_IDENT, STATE_MAY_BITSTRING_OR_IDENT, STATE_MAY_HEXSTRING_OR_IDENT,
-        STATE_BITSTRING, STATE_HEXSTRING, STATE_MAY_PARAMETER_OR_DOLLAR_QUOTED_STRING, STATE_MAY_DOLLAR_QUOTED_STRING, STATE_DOLLAR_QUOTED_STRING,
-        STATE_MAY_END_DOLLAR_QUOTED_STRING, STATE_POSITIONAL_PARAMETER,
-        STATE_OP_START, STATE_OPX, STATE_MAY_OP_OR_LINE_COMMENT, STATE_MAY_OP_OR_BLOCK_COMMENT, STATE_OP_WITHOUT_FINAL_PLUS, STATE_MAY_OP_OR_FUTURE_LINE_COMMENT,
-        STATE_MAY_OP_OR_FUTURE_BLOCK_COMMENT, STATE_MAY_OPX_OR_FUTURE_LINE_COMMENT, STATE_MAY_OPX_OR_FUTURE_BLOCK_COMMENT,
-        STATE_LINE_COMMENT, STATE_BLOCK_COMMENT,
-        STATE_MAY_BLOCK_COMMENT_LEVEL, STATE_MAY_END_BLOCK_LEVEL, STATE_MAY_CAST_OR_SLICE, STATE_MAY_NUM_OR_OP
-    }
+	enum State {
+		STATE_0, STATE_IDENT, STATE_EOT, STATE_WHITESPACE, STATE_OP, STATE_NUM, STATE_NUM_AFTER_DOT, STATE_NUM_AFTER_E, 
+		STATE_NUM_AFTER_E_SIGN, STATE_QUOTED_IDENT, STATE_QUOTED_IDENT_QUOTE, STATE_MAY_UNICODE_VARIANT_OR_IDENT, 
+		STATE_UNICODE_VARIANT, STATE_STRING, STATE_STRING_QUOTE, STATE_MAY_ESCAPED_STRING_OR_IDENT, STATE_MAY_BITSTRING_OR_IDENT, 
+		STATE_MAY_HEXSTRING_OR_IDENT, STATE_BITSTRING, STATE_HEXSTRING, STATE_MAY_PARAMETER_OR_DOLLAR_QUOTED_STRING, 
+		STATE_MAY_DOLLAR_QUOTED_STRING, STATE_DOLLAR_QUOTED_STRING, STATE_MAY_END_DOLLAR_QUOTED_STRING, 
+		STATE_POSITIONAL_PARAMETER, STATE_OP_START, STATE_OPX, STATE_MAY_OP_OR_LINE_COMMENT, STATE_MAY_OP_OR_BLOCK_COMMENT, 
+		STATE_OP_WITHOUT_FINAL_PLUS, STATE_MAY_OP_OR_FUTURE_LINE_COMMENT, STATE_MAY_OP_OR_FUTURE_BLOCK_COMMENT, 
+		STATE_MAY_OPX_OR_FUTURE_LINE_COMMENT, STATE_MAY_OPX_OR_FUTURE_BLOCK_COMMENT, STATE_LINE_COMMENT, STATE_BLOCK_COMMENT, 
+		STATE_MAY_BLOCK_COMMENT_LEVEL, STATE_MAY_END_BLOCK_LEVEL, STATE_MAY_CAST_OR_SLICE, STATE_MAY_NUM_OR_OP
+	}
     
     enum Modifier {
         NONE, UNICODE, ESCAPED, HEX
     }
     
-    private static final int NAMEDATALEN = 64-1;
+    //private static final int NAMEDATALEN = 64-1;
 
     private int position = -1;
     
@@ -976,15 +1036,19 @@ public class SqlTokenizer {
             position -= tooManyChars;
         }
         token = sb.toString();
-        tokenType = modify(nextType, modifier);
+        tokenType = modify(nextType, modifier, token);
         debug("==> return [" + token + "] of type " + nextType + " position is " + position + "/" + chars.length);
         return token;
     }
     
-    private TokenType modify(TokenType type, Modifier modifier) {
+    private TokenType modify(TokenType type, Modifier modifier, String value) {
         TokenType result;
         if (modifier == Modifier.NONE) {
-            result = type;
+        	if (type == TokenType.IDENTIFIER && Reserved.isKeyword(value)) {
+        		result = TokenType.KEYWORD;
+        	} else {
+        		result = type;
+        	}
         } else {
             if (type == TokenType.STRING) {
                 if (modifier == Modifier.ESCAPED) {
@@ -1003,7 +1067,7 @@ public class SqlTokenizer {
             } else {
                 result = type;
             }
-        }
+        } 
         if (result == null) {
             throw new IllegalStateException("The modifier " + modifier + " is not compatible with type " + type);
         }
@@ -1031,119 +1095,113 @@ public class SqlTokenizer {
         throw new SqlParseException(msg, position - 1, origin);
     }
     
-    private static boolean isSpace(char ch) {
-        return ch == ' ' || ch == '\t';
-    }
-
-    private static boolean isLetter(char ch) {
-        return Character.isLetter(ch);
-    }
-
     private static CharType toCharType(char ch) {
         CharType result;
-        if (isSpace(ch)) {
-            result = CharType.WHITESPACE;
-        } else if (isLetter(ch)) {
+        if (Character.isLetter(ch)) {
             result = LETTER;
         } else if (Character.isDigit(ch)) {
             result = DIGIT;
         } else {
             switch (ch) {
-            case '$':
-                result = DOLLAR;
-                break;
-            case '_':
-                result = UNDERSCORE;
-                break;
-            case '"':
-                result = DOUBLE_QUOTE;
-                break;
-            case '\'':
-                result = QUOTE;
-                break;
-            case '=':
-                result = EQUAL;
-                break;
-            case '+':
-                result = PLUS;
-                break;
-            case '-':
-                result = MINUS;
-                break;
-            case '/':
-                result = DIV;
-                break;
-            case '*':
-                result = ASTERISK;
-                break;
-            case '<':
-                result = LT;
-                break;
-            case '>':
-                result = GT;
-                break;
-            case '~':
-                result = TILDE;
-                break;
-            case '!':
-                result = BANG;
-                break;
-            case '@':
-                result = AT;
-                break;
-            case '#':
-                result = HASH;
-                break;
-            case '%':
-                result = PERCENT;
-                break;
-            case '^':
-                result = CARET;
-                break;
-            case '|':
-                result = PIPE;
-                break;
-            case '`':
-                result = GRAVE;
-                break;
-            case '?':
-                result = QUESTION;
-                break;
-            case '.':
-                result = DOT;
-                break;
-            case '\0':
-                result = EOF;
-                break;
-            case '&':
-                result = AMPERSAND;
-                break;
-            case '\n':
-                result = EOL;
-                break;
-            case '(':
-                result = CharType.LPAREN;
-                break;
-            case ')':
-                result = CharType.RPAREN;
-                break;
-            case '[':
-                result = CharType.LBRACK;
-                break;
-            case ']':
-                result = CharType.RBRACK;
-                break;
-            case ',':
-                result = CharType.COMMA;
-                break;
-            case ';':
-                result = CharType.SEMI;
-                break;
-            case ':':
-                result = CharType.COLON;
-                break;
-            default:
-                result = UNKNOWN;
+            	case ' ':
+            	case '\t':
+            		result = WHITESPACE;
+            		break;
+	            case '$':
+	                result = DOLLAR;
+	                break;
+	            case '_':
+	                result = UNDERSCORE;
+	                break;
+	            case '"':
+	                result = DOUBLE_QUOTE;
+	                break;
+	            case '\'':
+	                result = QUOTE;
+	                break;
+	            case '=':
+	                result = EQUAL;
+	                break;
+	            case '+':
+	                result = PLUS;
+	                break;
+	            case '-':
+	                result = MINUS;
+	                break;
+	            case '/':
+	                result = DIV;
+	                break;
+	            case '*':
+	                result = ASTERISK;
+	                break;
+	            case '<':
+	                result = LT;
+	                break;
+	            case '>':
+	                result = GT;
+	                break;
+	            case '~':
+	                result = TILDE;
+	                break;
+	            case '!':
+	                result = BANG;
+	                break;
+	            case '@':
+	                result = AT;
+	                break;
+	            case '#':
+	                result = HASH;
+	                break;
+	            case '%':
+	                result = PERCENT;
+	                break;
+	            case '^':
+	                result = CARET;
+	                break;
+	            case '|':
+	                result = PIPE;
+	                break;
+	            case '`':
+	                result = GRAVE;
+	                break;
+	            case '?':
+	                result = QUESTION;
+	                break;
+	            case '.':
+	                result = DOT;
+	                break;
+	            case '\0':
+	                result = EOF;
+	                break;
+	            case '&':
+	                result = AMPERSAND;
+	                break;
+	            case '\n':
+	                result = EOL;
+	                break;
+	            case '(':
+	                result = CharType.LPAREN;
+	                break;
+	            case ')':
+	                result = CharType.RPAREN;
+	                break;
+	            case '[':
+	                result = CharType.LBRACK;
+	                break;
+	            case ']':
+	                result = CharType.RBRACK;
+	                break;
+	            case ',':
+	                result = CharType.COMMA;
+	                break;
+	            case ';':
+	                result = CharType.SEMI;
+	                break;
+	            case ':':
+	                result = CharType.COLON;
+	                break;
+	            default:
+	                result = UNKNOWN;
             }
         }
         return result;

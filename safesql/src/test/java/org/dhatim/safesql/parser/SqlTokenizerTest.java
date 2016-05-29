@@ -19,8 +19,8 @@ public class SqlTokenizerTest {
     @Test
     public void testSimpleSql() {
         String sql = "SELECT jambon FROM charcuterie WHERE taille = 5";
-        assertThat(tokenize(sql)).hasTokenClasses(TokenClass.IDENTIFIER, TokenClass.WHITESPACE, TokenClass.IDENTIFIER, TokenClass.WHITESPACE, TokenClass.IDENTIFIER, TokenClass.WHITESPACE, 
-                        TokenClass.IDENTIFIER, TokenClass.WHITESPACE, TokenClass.IDENTIFIER, TokenClass.WHITESPACE, TokenClass.IDENTIFIER, TokenClass.WHITESPACE, 
+        assertThat(tokenize(sql)).hasTokenClasses(TokenClass.KEYWORD, TokenClass.WHITESPACE, TokenClass.IDENTIFIER, TokenClass.WHITESPACE, TokenClass.KEYWORD, TokenClass.WHITESPACE, 
+                        TokenClass.IDENTIFIER, TokenClass.WHITESPACE, TokenClass.KEYWORD, TokenClass.WHITESPACE, TokenClass.IDENTIFIER, TokenClass.WHITESPACE, 
                         TokenClass.SYMBOL, TokenClass.WHITESPACE, TokenClass.LITERAL);
     }
     
@@ -266,7 +266,7 @@ public class SqlTokenizerTest {
                 .hasTokens(LINE_COMMENT, WHITESPACE, LINE_COMMENT, WHITESPACE, LINE_COMMENT)
                 .hasValues("-- Lorem ipsum dolor sit amet", "\n", "-- Lorem ipsum dolor sit amet", "\n", "-- Lorem ipsum dolor sit amet");
         assertThat(tokenize("-- Lorem ipsum dolor sit amet\n-- Lorem ipsum dolor sit amet\nSELECT"))
-                .hasTokens(LINE_COMMENT, WHITESPACE, LINE_COMMENT, WHITESPACE, IDENTIFIER)
+                .hasTokens(LINE_COMMENT, WHITESPACE, LINE_COMMENT, WHITESPACE, KEYWORD)
                 .hasValues("-- Lorem ipsum dolor sit amet", "\n", "-- Lorem ipsum dolor sit amet", "\n", "SELECT");
     }
     
