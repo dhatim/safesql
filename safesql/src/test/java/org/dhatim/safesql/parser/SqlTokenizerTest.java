@@ -1,15 +1,17 @@
-package org.dhatim.safesql;
+package org.dhatim.safesql.parser;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.dhatim.safesql.assertion.Assertions.*;
-
-import static org.dhatim.safesql.SqlTokenizer.TokenType.*;
+import static org.dhatim.safesql.parser.SqlTokenizer.TokenType.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.dhatim.safesql.SqlTokenizer.Token;
-import org.dhatim.safesql.SqlTokenizer.TokenClass;
-import org.dhatim.safesql.SqlTokenizer.TokenType;
+
+import org.dhatim.safesql.parser.SqlParseException;
+import org.dhatim.safesql.parser.SqlTokenizer;
+import org.dhatim.safesql.parser.SqlTokenizer.Token;
+import org.dhatim.safesql.parser.SqlTokenizer.TokenClass;
+import org.dhatim.safesql.parser.SqlTokenizer.TokenType;
 import org.junit.Test;
 
 public class SqlTokenizerTest {
@@ -294,6 +296,11 @@ public class SqlTokenizerTest {
     }
     
     @Test
+    public void testMultiLevelBlockComment2() {
+        assertThat(tokenize("/*Lorem ipsum /*dolor /* sit*/ */ amet*/")).hasTokens(BLOCK_COMMENT).hasValues("/*Lorem ipsum /*dolor /* sit*/ */ amet*/");
+    }
+    
+    @Test
     public void testOperatorBlockComment() {
         assertThat(tokenize("+=/**/")).hasTokens(OPERATOR, BLOCK_COMMENT).hasValues("+=", "/**/");
         assertThat(tokenize("~=/**/")).hasTokens(OPERATOR, BLOCK_COMMENT).hasValues("~=", "/**/");
@@ -308,6 +315,11 @@ public class SqlTokenizerTest {
     @Test(expected=SqlParseException.class)
     public void testUnterminatedBlockComment2() {
         assertThat(tokenize("/* *"));
+    }
+    
+    @Test(expected=SqlParseException.class)
+    public void testUnterminatedMultiLevelBlockComment() {
+    	assertThat(tokenize("/* Lorem /* Ipsum */"));
     }
     
     @Test

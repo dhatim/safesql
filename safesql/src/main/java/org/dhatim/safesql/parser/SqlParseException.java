@@ -1,4 +1,4 @@
-package org.dhatim.safesql;
+package org.dhatim.safesql.parser;
 
 @SuppressWarnings("serial")
 public class SqlParseException extends RuntimeException {

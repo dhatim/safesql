@@ -3,9 +3,9 @@ package org.dhatim.safesql.assertion;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.assertj.core.api.AbstractAssert;
-import org.dhatim.safesql.SqlTokenizer.Token;
-import org.dhatim.safesql.SqlTokenizer.TokenClass;
-import org.dhatim.safesql.SqlTokenizer.TokenType;
+import org.dhatim.safesql.parser.SqlTokenizer.Token;
+import org.dhatim.safesql.parser.SqlTokenizer.TokenClass;
+import org.dhatim.safesql.parser.SqlTokenizer.TokenType;
 
 public class TokenListAssert extends AbstractAssert<TokenListAssert, List<Token>> {
     

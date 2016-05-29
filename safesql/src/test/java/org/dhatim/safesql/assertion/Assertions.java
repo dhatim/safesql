@@ -2,7 +2,7 @@ package org.dhatim.safesql.assertion;
 
 import java.util.List;
 import org.dhatim.safesql.SafeSql;
-import org.dhatim.safesql.SqlTokenizer.Token;
+import org.dhatim.safesql.parser.SqlTokenizer.Token;
 
 public class Assertions {
 
