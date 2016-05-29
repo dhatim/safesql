@@ -3,18 +3,18 @@ package org.dhatim.safesql.assertion;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.assertj.core.api.AbstractAssert;
-import org.dhatim.safesql.parser.SqlTokenizer.Token;
-import org.dhatim.safesql.parser.SqlTokenizer.TokenClass;
-import org.dhatim.safesql.parser.SqlTokenizer.TokenType;
+import org.dhatim.safesql.parser.SqlToken;
+import org.dhatim.safesql.parser.SqlTokenKind;
+import org.dhatim.safesql.parser.SqlTokenType;
 
-public class TokenListAssert extends AbstractAssert<TokenListAssert, List<Token>> {
+public class TokenListAssert extends AbstractAssert<TokenListAssert, List<SqlToken>> {
     
-    public TokenListAssert hasTokens(TokenType... types) {
+    public TokenListAssert hasTokens(SqlTokenType... types) {
         isNotNull();
         if (types == null) {
             failWithMessage("Expecting types not to be null.");
         }
-        org.assertj.core.api.Assertions.assertThat(actual.stream().map(Token::type).collect(Collectors.toList())).containsExactly(types);
+        org.assertj.core.api.Assertions.assertThat(actual.stream().map(SqlToken::type).collect(Collectors.toList())).containsExactly(types);
         return myself;
     }
     
@@ -23,16 +23,16 @@ public class TokenListAssert extends AbstractAssert<TokenListAssert, List<Token>
         if (values == null) {
             failWithMessage("Expecting values not to be null.");
         }
-        org.assertj.core.api.Assertions.assertThat(actual.stream().map(Token::value).collect(Collectors.toList())).containsExactly(values);
+        org.assertj.core.api.Assertions.assertThat(actual.stream().map(SqlToken::value).collect(Collectors.toList())).containsExactly(values);
         return myself;
     }
     
-    public TokenListAssert hasTokenClasses(TokenClass... classes) {
+    public TokenListAssert hasTokenClasses(SqlTokenKind... classes) {
         isNotNull();
         if (classes == null) {
             failWithMessage("Expecting classes not to be null.");
         }
-        org.assertj.core.api.Assertions.assertThat(actual.stream().map(Token::tokenClass).collect(Collectors.toList())).containsExactly(classes);
+        org.assertj.core.api.Assertions.assertThat(actual.stream().map(SqlToken::kind).collect(Collectors.toList())).containsExactly(classes);
         return myself;
     }
     
@@ -100,15 +100,15 @@ public class TokenListAssert extends AbstractAssert<TokenListAssert, List<Token>
         return myself;
     }*/
 
-    private TokenListAssert(List<Token> actual) {
+    private TokenListAssert(List<SqlToken> actual) {
         super(actual, TokenListAssert.class);
     }
 
-    private String toString(List<Token> actual) {
+    private String toString(List<SqlToken> actual) {
         return "SafeSql{" + actual + '}';
     }
 
-    public static TokenListAssert assertThat(List<Token> actual) {
+    public static TokenListAssert assertThat(List<SqlToken> actual) {
         return new TokenListAssert(actual);
     }
 

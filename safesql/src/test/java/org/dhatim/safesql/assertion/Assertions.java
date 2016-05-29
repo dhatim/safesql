@@ -2,7 +2,7 @@ package org.dhatim.safesql.assertion;
 
 import java.util.List;
 import org.dhatim.safesql.SafeSql;
-import org.dhatim.safesql.parser.SqlTokenizer.Token;
+import org.dhatim.safesql.parser.SqlToken;
 
 public class Assertions {
 
@@ -10,7 +10,7 @@ public class Assertions {
         return SafeSqlAssert.assertThat(actual);
     }
     
-    public static TokenListAssert assertThat(List<Token> actual) {
+    public static TokenListAssert assertThat(List<SqlToken> actual) {
         return TokenListAssert.assertThat(actual);
     }
     

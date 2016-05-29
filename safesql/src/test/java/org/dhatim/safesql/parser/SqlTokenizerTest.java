@@ -2,16 +2,13 @@ package org.dhatim.safesql.parser;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.dhatim.safesql.assertion.Assertions.*;
-import static org.dhatim.safesql.parser.SqlTokenizer.TokenType.*;
+import static org.dhatim.safesql.parser.SqlTokenType.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.dhatim.safesql.parser.SqlParseException;
 import org.dhatim.safesql.parser.SqlTokenizer;
-import org.dhatim.safesql.parser.SqlTokenizer.Token;
-import org.dhatim.safesql.parser.SqlTokenizer.TokenClass;
-import org.dhatim.safesql.parser.SqlTokenizer.TokenType;
 import org.junit.Test;
 
 public class SqlTokenizerTest {
@@ -19,9 +16,9 @@ public class SqlTokenizerTest {
     @Test
     public void testSimpleSql() {
         String sql = "SELECT jambon FROM charcuterie WHERE taille = 5";
-        assertThat(tokenize(sql)).hasTokenClasses(TokenClass.KEYWORD, TokenClass.WHITESPACE, TokenClass.IDENTIFIER, TokenClass.WHITESPACE, TokenClass.KEYWORD, TokenClass.WHITESPACE, 
-                        TokenClass.IDENTIFIER, TokenClass.WHITESPACE, TokenClass.KEYWORD, TokenClass.WHITESPACE, TokenClass.IDENTIFIER, TokenClass.WHITESPACE, 
-                        TokenClass.SYMBOL, TokenClass.WHITESPACE, TokenClass.LITERAL);
+        assertThat(tokenize(sql)).hasTokenClasses(SqlTokenKind.KEYWORD, SqlTokenKind.WHITESPACE, SqlTokenKind.IDENTIFIER, SqlTokenKind.WHITESPACE, SqlTokenKind.KEYWORD, SqlTokenKind.WHITESPACE, 
+                        SqlTokenKind.IDENTIFIER, SqlTokenKind.WHITESPACE, SqlTokenKind.KEYWORD, SqlTokenKind.WHITESPACE, SqlTokenKind.IDENTIFIER, SqlTokenKind.WHITESPACE, 
+                        SqlTokenKind.SYMBOL, SqlTokenKind.WHITESPACE, SqlTokenKind.LITERAL);
     }
     
     @Test 
@@ -71,9 +68,9 @@ public class SqlTokenizerTest {
     
     @Test
     public void testQuotedIndentifier() {
-        assertThat(tokenize("\"SELECT\"")).hasTokens(TokenType.QUOTED_IDENTIFIER).hasValues("\"SELECT\"");
-        assertThat(tokenize("\"SELECT WHERE\"")).hasTokens(TokenType.QUOTED_IDENTIFIER).hasValues("\"SELECT WHERE\"");
-        assertThat(tokenize("\"SELECT WHERE \"\"hello\"\"\"")).hasTokens(TokenType.QUOTED_IDENTIFIER).hasValues("\"SELECT WHERE \"\"hello\"\"\"");
+        assertThat(tokenize("\"SELECT\"")).hasTokens(SqlTokenType.QUOTED_IDENTIFIER).hasValues("\"SELECT\"");
+        assertThat(tokenize("\"SELECT WHERE\"")).hasTokens(SqlTokenType.QUOTED_IDENTIFIER).hasValues("\"SELECT WHERE\"");
+        assertThat(tokenize("\"SELECT WHERE \"\"hello\"\"\"")).hasTokens(SqlTokenType.QUOTED_IDENTIFIER).hasValues("\"SELECT WHERE \"\"hello\"\"\"");
     }
     
     @Test(expected=SqlParseException.class)
@@ -83,8 +80,8 @@ public class SqlTokenizerTest {
     
     @Test
     public void testUnicodeQuotedIndentifier() {
-        assertThat(tokenize("U&\"d\\0061t\\+000061\"")).hasTokens(TokenType.UNICODE_QUOTED_IDENTIFIER).hasValues("U&\"d\\0061t\\+000061\"");
-        assertThat(tokenize("u&\"d\\0061t\\+000061\"")).hasTokens(TokenType.UNICODE_QUOTED_IDENTIFIER).hasValues("u&\"d\\0061t\\+000061\"");
+        assertThat(tokenize("U&\"d\\0061t\\+000061\"")).hasTokens(SqlTokenType.UNICODE_QUOTED_IDENTIFIER).hasValues("U&\"d\\0061t\\+000061\"");
+        assertThat(tokenize("u&\"d\\0061t\\+000061\"")).hasTokens(SqlTokenType.UNICODE_QUOTED_IDENTIFIER).hasValues("u&\"d\\0061t\\+000061\"");
     }
     
     @Test
@@ -96,7 +93,7 @@ public class SqlTokenizerTest {
     public void testString() {
         assertThat(tokenize("'SELECT'")).hasTokens(STRING).hasValues("'SELECT'");
         assertThat(tokenize("'SELECT WHERE'")).hasTokens(STRING).hasValues("'SELECT WHERE'");
-        assertThat(tokenize("'Dianne''s horse'")).hasTokens(TokenType.STRING).hasValues("'Dianne''s horse'");
+        assertThat(tokenize("'Dianne''s horse'")).hasTokens(SqlTokenType.STRING).hasValues("'Dianne''s horse'");
     }
     
     @Test(expected=SqlParseException.class)
@@ -112,8 +109,8 @@ public class SqlTokenizerTest {
     
     @Test
     public void testUnicodeString() {
-        assertThat(tokenize("U&'d\\0061t\\+000061'")).hasTokens(TokenType.UNICODE_STRING).hasValues("U&'d\\0061t\\+000061'");
-        assertThat(tokenize("u&'d\\0061t\\+000061'")).hasTokens(TokenType.UNICODE_STRING).hasValues("u&'d\\0061t\\+000061'");
+        assertThat(tokenize("U&'d\\0061t\\+000061'")).hasTokens(SqlTokenType.UNICODE_STRING).hasValues("U&'d\\0061t\\+000061'");
+        assertThat(tokenize("u&'d\\0061t\\+000061'")).hasTokens(SqlTokenType.UNICODE_STRING).hasValues("u&'d\\0061t\\+000061'");
     }
     
     @Test
@@ -348,7 +345,7 @@ public class SqlTokenizerTest {
     	tokenize("¶");
     }
     
-    private static List<Token> tokenize(String sql) {
+    private static List<SqlToken> tokenize(String sql) {
         SqlTokenizer tokenizer = new SqlTokenizer(sql);
         return tokenizer.stream().collect(Collectors.toList());
     }

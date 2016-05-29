@@ -1,58 +1,82 @@
 package org.dhatim.safesql.parser;
 
-import static org.dhatim.safesql.parser.SqlTokenizer.CharType.*;
-import static org.dhatim.safesql.parser.SqlTokenizer.State.*;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.AMPERSAND;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.ASTERISK;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.AT;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.BANG;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.CARET;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.COLON;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.DIGIT;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.DIV;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.DOLLAR;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.DOT;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.DOUBLE_QUOTE;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.EOF;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.EOL;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.EQUAL;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.GRAVE;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.GT;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.HASH;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.LETTER;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.LT;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.MINUS;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.PERCENT;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.PIPE;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.PLUS;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.QUESTION;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.QUOTE;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.TILDE;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.UNDERSCORE;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.UNKNOWN;
+import static org.dhatim.safesql.parser.SqlTokenizer.CharType.WHITESPACE;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_BITSTRING;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_BLOCK_COMMENT;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_DOLLAR_QUOTED_STRING;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_EOT;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_HEXSTRING;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_IDENT;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_LINE_COMMENT;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_MAY_BLOCK_COMMENT_LEVEL;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_MAY_CAST_OR_SLICE;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_MAY_DOLLAR_QUOTED_STRING;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_MAY_END_BLOCK_LEVEL;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_MAY_END_DOLLAR_QUOTED_STRING;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_MAY_NUM_OR_OP;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_MAY_OPX_OR_FUTURE_BLOCK_COMMENT;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_MAY_OPX_OR_FUTURE_LINE_COMMENT;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_MAY_OP_OR_BLOCK_COMMENT;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_MAY_OP_OR_FUTURE_BLOCK_COMMENT;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_MAY_OP_OR_FUTURE_LINE_COMMENT;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_MAY_OP_OR_LINE_COMMENT;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_MAY_PARAMETER_OR_DOLLAR_QUOTED_STRING;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_MAY_UNICODE_VARIANT_OR_IDENT;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_NUM;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_NUM_AFTER_DOT;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_NUM_AFTER_E;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_NUM_AFTER_E_SIGN;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_OP;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_OPX;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_OP_START;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_OP_WITHOUT_FINAL_PLUS;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_POSITIONAL_PARAMETER;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_QUOTED_IDENT;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_QUOTED_IDENT_QUOTE;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_STRING;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_STRING_QUOTE;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_UNICODE_VARIANT;
+import static org.dhatim.safesql.parser.SqlTokenizer.State.STATE_WHITESPACE;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Spliterator;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class SqlTokenizer {
     
-    public enum TokenClass {
-        KEYWORD, IDENTIFIER, QUOTED_IDENTIFIER, LITERAL, SYMBOL, WHITESPACE
-    }
-
-    public enum TokenType {
-        KEYWORD                     (TokenClass.KEYWORD), 
-        IDENTIFIER                  (TokenClass.IDENTIFIER), 
-        QUOTED_IDENTIFIER           (TokenClass.QUOTED_IDENTIFIER), 
-        UNICODE_QUOTED_IDENTIFIER   (TokenClass.QUOTED_IDENTIFIER), 
-        STRING                      (TokenClass.LITERAL), 
-        ESCAPED_STRING              (TokenClass.LITERAL), 
-        UNICODE_STRING              (TokenClass.LITERAL), 
-        DOLLAR_QUOTED_STRING        (TokenClass.LITERAL), 
-        BITSTRING                   (TokenClass.LITERAL), 
-        HEXSTRING                   (TokenClass.LITERAL), 
-        NUMERIC                     (TokenClass.LITERAL),
-        OPERATOR                    (TokenClass.SYMBOL), 
-        WHITESPACE                  (TokenClass.WHITESPACE), 
-        LINE_COMMENT                (TokenClass.WHITESPACE), 
-        BLOCK_COMMENT               (TokenClass.WHITESPACE), 
-        POSITIONAL_PARAMETER        (TokenClass.SYMBOL), 
-        LPAREN                      (TokenClass.SYMBOL), 
-        RPAREN                      (TokenClass.SYMBOL), 
-        LBRACK                      (TokenClass.SYMBOL), 
-        RBRACK                      (TokenClass.SYMBOL), 
-        SEMI                        (TokenClass.SYMBOL), 
-        COMMA                       (TokenClass.SYMBOL), 
-        DOT                         (TokenClass.SYMBOL);
-        
-        private final TokenClass tokenClass;
-        
-        private TokenType(TokenClass tokenClass) {
-            this.tokenClass = tokenClass;
-        }
-        
-        public TokenClass getTokenClass() {
-            return tokenClass;
-        }
-    }
-
     enum CharType {
         UNKNOWN, LETTER, UNDERSCORE, DIGIT, DOLLAR, QUOTE, DOUBLE_QUOTE, WHITESPACE, LPAREN, RPAREN, LBRACK, RBRACK, AMPERSAND, SEMI, COMMA, DOT, PLUS, MINUS, 
         ASTERISK, DIV, LT, GT, EQUAL, TILDE, BANG, AT, DIESE, HASH, PERCENT, CARET, PIPE, GRAVE, QUESTION, EOF, EOL, COLON
@@ -115,41 +139,18 @@ public class SqlTokenizer {
     	
     }
 
-    public static class Token {
+    private class TokenizerSpliterator<T> implements Spliterator<T> {
 
-        private final TokenType type;
-        private final String value;
+    	private final Supplier<T> nextSupplier;
 
-        public Token(TokenType type, String value) {
-            this.type = type;
-            this.value = value;
-        }
-
-        public TokenType type() {
-            return type;
-        }
-        
-        public TokenClass tokenClass() {
-            return type.tokenClass;
-        }
-
-        public String value() {
-            return value;
-        }
-        
+		public TokenizerSpliterator(Supplier<T> nextSupplier) {
+			this.nextSupplier = nextSupplier;
+		}
+    	
         @Override
-        public String toString() {
-            return type + "{" + value + "}";
-        }
-
-    }
-    
-    private class TokenizerSpliterator implements Spliterator<Token> {
-
-        @Override
-        public boolean tryAdvance(Consumer<? super Token> action) {
+        public boolean tryAdvance(Consumer<? super T> action) {
             if (hasMoreTokens()) {
-                action.accept(nextToken());
+            	action.accept(nextSupplier.get());
                 return true;
             } else {
                 return false;
@@ -157,7 +158,7 @@ public class SqlTokenizer {
         }
 
         @Override
-        public Spliterator<Token> trySplit() {
+        public Spliterator<T> trySplit() {
             return null;
         }
 
@@ -196,7 +197,7 @@ public class SqlTokenizer {
     private final String origin;
     private final char[] chars;
     
-    private TokenType tokenType;
+    private SqlTokenType tokenType;
     private String token;
 
     public SqlTokenizer(String sql) {
@@ -210,14 +211,15 @@ public class SqlTokenizer {
         return has;
     }
     
+    @Deprecated
     private void debug(String s) {
-        System.out.println("[DEBUG] " + s);
+        //System.out.println("[DEBUG] " + s);
     }
     
-    public String nextTokenValue() {
+    public String nextValue() {
         StringBuilder sb = new StringBuilder();
         Modifier modifier = Modifier.NONE;
-        TokenType nextType = null;
+        SqlTokenType nextType = null;
         State state = State.STATE_0;
         int exitPatternPosition = 0;
         String exitPattern = "";
@@ -298,27 +300,27 @@ public class SqlTokenizer {
 							state = STATE_MAY_OP_OR_BLOCK_COMMENT;
 							break;
 						case LPAREN:
-							nextType = TokenType.LPAREN;
+							nextType = SqlTokenType.LPAREN;
 							state = STATE_EOT;
 							break;
 						case RPAREN:
-							nextType = TokenType.RPAREN;
+							nextType = SqlTokenType.RPAREN;
 							state = STATE_EOT;
 							break;
 						case LBRACK:
-							nextType = TokenType.LBRACK;
+							nextType = SqlTokenType.LBRACK;
 							state = STATE_EOT;
 							break;
 						case RBRACK:
-							nextType = TokenType.RBRACK;
+							nextType = SqlTokenType.RBRACK;
 							state = STATE_EOT;
 							break;
 						case COMMA:
-							nextType = TokenType.COMMA;
+							nextType = SqlTokenType.COMMA;
 							state = STATE_EOT;
 							break;
 						case SEMI:
-							nextType = TokenType.SEMI;
+							nextType = SqlTokenType.SEMI;
 							state = STATE_EOT;
 							break;
 						case DOT:
@@ -341,7 +343,7 @@ public class SqlTokenizer {
 							state = STATE_IDENT;
 							break;
 						default:
-							nextType = TokenType.IDENTIFIER;
+							nextType = SqlTokenType.IDENTIFIER;
 							state = STATE_EOT;
 							tooManyChars = 1;
 					}
@@ -350,7 +352,7 @@ public class SqlTokenizer {
 					if (type == WHITESPACE || type == EOL) {
 						state = STATE_WHITESPACE;
 					} else {
-						nextType = TokenType.WHITESPACE;
+						nextType = SqlTokenType.WHITESPACE;
 						state = STATE_EOT;
 						tooManyChars = 1;
 					}
@@ -363,7 +365,7 @@ public class SqlTokenizer {
 							if (ch == 'e') {
 								state = STATE_NUM_AFTER_E;
 							} else {
-								nextType = TokenType.NUMERIC;
+								nextType = SqlTokenType.NUMERIC;
 								state = STATE_EOT;
 								tooManyChars = 1;
 							}
@@ -372,7 +374,7 @@ public class SqlTokenizer {
 							state = STATE_NUM_AFTER_DOT;
 							break;
 						default:
-							nextType = TokenType.NUMERIC;
+							nextType = SqlTokenType.NUMERIC;
 							state = STATE_EOT;
 							tooManyChars = 1;
 					}
@@ -389,7 +391,7 @@ public class SqlTokenizer {
 							}
 							break;
 						default:
-							nextType = TokenType.NUMERIC;
+							nextType = SqlTokenType.NUMERIC;
 							state = STATE_EOT;
 							tooManyChars = 1;
 					}
@@ -412,7 +414,7 @@ public class SqlTokenizer {
 						case DIGIT:
 							break;
 						default:
-							nextType = TokenType.NUMERIC;
+							nextType = SqlTokenType.NUMERIC;
 							state = STATE_EOT;
 							tooManyChars = 1;
 					}
@@ -423,7 +425,7 @@ public class SqlTokenizer {
 							state = STATE_NUM_AFTER_DOT;
 							break;
 						default:
-							nextType = TokenType.DOT;
+							nextType = SqlTokenType.DOT;
 							state = STATE_EOT;
 							tooManyChars = 1;
 					}
@@ -444,7 +446,7 @@ public class SqlTokenizer {
 							state = STATE_QUOTED_IDENT;
 							break;
 						default:
-							nextType = TokenType.QUOTED_IDENTIFIER;
+							nextType = SqlTokenType.QUOTED_IDENTIFIER;
 							state = STATE_EOT;
 							tooManyChars = 1;
 					}
@@ -461,7 +463,7 @@ public class SqlTokenizer {
 							state = STATE_IDENT;
 							break;
 						default:
-							nextType = TokenType.IDENTIFIER;
+							nextType = SqlTokenType.IDENTIFIER;
 							state = STATE_EOT;
 							tooManyChars = 1;
 					}
@@ -474,7 +476,7 @@ public class SqlTokenizer {
 						modifier = Modifier.UNICODE;
 						state = State.STATE_STRING;
 					} else {
-						nextType = TokenType.IDENTIFIER;
+						nextType = SqlTokenType.IDENTIFIER;
 						state = STATE_EOT;
 						tooManyChars = 2;
 					}
@@ -495,7 +497,7 @@ public class SqlTokenizer {
 							state = STATE_STRING;
 							break;
 						default:
-							nextType = TokenType.STRING;
+							nextType = SqlTokenType.STRING;
 							state = STATE_EOT;
 							tooManyChars = 1;
 					}
@@ -513,7 +515,7 @@ public class SqlTokenizer {
 							state = STATE_IDENT;
 							break;
 						default:
-							nextType = TokenType.IDENTIFIER;
+							nextType = SqlTokenType.IDENTIFIER;
 							state = STATE_EOT;
 							tooManyChars = 1;
 					}
@@ -530,7 +532,7 @@ public class SqlTokenizer {
 							state = STATE_IDENT;
 							break;
 						default:
-							nextType = TokenType.IDENTIFIER;
+							nextType = SqlTokenType.IDENTIFIER;
 							state = STATE_EOT;
 							tooManyChars = 1;
 					}
@@ -547,7 +549,7 @@ public class SqlTokenizer {
 							state = STATE_IDENT;
 							break;
 						default:
-							nextType = TokenType.IDENTIFIER;
+							nextType = SqlTokenType.IDENTIFIER;
 							state = STATE_EOT;
 							tooManyChars = 1;
 					}
@@ -556,7 +558,7 @@ public class SqlTokenizer {
 					switch (type) {
 						case QUOTE:
 							state = STATE_EOT;
-							nextType = TokenType.BITSTRING;
+							nextType = SqlTokenType.BITSTRING;
 							break;
 						default:
 							if (ch != '0' && ch != '1') {
@@ -568,7 +570,7 @@ public class SqlTokenizer {
 					switch (type) {
 						case QUOTE:
 							state = STATE_EOT;
-							nextType = TokenType.HEXSTRING;
+							nextType = SqlTokenType.HEXSTRING;
 							break;
 						default:
 							if (!((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f'))) {
@@ -606,7 +608,7 @@ public class SqlTokenizer {
 					if (type == DOLLAR) {
 						if (exitPatternPosition == exitPattern.length()) {
 							state = STATE_EOT;
-							nextType = TokenType.DOLLAR_QUOTED_STRING;
+							nextType = SqlTokenType.DOLLAR_QUOTED_STRING;
 						} else {
 							state = STATE_DOLLAR_QUOTED_STRING;
 						}
@@ -635,7 +637,7 @@ public class SqlTokenizer {
 					break;
 				case STATE_POSITIONAL_PARAMETER:
 					if (type != DIGIT) {
-						nextType = TokenType.POSITIONAL_PARAMETER;
+						nextType = SqlTokenType.POSITIONAL_PARAMETER;
 						state = STATE_EOT;
 						tooManyChars = 1;
 					}
@@ -671,7 +673,7 @@ public class SqlTokenizer {
 							break;
 						case EOF:
 						default:
-							nextType = TokenType.OPERATOR;
+							nextType = SqlTokenType.OPERATOR;
 							state = STATE_EOT;
 							tooManyChars = 1;
 					}
@@ -707,7 +709,7 @@ public class SqlTokenizer {
 							break;
 						case EOF:
 						default:
-							nextType = TokenType.OPERATOR;
+							nextType = SqlTokenType.OPERATOR;
 							state = STATE_EOT;
 							tooManyChars = 1;
 					}
@@ -739,7 +741,7 @@ public class SqlTokenizer {
 							break;
 						case EOF:
 						default:
-							nextType = TokenType.OPERATOR;
+							nextType = SqlTokenType.OPERATOR;
 							state = STATE_EOT;
 							tooManyChars = 1;
 					}
@@ -802,7 +804,7 @@ public class SqlTokenizer {
 							state = STATE_OPX;
 							break;
 						case MINUS:
-							nextType = TokenType.OPERATOR;
+							nextType = SqlTokenType.OPERATOR;
 							state = STATE_EOT;
 							tooManyChars = 2;
 							break;
@@ -820,7 +822,7 @@ public class SqlTokenizer {
 							state = STATE_OP_WITHOUT_FINAL_PLUS;
 							break;
 						case ASTERISK:
-							nextType = TokenType.OPERATOR;
+							nextType = SqlTokenType.OPERATOR;
 							state = STATE_EOT;
 							tooManyChars = 2;
 							break;
@@ -848,7 +850,7 @@ public class SqlTokenizer {
 							state = STATE_MAY_OP_OR_FUTURE_BLOCK_COMMENT;
 							break;
 						case EOF:
-							nextType = TokenType.OPERATOR;
+							nextType = SqlTokenType.OPERATOR;
 							state = STATE_EOT;
 							tooManyChars = 1;
 							break;
@@ -876,7 +878,7 @@ public class SqlTokenizer {
 							state = STATE_OPX;
 							break;
 						case MINUS:
-							nextType = TokenType.OPERATOR;
+							nextType = SqlTokenType.OPERATOR;
 							state = STATE_EOT;
 							tooManyChars = 2;
 							break;
@@ -885,7 +887,7 @@ public class SqlTokenizer {
 							break;
 						case EOF:
 						default:
-							nextType = TokenType.OPERATOR;
+							nextType = SqlTokenType.OPERATOR;
 							state = STATE_EOT;
 							tooManyChars = 1;
 					}
@@ -894,7 +896,7 @@ public class SqlTokenizer {
 					switch (type) {
 						case PLUS:
 						case ASTERISK:
-							nextType = TokenType.OPERATOR;
+							nextType = SqlTokenType.OPERATOR;
 							state = STATE_EOT;
 							tooManyChars = 2;
 							break;
@@ -920,7 +922,7 @@ public class SqlTokenizer {
 							state = STATE_OPX;
 							break;
 						case EOF:
-							nextType = TokenType.OPERATOR;
+							nextType = SqlTokenType.OPERATOR;
 							state = STATE_EOT;
 							tooManyChars = 1;
 							break;
@@ -959,7 +961,7 @@ public class SqlTokenizer {
 							break;
 						case EOF:
 						default:
-							nextType = TokenType.OPERATOR;
+							nextType = SqlTokenType.OPERATOR;
 							state = STATE_EOT;
 							tooManyChars = 1;
 					}
@@ -974,7 +976,7 @@ public class SqlTokenizer {
 				case STATE_LINE_COMMENT:
 
 					if (type == EOL || type == EOF) {
-						nextType = TokenType.LINE_COMMENT;
+						nextType = SqlTokenType.LINE_COMMENT;
 						state = STATE_EOT;
 						tooManyChars = 1;
 					}
@@ -993,7 +995,7 @@ public class SqlTokenizer {
 						if (commentLevel > 0) {
 							commentLevel--;
 						} else {
-							nextType = TokenType.BLOCK_COMMENT;
+							nextType = SqlTokenType.BLOCK_COMMENT;
 							state = STATE_EOT;
 						}
 					} else if (type == EOF) {
@@ -1014,10 +1016,10 @@ public class SqlTokenizer {
 					break;
 				case STATE_MAY_CAST_OR_SLICE:
 					if (type == COLON) {
-						nextType = TokenType.OPERATOR;
+						nextType = SqlTokenType.OPERATOR;
 						state = STATE_EOT;
 					} else {
-						nextType = TokenType.OPERATOR;
+						nextType = SqlTokenType.OPERATOR;
 						state = STATE_EOT;
 						tooManyChars = 1;
 					}
@@ -1041,26 +1043,26 @@ public class SqlTokenizer {
         return token;
     }
     
-    private TokenType modify(TokenType type, Modifier modifier, String value) {
-        TokenType result;
+    private SqlTokenType modify(SqlTokenType type, Modifier modifier, String value) {
+        SqlTokenType result;
         if (modifier == Modifier.NONE) {
-        	if (type == TokenType.IDENTIFIER && Reserved.isKeyword(value)) {
-        		result = TokenType.KEYWORD;
+        	if (type == SqlTokenType.IDENTIFIER && Reserved.isKeyword(value)) {
+        		result = SqlTokenType.KEYWORD;
         	} else {
         		result = type;
         	}
         } else {
-            if (type == TokenType.STRING) {
+            if (type == SqlTokenType.STRING) {
                 if (modifier == Modifier.ESCAPED) {
-                    result = TokenType.ESCAPED_STRING;
+                    result = SqlTokenType.ESCAPED_STRING;
                 } else if (modifier == Modifier.UNICODE) {
-                    result = TokenType.UNICODE_STRING;
+                    result = SqlTokenType.UNICODE_STRING;
                 } else {
                     result = null;
                 }
-            } else if (type == TokenType.QUOTED_IDENTIFIER) {
+            } else if (type == SqlTokenType.QUOTED_IDENTIFIER) {
                 if (modifier == Modifier.UNICODE) {
-                    result = TokenType.UNICODE_QUOTED_IDENTIFIER;
+                    result = SqlTokenType.UNICODE_QUOTED_IDENTIFIER;
                 } else {
                     result = null;
                 }
@@ -1074,25 +1076,40 @@ public class SqlTokenizer {
         return result;
     }
     
-    public Token nextToken() {
-        nextTokenValue();
-        return new Token(tokenType, token);
+    public SqlToken nextToken() {
+        nextValue();
+        return new SqlToken(tokenType, token);
     }
 
-    public TokenType getCurrentTokenType() {
+    public SqlTokenType getCurrentType() {
         return tokenType;
     }
 
-    public Stream<Token> stream() {
-        return StreamSupport.stream(new TokenizerSpliterator(), false);
+    public Stream<SqlToken> stream() {
+    	return stream(this::nextToken);
+    }
+    
+    public Stream<String> valueStream() {
+    	return stream(this::nextValue);
+    }
+    
+    public Stream<SqlTokenType> typeStream() {
+    	return stream(() -> {
+    		nextValue();
+    		return getCurrentType();
+    	});
+    }
+    
+    private <T> Stream<T> stream(Supplier<T> nextSupplier) {
+    	return StreamSupport.stream(new TokenizerSpliterator<>(nextSupplier), false);
     }
     
     private void parseError() {
-        throw new SqlParseException("", position - 1, origin);
+        throw new SqlParseException("", position, origin);
     }
 
     private void parseError(String msg) {
-        throw new SqlParseException(msg, position - 1, origin);
+        throw new SqlParseException(msg, position, origin);
     }
     
     private static CharType toCharType(char ch) {
