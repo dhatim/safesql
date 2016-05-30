@@ -1,12 +1,11 @@
 package org.dhatim.safesql.builder;
 
 import org.dhatim.safesql.SafeSqlBuilder;
-import org.dhatim.safesql.SafeSqlizable;
 
 public class BooleanOperand implements Operand, Condition {
 
     private final boolean not;
-    private final SafeSqlizable expression;
+    private final Expression expression;
 
     public BooleanOperand(Operand operand) {
         this(operand, false);
@@ -16,9 +15,17 @@ public class BooleanOperand implements Operand, Condition {
         this(condition, false);
     }
     
-    private BooleanOperand(SafeSqlizable expression, boolean not) {
+    protected BooleanOperand(Expression expression, boolean not) {
         this.not = not;
         this.expression = expression;
+    }
+    
+    protected Expression getExpression() {
+        return expression;
+    }
+    
+    protected boolean isNegative() {
+        return not;
     }
     
     @Override

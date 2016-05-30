@@ -1,10 +1,8 @@
 package org.dhatim.safesql.builder;
 
 import java.util.Arrays;
-import org.dhatim.safesql.SafeSqlizable;
 
-public interface Condition extends SafeSqlizable {
-    
+public interface Condition extends Expression {
     
     Condition negate();
     
