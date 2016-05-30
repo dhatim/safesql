@@ -38,7 +38,18 @@ public class BooleanOperand implements Operand, Condition {
 
     @Override
     public BooleanOperand negate() {
-        return new BooleanOperand(expression, !not);
+        BooleanOperand newOp;
+        if (expression instanceof Condition) {
+            Expression newExpr = ((Condition) expression).negate();
+            newOp = create(newExpr, not);
+        } else {
+            newOp = create(expression, !not);
+        }
+        return newOp;
+    }
+    
+    protected BooleanOperand create(Expression expression, boolean not) {
+        return new BooleanOperand(expression, not);
     }
     
 }
