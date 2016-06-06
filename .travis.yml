@@ -3,10 +3,10 @@ jdk:
   - oraclejdk8
 after_success:
   - mvn -B jacoco:report coveralls:report
-  - bash .deploy.sh
+  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && bash .deploy.sh || false'
 before_install:
-  - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
-  - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
+  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import || false'
+  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust || false'
 cache:
   directories:
     - $HOME/.m2
