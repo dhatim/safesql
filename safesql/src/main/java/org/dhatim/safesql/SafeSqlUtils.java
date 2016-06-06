@@ -190,8 +190,8 @@ public final class SafeSqlUtils {
             sb.append("TIMESTAMP WITH TIME ZONE ").append(STRING_QUOTE);
             sb.append(TIMESTAMP_FORMATTER_WITH_TZ.format((OffsetDateTime) obj));
             sb.append(STRING_QUOTE);
-        } else if (obj instanceof SafeSqlParameter) {
-            ((SafeSqlParameter) obj).appendEscaped(sb);
+        } else if (obj instanceof SafeSqlLiteralizable) {
+            ((SafeSqlLiteralizable) obj).appendLiteralized(sb);
         } else if (obj instanceof byte[]) {
             sb.appendBytesLiteral((byte[]) obj);
         } else {

@@ -16,9 +16,9 @@
 package org.dhatim.safesql;
 
 /**
- * A query parameter requiring special escaping.
+ * A query parameter requiring special literalization.
  */
-public interface SafeSqlParameter {
+public interface SafeSqlLiteralizable {
 
-    void appendEscaped(SafeSqlBuilder sb);
+    void appendLiteralized(SafeSqlBuilder sb);
 }
