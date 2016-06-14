@@ -54,6 +54,10 @@ public class SelectQuery implements WhereClause, SqlQuery {
         return this;
     }
     
+    public void clearSelects() {
+        selects.clear();
+    }
+    
     public SelectQuery with(String name, SqlQuery query) {
         ctes.add(new CommonTableExpression(name, query));
         return this;
@@ -94,6 +98,10 @@ public class SelectQuery implements WhereClause, SqlQuery {
     public From from(SqlQuery query, Alias alias) {
         return from(From.query(query, alias));
     }
+    
+    public void clearFroms() {
+        froms.clear();
+    }
 
     private From from(From from) {
         froms.add(from);
@@ -109,6 +117,10 @@ public class SelectQuery implements WhereClause, SqlQuery {
         groupBy.add(column);
         return this;
     }
+    
+    public void clearGroupBys() {
+        groupBy.clear();
+    }
 
     public SelectQuery having(Condition condition) {
         having().and(condition);
@@ -123,6 +135,10 @@ public class SelectQuery implements WhereClause, SqlQuery {
                 return this;
             }
         };
+    }
+    
+    public void clearHavings() {
+        havings.clear();
     }
     
     public SelectQuery windows(NamedWindow... namedWindows) {
