@@ -151,6 +151,10 @@ public class SelectQuery implements WhereClause, SqlQuery {
         return this;
     }
     
+    public void clearWindows() {
+        windows.clear();
+    }
+    
     public Alias generate() {
         return generate("_1");
     }
