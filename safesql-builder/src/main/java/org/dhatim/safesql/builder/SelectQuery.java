@@ -63,6 +63,11 @@ public class SelectQuery implements WhereClause, SqlQuery {
         return this;
     }
     
+    public SelectQuery with(String name, List<String> columnNames, SqlQuery query) {
+        ctes.add(new CommonTableExpression(name, columnNames, query));
+        return this;
+    }
+    
     public SelectQuery select(String columnName) {
         return select(new Column(columnName));
     }

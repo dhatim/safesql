@@ -7,7 +7,7 @@ import org.dhatim.safesql.SafeSqlBuilder;
 
 public class Values implements SqlQuery {
 
-    private final ArrayList<Row> rows = new ArrayList<>();
+private final ArrayList<Row> rows = new ArrayList<>();
     
     public Values() {
     }
@@ -32,8 +32,8 @@ public class Values implements SqlQuery {
             throw new BuilderException("VALUES clause muse have at least one row");
         }
         int len = rows.get(0).getLength();
-        if (rows.stream().allMatch(row -> row.getLength() == len)) {
-            throw new BuilderException("VALUES rows must have all the same size");
+        if (rows.stream().anyMatch(row -> row.getLength() != len)) {
+            throw new BuilderException("VALUES rows must have all the same size " + len);
         }
     }
 
