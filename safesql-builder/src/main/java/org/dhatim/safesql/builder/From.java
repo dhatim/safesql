@@ -22,7 +22,7 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
         @Override
         protected void render(SafeSqlBuilder sb) {
             if (schema != null) {
-                sb.append(schema).append(".");
+                sb.appendIdentifier(schema).append(".");
             }
             sb.appendIdentifier(tableName);
         }

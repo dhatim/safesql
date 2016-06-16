@@ -5,8 +5,31 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlizable;
 
 public class SelectQuery implements WhereClause, SqlQuery {
+    
+    private static class OrderElement implements SafeSqlizable {
+        
+        private final Alias alias;
+        private final String column;
+        private final Order order;
+        
+        public OrderElement(Alias alias, String column, Order order) {
+            this.column = column;
+            this.order = order;
+            this.alias = alias;
+        }
+        
+        @Override
+        public void appendTo(SafeSqlBuilder builder) {
+            if (alias != null) {
+                builder.append(alias).append('.');
+            }
+            builder.appendIdentifier(column).append(' ').append(order);
+        }
+        
+    }
     
     private final BuilderContext context;
     
@@ -25,12 +48,16 @@ public class SelectQuery implements WhereClause, SqlQuery {
     
     private boolean distinct;
     
+    private Integer limit;
+    
+    private final List<OrderElement> orders = new ArrayList<>();
+    
     public SelectQuery() {
          this(new BuilderContext());
     }
     
     public SelectQuery(SelectQuery other) {
-        this(other.context, other.ctes, other.selects, other.froms, other.conditions, other.havings, other.groupBy, other.windows, other.distinct);
+        this(other.context, other.ctes, other.selects, other.froms, other.conditions, other.havings, other.groupBy, other.windows, other.distinct, other.orders, other.limit);
     }
     
     private SelectQuery(BuilderContext context) {
@@ -38,7 +65,7 @@ public class SelectQuery implements WhereClause, SqlQuery {
     }
     
     private SelectQuery(BuilderContext context, List<CommonTableExpression> ctes, List<Operand> selects, List<From> froms, List<Condition> conditions, 
-            List<Condition> havings, List<Operand> groupBy, List<NamedWindow> windows, boolean distinct) {
+            List<Condition> havings, List<Operand> groupBy, List<NamedWindow> windows, boolean distinct, List<OrderElement> orders, Integer limit) {
         this(new BuilderContext(context));
         this.ctes.addAll(ctes);
         this.selects.addAll(selects);
@@ -48,6 +75,8 @@ public class SelectQuery implements WhereClause, SqlQuery {
         this.groupBy.addAll(groupBy);
         this.distinct = distinct;
         this.windows.addAll(windows);
+        this.orders.addAll(orders);
+        this.limit = limit;
     }
 
     public SelectQuery select(Operand operand) {
@@ -212,6 +241,12 @@ public class SelectQuery implements WhereClause, SqlQuery {
         if (!windows.isEmpty()) {
             sb.append(" WINDOW ").appendJoined(", ", windows);
         }
+        if (!orders.isEmpty()) {
+            sb.append(" ORDER BY ").appendJoined(", ", orders);
+        }
+        if (limit != null) {
+            sb.append(" LIMIT " + limit);
+        }
     }
 
     @Override
@@ -222,6 +257,26 @@ public class SelectQuery implements WhereClause, SqlQuery {
     
     public SelectQuery distinct() {
         this.distinct = true;
+        return this;
+    }
+    
+    public SelectQuery limit(int limit) {
+        this.limit = limit;
+        return this;
+    }
+    
+    public SelectQuery noLimit() {
+        this.limit = null;
+        return this;
+    }
+    
+    public SelectQuery orderBy(String column, Order order) {
+        orders.add(new OrderElement(null, column, order));
+        return this;
+    }
+    
+    public SelectQuery orderBy(Alias alias, String column, Order order) {
+        orders.add(new OrderElement(alias, column, order));
         return this;
     }
     
