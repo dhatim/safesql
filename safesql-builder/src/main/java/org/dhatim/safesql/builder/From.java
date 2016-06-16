@@ -1,5 +1,7 @@
 package org.dhatim.safesql.builder;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.dhatim.safesql.SafeSqlBuilder;
 import org.dhatim.safesql.SafeSqlizable;
@@ -11,8 +13,8 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
         private final String schema;
         private final String tableName;
         
-        private TableFrom(String schema, String tableName, Alias alias) {
-            super(alias);
+        private TableFrom(String schema, String tableName, Alias alias, List<String> columnAliases) {
+            super(alias, columnAliases);
             this.schema = schema;
             this.tableName = tableName;
         }
@@ -31,8 +33,8 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
         
         private final SqlQuery query;
 
-        private SubQueryFrom(SqlQuery query, Alias alias) {
-            super(alias);
+        private SubQueryFrom(SqlQuery query, Alias alias, List<String> columnAliases) {
+            super(alias, columnAliases);
             this.query = query;
         }
         
@@ -46,9 +48,11 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
     }
     
     private final Alias alias;
+    private final List<String> columnAliases;
 
-    private From(Alias alias) {
+    private From(Alias alias, List<String> columnAliases) {
         this.alias = alias;
+        this.columnAliases = new ArrayList<>(columnAliases);
     }
 
     public Alias getAlias() {
@@ -63,6 +67,9 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
         if (alias != null) {
             builder.append(" ").append(alias);
         }
+        if (!columnAliases.isEmpty()) {
+            builder.append(" ").appendJoined(", ", "(", ")", columnAliases.stream().map(Identifier::new));
+        }
         List<Jointure> jointures = getJointures();
         if (!jointures.isEmpty()) {
             builder.append(" ").appendJoined(" ", jointures);
@@ -70,11 +77,19 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
     }
     
     public static From table(String schema, String tableName, Alias alias) {
-        return new TableFrom(schema, tableName, alias);
+        return new TableFrom(schema, tableName, alias, Collections.emptyList());
+    }
+    
+    public static From table(String schema, String tableName, Alias alias, List<String> columnAliases) {
+        return new TableFrom(schema, tableName, alias, columnAliases);
     }
     
     public static From query(SqlQuery query, Alias alias) {
-        return new SubQueryFrom(query, alias);
+        return new SubQueryFrom(query, alias, Collections.emptyList());
+    }
+    
+    public static From query(SqlQuery query, Alias alias, List<String> columnAliases) {
+        return new SubQueryFrom(query, alias, columnAliases);
     }
 
 }

@@ -2,6 +2,7 @@ package org.dhatim.safesql.builder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.dhatim.safesql.SafeSqlBuilder;
 
@@ -96,12 +97,20 @@ public class SelectQuery implements WhereClause, SqlQuery {
         return from(schema, tableName, null);
     }
 
+    public From from(String schema, String tableName, Alias alias, List<String> columnNames) {
+        return from(From.table(schema, tableName, alias, columnNames));
+    }
+    
     public From from(String schema, String tableName, Alias alias) {
         return from(From.table(schema, tableName, alias));
     }
     
     public From from(SqlQuery query, Alias alias) {
-        return from(From.query(query, alias));
+        return from(From.query(query, alias, Collections.emptyList()));
+    }
+    
+    public From from(SqlQuery query, Alias alias, List<String> columnNames) {
+        return from(From.query(query, alias, columnNames));
     }
     
     public void clearFroms() {
