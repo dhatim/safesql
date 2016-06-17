@@ -141,7 +141,22 @@ public final class SafeSqlUtils {
 
     static boolean mustEscapeIdentifier(String identifier) {
         Objects.requireNonNull(identifier, "null identifier");
-        return !identifier.equals(identifier.toLowerCase()) || identifier.contains(IDENTIFIER_QUOTE);
+        for (int i=0; i<identifier.length(); i++) {
+            char ch = identifier.charAt(i);
+            if (i == 0) {
+                if (!(Character.isLetter(ch) || ch == '_')) {
+                    return true;
+                }
+            } else {
+                if (!(Character.isLetterOrDigit(ch) || ch == '_' || ch == '$')) {
+                    return true;
+                }
+            }
+            if (Character.isLetter(ch) && !Character.isLowerCase(ch)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     static String mayEscapeIdentifier(String identifier) {
