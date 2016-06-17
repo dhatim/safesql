@@ -4,9 +4,6 @@ jdk:
 after_success:
   - mvn -B jacoco:report coveralls:report
   - bash .deploy.sh
-before_install:
-  - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
-  - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
 cache:
   directories:
     - $HOME/.m2

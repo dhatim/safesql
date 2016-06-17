@@ -2,9 +2,13 @@
 
 set -e
 
-if [[ "$TRAVIS_PULL_REQUEST" = "true" ]]; then
+if [[ "${TRAVIS_PULL_REQUEST}" != "false" ]]; then
     echo "Skipping deployment for pull request"
     exit
+else 
+    echo "Setting security"
+    echo ${GPG_SECRET_KEYS} | base64 --decode | ${GPG_EXECUTABLE} --import
+    echo ${GPG_OWNERTRUST} | base64 --decode | ${GPG_EXECUTABLE} --import-ownertrust
 fi
 
 if [[ -n ${TRAVIS_TAG} ]]; then
