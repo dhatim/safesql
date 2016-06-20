@@ -12,6 +12,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -205,6 +206,8 @@ public final class SafeSqlUtils {
             sb.append("TIMESTAMP WITH TIME ZONE ").append(STRING_QUOTE);
             sb.append(TIMESTAMP_FORMATTER_WITH_TZ.format((OffsetDateTime) obj));
             sb.append(STRING_QUOTE);
+        } else if (obj instanceof UUID) {
+            sb.append("UUID ").appendStringLiteral(obj.toString());
         } else if (obj instanceof SafeSqlLiteralizable) {
             ((SafeSqlLiteralizable) obj).appendLiteralized(sb);
         } else if (obj instanceof byte[]) {
