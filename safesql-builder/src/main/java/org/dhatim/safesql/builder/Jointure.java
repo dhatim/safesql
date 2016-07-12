@@ -39,7 +39,7 @@ public class Jointure extends AbstractHasJointure implements WhereClause, SafeSq
             sb.append("(");
         }
         if (schema != null) {
-            sb.append(schema).append(".");
+            sb.appendIdentifier(schema).append(".");
         }
         sb.appendIdentifier(tableName);
         if (alias != null) {

@@ -36,6 +36,11 @@ public class SafeSqlJoiner implements SafeSqlizable {
         return this;
     }
     
+    public SafeSqlJoiner add(String newElement) {
+        prepareBuilder().append(newElement);
+        return this;
+    }
+    
     public SafeSqlJoiner add(SafeSqlizable newElement) {
         prepareBuilder().append(newElement.toSafeSql());
         return this;

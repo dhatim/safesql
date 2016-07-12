@@ -5,11 +5,11 @@ import static org.dhatim.safesql.builder.Value.*;
 
 import org.junit.Test;
 
-public class QueryBuilder2Test {
+public class SelectQueryTest {
     
     @Test
     public void testSelectQuery() {
-        QueryBuilder2 qb = new QueryBuilder2();
+        SelectQuery qb = new SelectQuery();
         qb.select(new Call("time"));
         
         assertThat(qb.toSafeSql()).hasSql("SELECT time()").hasEmptyParameters();
@@ -17,7 +17,7 @@ public class QueryBuilder2Test {
     
     @Test
     public void testWithoutWhereQuery() {
-        QueryBuilder2 qb = new QueryBuilder2();
+        SelectQuery qb = new SelectQuery();
         qb.select("id").from("table_name");
         
         assertThat(qb.toSafeSql()).hasSql("SELECT id FROM table_name").hasEmptyParameters();
@@ -25,7 +25,7 @@ public class QueryBuilder2Test {
 
     @Test
     public void testSimpleQuery() {
-        QueryBuilder2 qb = new QueryBuilder2();
+        SelectQuery qb = new SelectQuery();
         qb.select("id").from("table_name");
         qb.and(Condition.eq(new Column("name"), new Value("Lucie")));
         
@@ -34,7 +34,7 @@ public class QueryBuilder2Test {
     
     @Test
     public void testInListQuery() {
-        QueryBuilder2 qb = new QueryBuilder2();
+        SelectQuery qb = new SelectQuery();
         qb.select("id").from("table_name");
         qb.and(Condition.in(new Column("name"), of("Lucie"), of("Clemence"), of("Anna")));
         
@@ -43,7 +43,7 @@ public class QueryBuilder2Test {
     
     @Test
     public void testNotInValueListQuery() {
-        QueryBuilder2 qb = new QueryBuilder2();
+        SelectQuery qb = new SelectQuery();
         qb.select("id").from("table_name");
         qb.and(Condition.notIn(new Column("name"), new Value("Lucie"), new Value("Clemence"), new Value("Anna")));
         
@@ -52,7 +52,7 @@ public class QueryBuilder2Test {
     
     @Test
     public void testAliasQuery() {
-        QueryBuilder2 qb = new QueryBuilder2();
+        SelectQuery qb = new SelectQuery();
         Alias alias = qb.generate("t1");
         qb.select(alias, "id").from("table_name", alias);
         qb.and(Condition.eq(new Column(alias, "name"), new Value("Lucie")));
@@ -62,7 +62,7 @@ public class QueryBuilder2Test {
     
     @Test
     public void testAliasDoubleQuery() {
-        QueryBuilder2 qb = new QueryBuilder2();
+        SelectQuery qb = new SelectQuery();
         Alias alias = qb.generate("t1");
         Alias alias2 = qb.generate("t1");
         qb.select(alias, "id").from("table_name", alias);
@@ -74,7 +74,7 @@ public class QueryBuilder2Test {
     
     @Test
     public void testAliasTripleQuery() {
-        QueryBuilder2 qb = new QueryBuilder2();
+        SelectQuery qb = new SelectQuery();
         Alias alias = qb.generate("t1");
         Alias alias2 = qb.generate("t1");
         Alias alias3 = qb.generate("t1");
@@ -88,7 +88,7 @@ public class QueryBuilder2Test {
     
     @Test
     public void testInnerJoinQuery() {
-        QueryBuilder2 qb = new QueryBuilder2();
+        SelectQuery qb = new SelectQuery();
         qb.select("id").from("table_name").innerJoin("other").and(Condition.eq(new Column("id"), new Column("oid")));
         qb.and(Condition.eq(new Column("name"), new Value("Lucie")));
         
@@ -97,7 +97,7 @@ public class QueryBuilder2Test {
     
     @Test
     public void testLeftJoinWithSchemaQuery() {
-        QueryBuilder2 qb = new QueryBuilder2();
+        SelectQuery qb = new SelectQuery();
         qb.select("id").from("public", "table_name").leftJoin("schema2", "other").and(Condition.eq(new Column("id"), new Column("oid")));
         qb.and(Condition.eq(new Column("name"), new Value("Lucie")));
         
@@ -106,7 +106,7 @@ public class QueryBuilder2Test {
     
     @Test
     public void testLeftJoinWithInnerJoinQuery() {
-        QueryBuilder2 qb = new QueryBuilder2();
+        SelectQuery qb = new SelectQuery();
         Jointure j = qb.select("id").from("table_name").leftJoin("other").and(Condition.eq(new Column("id"), new Column("oid")));
         j.innerJoin("triple").and(Condition.eq(new Column("oid"), new Column("tid")));
         qb.and(Condition.eq(new Column("name"), new Value("Lucie")));
@@ -116,7 +116,7 @@ public class QueryBuilder2Test {
     
     @Test
     public void testGroupByQuery() {
-        QueryBuilder2 qb = new QueryBuilder2();
+        SelectQuery qb = new SelectQuery();
         qb.select("id").from("table_name");
         qb.and(Condition.eq(new Column("name"), new Value("Lucie")));
         qb.groupBy(new Column("col1"), new Column("col2"));
@@ -126,7 +126,7 @@ public class QueryBuilder2Test {
     
     @Test
     public void testComputeQuery() {
-        QueryBuilder2 qb = new QueryBuilder2();
+        SelectQuery qb = new SelectQuery();
         qb.select(Compute.add(new Constant(2), new Constant(2)));
         
         assertThat(qb.toSafeSql()).hasSql("SELECT (2 + 2)").hasEmptyParameters();
@@ -134,7 +134,7 @@ public class QueryBuilder2Test {
     
     @Test
     public void testCast() {
-        QueryBuilder2 qb = new QueryBuilder2();
+        SelectQuery qb = new SelectQuery();
         qb.select(new Cast(new Constant(2), "text"));
         
         assertThat(qb.toSafeSql()).hasSql("SELECT 2::text").hasEmptyParameters();
