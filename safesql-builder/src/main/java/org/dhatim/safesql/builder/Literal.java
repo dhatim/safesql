@@ -24,7 +24,12 @@ public class Literal implements Operand {
         this.value = value;
     }
     
+    @Deprecated
     public static Literal from(String value) {
+        return of(value);
+    }
+    
+    public static Literal of(String value) {
         return value == null ? NULL_LITERAL : new Literal(value);
     }
     

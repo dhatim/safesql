@@ -10,8 +10,11 @@ public class Constant implements Operand {
     private final String sql;
 
     public Constant(Object sql) {
-        Objects.requireNonNull(sql);
-        this.sql = sql.toString();
+        this(sql.toString());
+    }
+    
+    public Constant(String sql) {
+        this.sql = Objects.requireNonNull(sql);
     }
 
     @Override
