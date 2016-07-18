@@ -87,6 +87,7 @@ public class Template {
                     break;
                 default:
                     toList.add(parameter ? toParameter(token) : new Constant(token));
+                    break;
             }
         }
     }
