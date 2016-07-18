@@ -44,7 +44,7 @@ public class Template {
         
     }
     
-    protected static class TemplateOperand implements Operand {
+    protected class TemplateOperand implements Operand {
         
         private final SafeSqlizable[] elements;
         
@@ -59,11 +59,17 @@ public class Template {
             }
         }
         
+        public Template getTemplate() {
+            return Template.this;
+        }
+        
     }
     
+    private final String pattern;
     private final ArrayList<Element> elements = new ArrayList<>();
     
     protected Template(String pattern) {
+        this.pattern = pattern;
         compile(pattern, elements);
     }
     
@@ -83,6 +89,10 @@ public class Template {
                     toList.add(parameter ? toParameter(token) : new Constant(token));
             }
         }
+    }
+    
+    public String getPattern() {
+        return pattern;
     }
 
     public static Template of(String pattern) {
