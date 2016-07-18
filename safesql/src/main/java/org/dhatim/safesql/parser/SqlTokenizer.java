@@ -207,12 +207,12 @@ public class SqlTokenizer {
 
     public boolean hasMoreTokens() {
     	boolean has = position+1 < chars.length;
-    	debug("hasMoreTokens = " + has + " because position " + position + "/" + chars.length);
+    	debug(() -> "hasMoreTokens = " + has + " because position " + position + "/" + chars.length);
         return has;
     }
     
     @Deprecated
-    private void debug(String s) {
+    private void debug(Supplier<String> s) {
         //System.out.println("[DEBUG] " + s);
     }
     
@@ -227,7 +227,8 @@ public class SqlTokenizer {
         int tooManyChars = 0;
         while (position <= chars.length && state != STATE_EOT) {
         	position++;
-        	debug("#### state = " + state + " (" + position + "/" + chars.length + ")");
+        	final State debugState = state;
+        	debug(() -> "#### state = " + debugState + " (" + position + "/" + chars.length + ")");
         	final char ch;
         	final CharType type;
         	if (position == chars.length) {
@@ -237,7 +238,7 @@ public class SqlTokenizer {
         		ch = chars[position];
         		type = toCharType(ch);
         	}
-            debug("char = " + type);
+            debug(() -> "char = " + type);
             
 			switch (state) {
 				case STATE_0:
@@ -583,7 +584,7 @@ public class SqlTokenizer {
 						case DOLLAR:
 							state = STATE_DOLLAR_QUOTED_STRING;
 							exitPattern = "";
-							debug("exitPattern empty");
+							debug(() -> "exitPattern empty");
 							break;
 						case DIGIT:
 							state = STATE_POSITIONAL_PARAMETER;
@@ -629,7 +630,8 @@ public class SqlTokenizer {
 						case DOLLAR:
 							state = STATE_DOLLAR_QUOTED_STRING;
 							exitPattern = sb.toString().substring(1);
-							debug("exitPattern " + exitPattern);
+							final String debugExitPattern = exitPattern;
+							debug(() -> "exitPattern " + debugExitPattern);
 							break;
 						default:
 							parseError("syntax error at or near [$]");
@@ -1029,17 +1031,20 @@ public class SqlTokenizer {
 			}
 			
 			sb.append(ch);
-            debug("state => " + state);
-            debug("text => " + sb.toString());
+			final State debugNextState = state;
+            debug(() -> "state => " + debugNextState);
+            debug(() -> "text => " + sb.toString());
         }
         if (tooManyChars > 0) {
-        	debug("tooManyChars = " + tooManyChars);
+            final int debugTooManyChars = tooManyChars;
+        	debug(() -> "tooManyChars = " + debugTooManyChars);
             sb.delete(sb.length() - tooManyChars, sb.length());
             position -= tooManyChars;
         }
         token = sb.toString();
         tokenType = modify(nextType, modifier, token);
-        debug("==> return [" + token + "] of type " + nextType + " position is " + position + "/" + chars.length);
+        final SqlTokenType debugNextType = nextType;
+        debug(() -> "==> return [" + token + "] of type " + debugNextType + " position is " + position + "/" + chars.length);
         return token;
     }
     
@@ -1098,6 +1103,12 @@ public class SqlTokenizer {
     		nextValue();
     		return getCurrentType();
     	});
+    }
+    
+    public void forEachRemaining(Consumer<SqlToken> consumer) {
+        while (hasMoreTokens()) {
+            consumer.accept(nextToken());
+        }
     }
     
     private <T> Stream<T> stream(Supplier<T> nextSupplier) {
