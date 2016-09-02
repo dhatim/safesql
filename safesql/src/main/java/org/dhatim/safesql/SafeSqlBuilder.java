@@ -33,7 +33,12 @@ public class SafeSqlBuilder implements SafeSqlizable {
         this.parameters = new ArrayList<>();
     }
 
-    private SafeSqlBuilder(SafeSqlBuilder other) {
+    public SafeSqlBuilder(String query) {
+        this.sqlBuilder = new StringBuilder(query);
+        this.parameters = new ArrayList<>();
+    }
+
+    public SafeSqlBuilder(SafeSqlBuilder other) {
         this.sqlBuilder = new StringBuilder(other.sqlBuilder.toString());
         this.parameters = new ArrayList<>(other.parameters);
     }
