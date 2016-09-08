@@ -5,9 +5,13 @@ import java.util.Objects;
 import org.assertj.core.api.AbstractAssert;
 import org.dhatim.safesql.SafeSql;
 
-public class SafeSqlAssert extends AbstractAssert<SafeSqlAssert, SafeSql> {
+public class AbstractSafeSqlAssert<S extends AbstractSafeSqlAssert<S>> extends AbstractAssert<S, SafeSql> {
+    
+    protected AbstractSafeSqlAssert(SafeSql actual, Class<S> selfType) {
+        super(actual, selfType);
+    }
 
-    public SafeSqlAssert hasLiteralizedSql(String sql) {
+    public S hasLiteralizedSql(String sql) {
         isNotNull();
         String actualSql = actual.asString();
         if (!Objects.equals(actualSql, sql)) {
@@ -16,7 +20,7 @@ public class SafeSqlAssert extends AbstractAssert<SafeSqlAssert, SafeSql> {
         return myself;
     }
     
-    public SafeSqlAssert hasSql(String sql) {
+    public S hasSql(String sql) {
         isNotNull();
         String actualSql = actual.asSql();
         if (!Objects.equals(actualSql, sql)) {
@@ -25,7 +29,7 @@ public class SafeSqlAssert extends AbstractAssert<SafeSqlAssert, SafeSql> {
         return myself;
     }
 
-    public SafeSqlAssert hasEmptySql() {
+    public S hasEmptySql() {
         isNotNull();
         String actualSql = actual.asSql();
         if (!actualSql.isEmpty()) {
@@ -34,7 +38,7 @@ public class SafeSqlAssert extends AbstractAssert<SafeSqlAssert, SafeSql> {
         return myself;
     }
 
-    public SafeSqlAssert hasParameters(Object... parameters) {
+    public S hasParameters(Object... parameters) {
         isNotNull();
         if (parameters == null) {
             failWithMessage("Expecting parameters not to be null.");
@@ -53,7 +57,7 @@ public class SafeSqlAssert extends AbstractAssert<SafeSqlAssert, SafeSql> {
         return myself;
     }
 
-    public SafeSqlAssert hasParameterCount(int size) {
+    public S hasParameterCount(int size) {
         isNotNull();
         int actualSize = actual.getParameters().length;
         if (size != actualSize) {
@@ -62,7 +66,7 @@ public class SafeSqlAssert extends AbstractAssert<SafeSqlAssert, SafeSql> {
         return myself;
     }
     
-    public SafeSqlAssert hasEmptyParameters() {
+    public S hasEmptyParameters() {
         isNotNull();
         int actualSize = actual.getParameters().length;
         if (actualSize != 0) {
@@ -71,16 +75,8 @@ public class SafeSqlAssert extends AbstractAssert<SafeSqlAssert, SafeSql> {
         return myself;
     }
 
-    private SafeSqlAssert(SafeSql actual) {
-        super(actual, SafeSqlAssert.class);
-    }
-
     private String toString(SafeSql obj) {
         return "SafeSql{sql: " + obj.asSql() + ", parameters: " + Arrays.toString(obj.getParameters()) + '}';
-    }
-
-    public static SafeSqlAssert assertThat(SafeSql actual) {
-        return new SafeSqlAssert(actual);
     }
 
 }

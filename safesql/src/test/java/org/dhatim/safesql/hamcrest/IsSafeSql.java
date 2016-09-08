@@ -7,6 +7,7 @@ import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
+@Deprecated
 public class IsSafeSql extends TypeSafeMatcher<SafeSql> {
 
     private final Matcher<? super String> sqlMatcher;

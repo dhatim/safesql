@@ -1,7 +1,7 @@
 package org.dhatim.safesql;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.dhatim.safesql.assertion.Assertions.assertThat;
+import static org.dhatim.safesql.SimpleSafeSqlAssert.assertThat;
 
 import java.math.BigDecimal;
 import org.junit.Test;

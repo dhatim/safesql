@@ -18,8 +18,7 @@
         </dependency>
         <dependency>
             <groupId>org.dhatim</groupId>
-            <artifactId>safesql</artifactId>
-            <type>test-jar</type>
+            <artifactId>safesql-testing</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

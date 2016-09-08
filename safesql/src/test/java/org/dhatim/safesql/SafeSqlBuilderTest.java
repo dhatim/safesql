@@ -1,6 +1,6 @@
 package org.dhatim.safesql;
 
-import static org.dhatim.safesql.assertion.Assertions.*;
+import static org.dhatim.safesql.SimpleSafeSqlAssert.*;
 
 import java.util.Arrays;
 import java.util.List;

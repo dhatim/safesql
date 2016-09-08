@@ -1,6 +1,6 @@
 package org.dhatim.safesql.builder;
 
-import static org.dhatim.safesql.assertion.Assertions.*;
+import static org.dhatim.safesql.testing.Assertions.*;
 import static org.dhatim.safesql.builder.Value.*;
 
 import org.junit.Test;
