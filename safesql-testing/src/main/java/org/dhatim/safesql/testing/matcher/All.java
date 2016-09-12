@@ -3,7 +3,7 @@ package org.dhatim.safesql.testing.matcher;
 import java.util.LinkedList;
 import org.dhatim.safesql.testing.matcher.description.Description;
 
-public abstract class All extends AbstractMatcher {
+abstract class All extends AbstractMatcher {
     
     public static class Ordered extends All {
         

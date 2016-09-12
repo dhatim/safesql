@@ -2,7 +2,7 @@ package org.dhatim.safesql.testing.matcher;
 
 import org.dhatim.safesql.testing.matcher.description.Description;
 
-public class XPathMatcher extends AbstractXPathMatcher {
+class XPathMatcher extends AbstractXPathMatcher {
 
     private final Matcher matcher;
 

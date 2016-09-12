@@ -6,7 +6,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.dhatim.safesql.testing.matcher.description.Description;
 import org.dhatim.safesql.testing.parser.PSQLParser;
 
-public class IdentifierMatcher extends AbstractXPathMatcher {
+class IdentifierMatcher extends AbstractXPathMatcher {
 
     private final String identifier;
 

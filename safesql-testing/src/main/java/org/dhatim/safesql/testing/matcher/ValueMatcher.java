@@ -4,7 +4,7 @@ import java.util.stream.Collectors;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.dhatim.safesql.testing.matcher.description.Description;
 
-public class ValueMatcher<T> extends AbstractXPathMatcher {
+class ValueMatcher<T> extends AbstractXPathMatcher {
 
     private final T value;
     private final boolean quoted;

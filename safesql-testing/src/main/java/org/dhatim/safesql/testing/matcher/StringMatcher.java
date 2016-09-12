@@ -4,7 +4,7 @@ import java.util.stream.Collectors;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.dhatim.safesql.testing.matcher.description.Description;
 
-public class StringMatcher extends AbstractXPathMatcher {
+class StringMatcher extends AbstractXPathMatcher {
     
     private final String value;
     private final boolean ignoreCase;
