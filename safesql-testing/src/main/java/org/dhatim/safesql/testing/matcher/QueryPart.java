@@ -1,4 +1,4 @@
-package org.dhatim.safesql.testing;
+package org.dhatim.safesql.testing.matcher;
 
 import java.util.Arrays;
 import java.util.Collections;

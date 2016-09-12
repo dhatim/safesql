@@ -1,4 +1,4 @@
-package org.dhatim.safesql.testing;
+package org.dhatim.safesql.testing.matcher;
 
 import java.io.PrintStream;
 import java.util.stream.Collectors;
@@ -16,6 +16,7 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.dhatim.safesql.SafeSql;
+import org.dhatim.safesql.testing.ParseException;
 import org.dhatim.safesql.testing.parser.PSQLLexer;
 import org.dhatim.safesql.testing.parser.PSQLParser;
 

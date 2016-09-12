@@ -1,4 +1,6 @@
-package org.dhatim.safesql.testing;
+package org.dhatim.safesql.testing.matcher;
+
+import org.dhatim.safesql.testing.matcher.description.Description;
 
 public abstract class AbstractXPathMatcher implements Matcher {
 

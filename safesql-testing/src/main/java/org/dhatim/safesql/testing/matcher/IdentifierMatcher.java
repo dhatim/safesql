@@ -1,8 +1,9 @@
-package org.dhatim.safesql.testing;
+package org.dhatim.safesql.testing.matcher;
 
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.dhatim.safesql.testing.matcher.description.Description;
 import org.dhatim.safesql.testing.parser.PSQLParser;
 
 public class IdentifierMatcher extends AbstractXPathMatcher {

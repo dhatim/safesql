@@ -1,9 +1,10 @@
-package org.dhatim.safesql.testing;
+package org.dhatim.safesql.testing.matcher.description;
 
 import static java.lang.String.*;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import org.dhatim.safesql.testing.ArrayIterator;
 
 public abstract class BaseDescription implements Description {
     

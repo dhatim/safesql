@@ -4,6 +4,11 @@ import org.assertj.core.api.AbstractObjectArrayAssert;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.dhatim.safesql.SafeSql;
 import org.dhatim.safesql.assertion.AbstractSafeSqlAssert;
+import org.dhatim.safesql.testing.matcher.Matcher;
+import org.dhatim.safesql.testing.matcher.Matchers;
+import org.dhatim.safesql.testing.matcher.QueryPart;
+import org.dhatim.safesql.testing.matcher.description.Description;
+import org.dhatim.safesql.testing.matcher.description.StringDescription;
 
 public class SafeSqlAssert extends AbstractSafeSqlAssert<SafeSqlAssert> {
     
@@ -22,6 +27,13 @@ public class SafeSqlAssert extends AbstractSafeSqlAssert<SafeSqlAssert> {
         isNotNull();
         tryParse();
         assertThat(descriptionText(), parsedQuery, matcher);
+        return this;
+    }
+    
+    public SafeSqlAssert isQueryWith(Matcher... matchers) {
+        isNotNull();
+        tryParse();
+        assertThat(descriptionText(), parsedQuery, Matchers.allOf(matchers));
         return this;
     }
     

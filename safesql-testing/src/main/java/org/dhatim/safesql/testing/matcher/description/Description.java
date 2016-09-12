@@ -1,4 +1,4 @@
-package org.dhatim.safesql.testing;
+package org.dhatim.safesql.testing.matcher.description;
 
 public interface Description {
     /**
