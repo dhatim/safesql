@@ -2,11 +2,11 @@ package org.dhatim.safesql.testing.matcher.description;
 
 import static java.lang.String.*;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Iterator;
-import org.dhatim.safesql.testing.ArrayIterator;
 
-public abstract class BaseDescription implements Description {
+public abstract class AbstractDescription implements Description {
     
     private static class SelfDescribingValueIterator<T> implements Iterator<SelfDescribing> {
         
@@ -44,6 +44,36 @@ public abstract class BaseDescription implements Description {
             description.appendValue(value);
         }
     }
+    
+    private static class ArrayIterator implements Iterator<Object> {
+
+        private final Object array;
+        private int currentIndex = 0;
+        
+        public ArrayIterator(Object array) {
+            if (!array.getClass().isArray()) {
+                throw new IllegalArgumentException("not an array");
+            }
+            this.array = array;
+        }
+        
+        @Override
+        public boolean hasNext() {
+            return currentIndex < Array.getLength(array);
+        }
+
+        @Override
+        public Object next() {
+            return Array.get(array, currentIndex++);
+        }
+        
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("cannot remove items from an array");
+        }
+        
+    }
+
 
     @Override
     public Description appendText(String text) {

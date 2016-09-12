@@ -2,7 +2,7 @@ package org.dhatim.safesql.testing.matcher.description;
 
 import java.io.IOException;
 
-public class StringDescription extends BaseDescription {
+public class StringDescription extends AbstractDescription {
 
     private final Appendable out;
 

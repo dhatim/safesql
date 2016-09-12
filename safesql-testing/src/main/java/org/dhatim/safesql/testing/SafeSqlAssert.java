@@ -43,10 +43,6 @@ public class SafeSqlAssert extends AbstractSafeSqlAssert<SafeSqlAssert> {
         }
     }
     
-    private static void assertThat(QueryPart actual, Matcher matcher) {
-        assertThat("", actual, matcher);
-    }
-    
     private static void assertThat(String reason, QueryPart actual, Matcher matcher) {
         if (!matcher.matches(actual)) {
             Description description = new StringDescription();

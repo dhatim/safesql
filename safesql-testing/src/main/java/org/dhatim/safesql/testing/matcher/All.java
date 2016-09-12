@@ -75,7 +75,7 @@ public abstract class All extends AbstractMatcher {
 
     @Override
     public boolean matches(QueryPart item) {
-        return item != null && matchesSafely(item, new Description.NullDescription());
+        return item != null && matchesSafely(item, Description.NONE);
     }
 
     @Override
