@@ -70,7 +70,7 @@ public class SafeSqlJoiner implements SafeSqlizable {
     }
     
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
+    public void appendTo(SafeSqlAppendable builder) {
         if (value == null) {
             builder.append(emptyValue);
         } else {

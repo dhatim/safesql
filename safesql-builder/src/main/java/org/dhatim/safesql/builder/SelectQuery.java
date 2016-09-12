@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlAppendable;
 import org.dhatim.safesql.SafeSqlizable;
 
 public class SelectQuery implements WhereClause, SqlQuery {
@@ -22,7 +22,7 @@ public class SelectQuery implements WhereClause, SqlQuery {
         }
         
         @Override
-        public void appendTo(SafeSqlBuilder builder) {
+        public void appendTo(SafeSqlAppendable builder) {
             if (alias != null) {
                 builder.append(alias).append('.');
             }
@@ -215,7 +215,7 @@ public class SelectQuery implements WhereClause, SqlQuery {
     }
 
     @Override
-    public void appendTo(SafeSqlBuilder sb) {
+    public void appendTo(SafeSqlAppendable sb) {
         if (!ctes.isEmpty()) {
             sb.append("WITH ");
             sb.appendJoined(", ", ctes);

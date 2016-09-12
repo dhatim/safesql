@@ -20,5 +20,5 @@ package org.dhatim.safesql;
  */
 public interface SafeSqlLiteralizable {
 
-    void appendLiteralized(SafeSqlBuilder sb);
+    void appendLiteralized(SafeSqlAppendable sb);
 }

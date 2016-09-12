@@ -2,7 +2,7 @@ package org.dhatim.safesql.builder;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlAppendable;
 import org.dhatim.safesql.SafeSqlizable;
 
 public class Window implements SafeSqlizable {
@@ -30,7 +30,7 @@ public class Window implements SafeSqlizable {
     }
 
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
+    public void appendTo(SafeSqlAppendable builder) {
         builder.append("(PARTITION BY ")
                 .appendJoined(", ", partition)
                 .append(')');

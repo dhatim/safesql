@@ -96,7 +96,7 @@ public final class SafeSqlUtils {
      * The escape sequence is <code>{{.*}}</code>.
      * @param arguments arguments list
      */
-    public static void formatTo(SafeSqlBuilder builder, String sql, Object... arguments) {
+    public static void formatTo(SafeSqlAppendable builder, String sql, Object... arguments) {
         Matcher matcher = PATTERN.matcher(sql);
         int lastIndex = 0;
         int argIndex = 0;

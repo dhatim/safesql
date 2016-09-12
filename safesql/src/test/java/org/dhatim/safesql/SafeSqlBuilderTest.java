@@ -13,7 +13,7 @@ public class SafeSqlBuilderTest {
         private static final String MUST_BE = "SELECT * FROM table WHERE column = ? GROUP BY id";
         
         @Override
-        public void appendTo(SafeSqlBuilder builder) {
+    public void appendTo(SafeSqlAppendable builder) {
             builder.append("SELECT * FROM table WHERE column = ")
                     .param(5)
                     .append(" GROUP BY id");

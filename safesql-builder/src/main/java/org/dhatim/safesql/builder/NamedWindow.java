@@ -1,7 +1,7 @@
 package org.dhatim.safesql.builder;
 
 import java.util.List;
-import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlAppendable;
 
 public class NamedWindow extends Window {
 
@@ -21,7 +21,7 @@ public class NamedWindow extends Window {
     }
     
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
+    public void appendTo(SafeSqlAppendable builder) {
         builder.appendIdentifier(name)
             .append(" AS ");
         super.appendTo(builder);

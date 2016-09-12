@@ -2,7 +2,7 @@ package org.dhatim.safesql.builder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlAppendable;
 
 public class Concat implements Operand {
     
@@ -19,7 +19,7 @@ public class Concat implements Operand {
     }
     
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
+    public void appendTo(SafeSqlAppendable builder) {
         builder.appendJoined(" || ", list);
     }
 

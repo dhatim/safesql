@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.dhatim.safesql.SafeSql;
+import org.dhatim.safesql.SafeSqlAppendable;
 import org.dhatim.safesql.SafeSqlBuilder;
 
 public class ConditionGroup implements Condition {
@@ -26,7 +27,7 @@ public class ConditionGroup implements Condition {
     }
 
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
+    public void appendTo(SafeSqlAppendable builder) {
         SafeSql spacedOperator = new SafeSqlBuilder().append(' ').append(operator).append(' ').toSafeSql();
         builder.append("(")
                 .appendJoined(spacedOperator, conditions)

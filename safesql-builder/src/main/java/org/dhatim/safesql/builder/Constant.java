@@ -2,7 +2,7 @@ package org.dhatim.safesql.builder;
 
 import java.util.Objects;
 import org.dhatim.safesql.SafeSql;
-import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlAppendable;
 import org.dhatim.safesql.SafeSqlUtils;
 
 public class Constant implements Operand {
@@ -23,7 +23,7 @@ public class Constant implements Operand {
     }
     
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
+    public void appendTo(SafeSqlAppendable builder) {
         builder.append(sql);
     }
     

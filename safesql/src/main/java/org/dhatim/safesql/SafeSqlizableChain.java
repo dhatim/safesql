@@ -20,7 +20,7 @@ public class SafeSqlizableChain implements SafeSqlizable {
     }
     
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
+    public void appendTo(SafeSqlAppendable builder) {
         for (SafeSqlizable element : elements) {
             builder.append(element);
         }

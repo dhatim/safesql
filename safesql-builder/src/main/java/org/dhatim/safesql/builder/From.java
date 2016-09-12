@@ -3,7 +3,7 @@ package org.dhatim.safesql.builder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlAppendable;
 import org.dhatim.safesql.SafeSqlizable;
 
 public abstract class From extends AbstractHasJointure implements SafeSqlizable {
@@ -20,7 +20,7 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
         }
         
         @Override
-        protected void render(SafeSqlBuilder sb) {
+        protected void render(SafeSqlAppendable sb) {
             if (schema != null) {
                 sb.appendIdentifier(schema).append(".");
             }
@@ -39,7 +39,7 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
         }
         
         @Override
-        protected void render(SafeSqlBuilder sb) {
+        protected void render(SafeSqlAppendable sb) {
             sb.append('(');
             sb.append(query);
             sb.append(')');
@@ -59,10 +59,10 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
         return alias;
     }
 
-    protected abstract void render(SafeSqlBuilder sb);
+    protected abstract void render(SafeSqlAppendable sb);
 
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
+    public void appendTo(SafeSqlAppendable builder) {
         render(builder);
         if (alias != null) {
             builder.append(" ").append(alias);
