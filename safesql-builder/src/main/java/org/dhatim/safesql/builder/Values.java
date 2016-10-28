@@ -24,7 +24,7 @@ private final ArrayList<Row> rows = new ArrayList<>();
     public void appendTo(SafeSqlAppendable builder) {
         validate();
         builder.append("VALUES ");
-        builder.appendJoinedSqlizable(", ", rows);
+        builder.joinSqlizables(", ", rows);
     }
     
     private void validate() {

@@ -25,7 +25,7 @@ public class Over implements Operand {
         sb.append(windowFunction);
         sb.append(" OVER ");
         if (window instanceof NamedWindow) {
-            sb.appendIdentifier(((NamedWindow) window).getName());
+            sb.identifier(((NamedWindow) window).getName());
         } else {
             sb.append(window);
         }

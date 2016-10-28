@@ -53,7 +53,7 @@ public final class Alias implements SafeSqlizable {
     
     @Override
     public void appendTo(SafeSqlAppendable builder) {
-        builder.appendIdentifier(name);
+        builder.identifier(name);
     }
 
 }

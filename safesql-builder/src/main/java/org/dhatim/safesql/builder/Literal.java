@@ -35,7 +35,7 @@ public class Literal implements Operand {
     
     @Override
     public void appendTo(SafeSqlAppendable builder) {
-        builder.appendStringLiteral(value);
+        builder.literal(value);
     }
     
 }

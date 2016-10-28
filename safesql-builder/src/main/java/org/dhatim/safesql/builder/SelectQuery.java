@@ -26,7 +26,7 @@ public class SelectQuery implements WhereClause, SqlQuery {
             if (alias != null) {
                 builder.append(alias).append('.');
             }
-            builder.appendIdentifier(column).append(' ').append(order);
+            builder.identifier(column).append(' ').append(order);
         }
         
     }
@@ -218,31 +218,31 @@ public class SelectQuery implements WhereClause, SqlQuery {
     public void appendTo(SafeSqlAppendable sb) {
         if (!ctes.isEmpty()) {
             sb.append("WITH ");
-            sb.appendJoinedSqlizable(", ", ctes);
+            sb.joinSqlizables(", ", ctes);
             sb.append(" ");
         }
         sb.append("SELECT ");
         if (distinct) {
             sb.append("DISTINCT ");
         }
-        sb.appendJoinedSqlizable(", ", selects);
+        sb.joinSqlizables(", ", selects);
         if (!froms.isEmpty()) {
-            sb.append(" FROM ").appendJoinedSqlizable(", ", froms);
+            sb.append(" FROM ").joinSqlizables(", ", froms);
         }
         if (!conditions.isEmpty()) {
-            sb.append(" WHERE ").appendJoinedSqlizable(" AND ", conditions);
+            sb.append(" WHERE ").joinSqlizables(" AND ", conditions);
         }
         if (!groupBy.isEmpty()) {
-            sb.append(" GROUP BY ").appendJoinedSqlizable(", ", groupBy);
+            sb.append(" GROUP BY ").joinSqlizables(", ", groupBy);
         }
         if (!havings.isEmpty()) {
-            sb.append(" HAVING ").appendJoinedSqlizable(" AND ", havings);
+            sb.append(" HAVING ").joinSqlizables(" AND ", havings);
         }
         if (!windows.isEmpty()) {
-            sb.append(" WINDOW ").appendJoinedSqlizable(", ", windows);
+            sb.append(" WINDOW ").joinSqlizables(", ", windows);
         }
         if (!orders.isEmpty()) {
-            sb.append(" ORDER BY ").appendJoinedSqlizable(", ", orders);
+            sb.append(" ORDER BY ").joinSqlizables(", ", orders);
         }
         if (limit != null) {
             sb.append(" LIMIT " + limit);

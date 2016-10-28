@@ -1,7 +1,7 @@
 package org.dhatim.safesql;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -57,12 +57,6 @@ public abstract class AbstractSafeSqlBuilder<S extends AbstractSafeSqlBuilder<S>
     @Override
     public S param(boolean bool) {
         appendObject(bool);
-        return myself;
-    }
-
-    @Override
-    public S param(BigDecimal num) {
-        appendObject(num);
         return myself;
     }
 
@@ -189,24 +183,24 @@ public abstract class AbstractSafeSqlBuilder<S extends AbstractSafeSqlBuilder<S>
      * @return a reference to this object.
      */
     @Override
-    public S appendStringLiteral(String s) {
+    public S literal(String s) {
         sqlBuilder.append(SafeSqlUtils.escapeString(s));
         return myself;
     }
     
     @Override
-    public S appendFormatted(String sql, Object... args) {
+    public S format(String sql, Object... args) {
         SafeSqlUtils.formatTo(this, sql, args);
         return myself;
     }
     
     @Override
-    public S appendJoined(SafeSql delimiter, Iterable<SafeSql> iterable) {
-        return appendJoined(delimiter, SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, iterable);
+    public S join(SafeSql delimiter, Iterable<SafeSql> iterable) {
+        return join(delimiter, SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, iterable);
     }
     
     @Override
-    public S appendJoined(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Iterable<SafeSql> iterable) {
+    public S join(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Iterable<SafeSql> iterable) {
         SafeSqlJoiner joiner = new SafeSqlJoiner(delimiter, prefix, suffix);
         iterable.forEach(joiner::add);
         joiner.appendTo(this);
@@ -214,44 +208,44 @@ public abstract class AbstractSafeSqlBuilder<S extends AbstractSafeSqlBuilder<S>
     }
     
     @Override
-    public S appendJoined(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Stream<SafeSql> stream) {
+    public S join(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Stream<SafeSql> stream) {
         SafeSqlJoiner joiner = stream.collect(() -> new SafeSqlJoiner(delimiter, prefix, suffix), SafeSqlJoiner::add, SafeSqlJoiner::merge);
         joiner.appendTo(this);
         return myself;
     }
     
     @Override
-    public S appendJoined(SafeSql delimiter, Stream<SafeSql> stream) {
-        return appendJoined(delimiter, SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, stream);
+    public S join(SafeSql delimiter, Stream<SafeSql> stream) {
+        return join(delimiter, SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, stream);
     }
     
     @Override
-    public S appendJoined(String delimiter, Iterable<SafeSql> iterable) {
-        return appendJoined(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, iterable);
+    public S join(String delimiter, Iterable<SafeSql> iterable) {
+        return join(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, iterable);
     }
     
     @Override
-    public S appendJoined(String delimiter, Stream<SafeSql> stream) {
-        return appendJoined(delimiter, "", "", stream);
+    public S join(String delimiter, Stream<SafeSql> stream) {
+        return join(delimiter, "", "", stream);
     }
     
     @Override
-    public S appendJoined(String delimiter, String prefix, String suffix, Iterable<SafeSql> iterable) {
-        return appendJoined(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.fromConstant(prefix), SafeSqlUtils.fromConstant(suffix), iterable);
+    public S join(String delimiter, String prefix, String suffix, Iterable<SafeSql> iterable) {
+        return join(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.fromConstant(prefix), SafeSqlUtils.fromConstant(suffix), iterable);
     }
     
     @Override
-    public S appendJoined(String delimiter, String prefix, String suffix, Stream<SafeSql> stream) {
-        return appendJoined(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.fromConstant(prefix), SafeSqlUtils.fromConstant(suffix), stream);
+    public S join(String delimiter, String prefix, String suffix, Stream<SafeSql> stream) {
+        return join(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.fromConstant(prefix), SafeSqlUtils.fromConstant(suffix), stream);
     }
     
     @Override
-    public S appendJoinedSqlizable(SafeSql delimiter, Iterable<? extends SafeSqlizable> iterable) {
-        return appendJoinedSqlizable(delimiter, SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, iterable);
+    public S joinSqlizables(SafeSql delimiter, Iterable<? extends SafeSqlizable> iterable) {
+        return joinSqlizables(delimiter, SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, iterable);
     }
     
     @Override
-    public S appendJoinedSqlizable(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Iterable<? extends SafeSqlizable> iterable) {
+    public S joinSqlizables(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Iterable<? extends SafeSqlizable> iterable) {
         SafeSqlJoiner joiner = new SafeSqlJoiner(delimiter, prefix, suffix);
         iterable.forEach(joiner::add);
         joiner.appendTo(this);
@@ -259,35 +253,35 @@ public abstract class AbstractSafeSqlBuilder<S extends AbstractSafeSqlBuilder<S>
     }
     
     @Override
-    public S appendJoinedSqlizable(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Stream<? extends SafeSqlizable> stream) {
+    public S joinSqlizables(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Stream<? extends SafeSqlizable> stream) {
         SafeSqlJoiner joiner = stream.collect(() -> new SafeSqlJoiner(delimiter, prefix, suffix), SafeSqlJoiner::add, SafeSqlJoiner::merge);
         joiner.appendTo(this);
         return myself;
     }
     
     @Override
-    public S appendJoinedSqlizable(SafeSql delimiter, Stream<? extends SafeSqlizable> stream) {
-        return appendJoinedSqlizable(delimiter, SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, stream);
+    public S joinSqlizables(SafeSql delimiter, Stream<? extends SafeSqlizable> stream) {
+        return joinSqlizables(delimiter, SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, stream);
     }
     
     @Override
-    public S appendJoinedSqlizable(String delimiter, Iterable<? extends SafeSqlizable> iterable) {
-        return appendJoinedSqlizable(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, iterable);
+    public S joinSqlizables(String delimiter, Iterable<? extends SafeSqlizable> iterable) {
+        return joinSqlizables(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, iterable);
     }
     
     @Override
-    public S appendJoinedSqlizable(String delimiter, Stream<? extends SafeSqlizable> stream) {
-        return appendJoinedSqlizable(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, stream);
+    public S joinSqlizables(String delimiter, Stream<? extends SafeSqlizable> stream) {
+        return joinSqlizables(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY, stream);
     }
     
     @Override
-    public S appendJoinedSqlizable(String delimiter, String prefix, String suffix, Iterable<? extends SafeSqlizable> iterable) {
-        return appendJoinedSqlizable(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.fromConstant(prefix), SafeSqlUtils.fromConstant(suffix), iterable);
+    public S joinSqlizables(String delimiter, String prefix, String suffix, Iterable<? extends SafeSqlizable> iterable) {
+        return joinSqlizables(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.fromConstant(prefix), SafeSqlUtils.fromConstant(suffix), iterable);
     }
     
     @Override
-    public S appendJoinedSqlizable(String delimiter, String prefix, String suffix, Stream<? extends SafeSqlizable> stream) {
-        return appendJoinedSqlizable(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.fromConstant(prefix), SafeSqlUtils.fromConstant(suffix), stream);
+    public S joinSqlizables(String delimiter, String prefix, String suffix, Stream<? extends SafeSqlizable> stream) {
+        return joinSqlizables(SafeSqlUtils.fromConstant(delimiter), SafeSqlUtils.fromConstant(prefix), SafeSqlUtils.fromConstant(suffix), stream);
     }
     
     /**
@@ -297,7 +291,7 @@ public abstract class AbstractSafeSqlBuilder<S extends AbstractSafeSqlBuilder<S>
      * @return a reference to this object.
      */
     @Override
-    public S appendBytesLiteral(byte[] bytes) {
+    public S literal(byte[] bytes) {
         sqlBuilder.append("'\\x");
         for (byte b : bytes) {
             sqlBuilder.append(HEX_CODE[(b >> 4) & 0xF]);
@@ -308,15 +302,119 @@ public abstract class AbstractSafeSqlBuilder<S extends AbstractSafeSqlBuilder<S>
     }
 
     @Override
-    public S appendIdentifier(String identifier) {
+    public S identifier(String identifier) {
         sqlBuilder.append(SafeSqlUtils.mayEscapeIdentifier(identifier));
         return myself;
     }
 
     @Override
-    public S appendIdentifier(String container, String identifier) {
+    public S identifier(String container, String identifier) {
         sqlBuilder.append(SafeSqlUtils.mayEscapeIdentifier(container)).append('.').append(SafeSqlUtils.mayEscapeIdentifier(identifier));
         return myself;
+    }
+    
+    /**
+     * @deprecated Use {@link #literal(String)} instead.
+     */
+    @Deprecated
+    public S appendStringLiteral(String s) {
+        return literal(s);
+    }
+    
+    /**
+     * @deprecated Use {@link #format(String, Object...)} instead.
+     */
+    @Deprecated
+    public S appendFormat(String sql, Object... args) {
+        return format(sql, args);
+    }
+    
+    /**
+     * @deprecated Use {@link #join(String, Iterable)} instead
+     */
+    @Deprecated
+    public S appendJoined(String delimiter, Collection<? extends SafeSqlizable> collection) {
+        return joinSqlizables(delimiter, collection);
+    }
+    
+    /**
+     * @deprecated Use {@link #join(String, String, String, Iterable)} instead
+     */
+    @Deprecated
+    public S appendJoined(String delimiter, String prefix, String suffix, Collection<? extends SafeSqlizable> collection) {
+        return joinSqlizables(delimiter, prefix, suffix, collection);
+    }
+    
+    /**
+     * @deprecated Use {@link #join(String, Stream)} instead
+     */
+    @Deprecated
+    public S appendJoined(String delimiter, Stream<? extends SafeSqlizable> stream) {
+        return joinSqlizables(delimiter, stream);
+    }
+    
+    /**
+     * @deprecated Use {@link #join(String, String, String, Stream)} instead
+     */
+    @Deprecated
+    public S appendJoined(String delimiter, String prefix, String suffix, Stream<? extends SafeSqlizable> stream) {
+        return joinSqlizables(delimiter, prefix, suffix, stream);
+    }
+    
+    /**
+     * @deprecated Use {@link #join(SafeSql, Iterable)} instead
+     */
+    @Deprecated
+    public S appendJoined(SafeSql delimiter, Collection<? extends SafeSqlizable> collection) {
+        return joinSqlizables(delimiter, collection);
+    }
+    
+    /**
+     * @deprecated Use {@link #join(SafeSql, SafeSql, SafeSql, Iterable)} instead
+     */
+    @Deprecated
+    public S appendJoined(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Collection<? extends SafeSqlizable> collection) {
+        return joinSqlizables(delimiter, prefix, suffix, collection);
+    }
+    
+    /**
+     * @deprecated Use {@link #join(SafeSql, Stream)} instead
+     */
+    @Deprecated
+    public S appendJoined(SafeSql delimiter, Stream<? extends SafeSqlizable> stream) {
+        return joinSqlizables(delimiter, stream);
+    }
+    
+    /**
+     * @deprecated Use {@link #join(SafeSql, SafeSql, SafeSql, Stream)} instead
+     */
+    @Deprecated
+    public S appendJoined(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Stream<? extends SafeSqlizable> stream) {
+        return joinSqlizables(delimiter, prefix, suffix, stream);
+    }
+    
+    /**
+     * @deprecated Use {@link #literal(byte[])} instead.
+     */
+    @Deprecated
+    public S appendByteLiteral(byte[] bytes) {
+        return literal(bytes);
+    }
+    
+    /**
+     * @deprecated Use {@link #identifier(String)} instead.
+     */
+    @Deprecated
+    public S appendIdentifier(String identifier) {
+        return identifier(identifier);
+    }
+    
+    /**
+     * @deprecated Use {@link #identifier(String, String)} instead.
+     */
+    @Deprecated
+    public S appendIdentifier(String container, String identifier) {
+        return identifier(container, identifier);
     }
     
     @Override

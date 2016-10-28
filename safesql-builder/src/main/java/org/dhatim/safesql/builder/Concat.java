@@ -20,7 +20,7 @@ public class Concat implements Operand {
     
     @Override
     public void appendTo(SafeSqlAppendable builder) {
-        builder.appendJoinedSqlizable(" || ", list);
+        builder.joinSqlizables(" || ", list);
     }
 
 }

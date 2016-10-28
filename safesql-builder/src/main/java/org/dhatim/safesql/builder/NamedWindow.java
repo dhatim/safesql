@@ -22,7 +22,7 @@ public class NamedWindow extends Window {
     
     @Override
     public void appendTo(SafeSqlAppendable builder) {
-        builder.appendIdentifier(name)
+        builder.identifier(name)
             .append(" AS ");
         super.appendTo(builder);
     }

@@ -205,13 +205,13 @@ public final class SafeSqlUtils {
             sb.append(TIMESTAMP_FORMATTER_WITH_TZ.format((OffsetDateTime) obj));
             sb.append(STRING_QUOTE);
         } else if (obj instanceof UUID) {
-            sb.append("UUID ").appendStringLiteral(obj.toString());
+            sb.append("UUID ").literal(obj.toString());
         } else if (obj instanceof SafeSqlLiteralizable) {
             ((SafeSqlLiteralizable) obj).appendLiteralized(sb);
         } else if (obj instanceof byte[]) {
-            sb.appendBytesLiteral((byte[]) obj);
+            sb.literal((byte[]) obj);
         } else {
-            sb.appendStringLiteral(obj.toString());
+            sb.literal(obj.toString());
         }
     }
 

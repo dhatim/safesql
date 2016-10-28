@@ -48,7 +48,7 @@ public class Column implements Operand {
         if (alias != null) {
             builder.append(alias).append(".");
         }
-        builder.appendIdentifier(name);
+        builder.identifier(name);
     }
     
     @Override

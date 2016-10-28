@@ -19,7 +19,7 @@ public final class Identifier implements SafeSqlizable {
     
     @Override
     public void appendTo(SafeSqlAppendable builder) {
-        builder.appendIdentifier(name);
+        builder.identifier(name);
     }
     
     @Override

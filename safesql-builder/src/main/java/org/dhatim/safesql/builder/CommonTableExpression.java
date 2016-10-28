@@ -28,9 +28,9 @@ public class CommonTableExpression implements SafeSqlizable {
     
     @Override
     public void appendTo(SafeSqlAppendable builder) {
-        builder.appendIdentifier(name);
+        builder.identifier(name);
         if (!columnNames.isEmpty()) {
-            builder.appendJoinedSqlizable(", ", "(", ")", columnNames.stream().map(Identifier::new));
+            builder.joinSqlizables(", ", "(", ")", columnNames.stream().map(Identifier::new));
         }
         builder.append(" AS (")
                 .append(query)

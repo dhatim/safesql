@@ -30,7 +30,7 @@ public class ConditionGroup implements Condition {
     public void appendTo(SafeSqlAppendable builder) {
         SafeSql spacedOperator = new SafeSqlBuilder().append(' ').append(operator).append(' ').toSafeSql();
         builder.append("(")
-                .appendJoinedSqlizable(spacedOperator, conditions)
+                .joinSqlizables(spacedOperator, conditions)
                 .append(")");
     }
     
