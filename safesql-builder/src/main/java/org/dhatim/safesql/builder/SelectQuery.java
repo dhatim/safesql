@@ -218,31 +218,31 @@ public class SelectQuery implements WhereClause, SqlQuery {
     public void appendTo(SafeSqlAppendable sb) {
         if (!ctes.isEmpty()) {
             sb.append("WITH ");
-            sb.appendJoined(", ", ctes);
+            sb.appendJoinedSqlizable(", ", ctes);
             sb.append(" ");
         }
         sb.append("SELECT ");
         if (distinct) {
             sb.append("DISTINCT ");
         }
-        sb.appendJoined(", ", selects);
+        sb.appendJoinedSqlizable(", ", selects);
         if (!froms.isEmpty()) {
-            sb.append(" FROM ").appendJoined(", ", froms);
+            sb.append(" FROM ").appendJoinedSqlizable(", ", froms);
         }
         if (!conditions.isEmpty()) {
-            sb.append(" WHERE ").appendJoined(" AND ", conditions);
+            sb.append(" WHERE ").appendJoinedSqlizable(" AND ", conditions);
         }
         if (!groupBy.isEmpty()) {
-            sb.append(" GROUP BY ").appendJoined(", ", groupBy);
+            sb.append(" GROUP BY ").appendJoinedSqlizable(", ", groupBy);
         }
         if (!havings.isEmpty()) {
-            sb.append(" HAVING ").appendJoined(" AND ", havings);
+            sb.append(" HAVING ").appendJoinedSqlizable(" AND ", havings);
         }
         if (!windows.isEmpty()) {
-            sb.append(" WINDOW ").appendJoined(", ", windows);
+            sb.append(" WINDOW ").appendJoinedSqlizable(", ", windows);
         }
         if (!orders.isEmpty()) {
-            sb.append(" ORDER BY ").appendJoined(", ", orders);
+            sb.append(" ORDER BY ").appendJoinedSqlizable(", ", orders);
         }
         if (limit != null) {
             sb.append(" LIMIT " + limit);

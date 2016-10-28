@@ -1,27 +1,28 @@
 package org.dhatim.safesql;
 
 import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.stream.Stream;
 
 public interface SafeSqlAppendable {
 
-    public SafeSqlAppendable param(int num);
-    public SafeSqlAppendable param(long num);
-    public SafeSqlAppendable param(double num);
-    public SafeSqlAppendable param(boolean bool);
-    public SafeSqlAppendable param(BigDecimal num);
-    public SafeSqlAppendable param(Object obj);
-    public SafeSqlAppendable params(Object param1, Object param2);
-    public SafeSqlAppendable params(Object param1, Object param2, Object param3);
-    public SafeSqlAppendable params(Object... parameters);
-    public SafeSqlAppendable params(Collection<?> collection);
-    public SafeSqlAppendable params(Stream<?> stream);
-    public SafeSqlAppendable append(SafeSql sql);
-    public SafeSqlAppendable append(SafeSqlizable sqlizable);
-    public SafeSqlAppendable append(String s);
-    public SafeSqlAppendable append(char ch);
-    public SafeSqlAppendable append(int i);
+    SafeSqlAppendable param(int num);
+    SafeSqlAppendable param(long num);
+    SafeSqlAppendable param(double num);
+    SafeSqlAppendable param(boolean bool);
+    SafeSqlAppendable param(BigDecimal num);
+    SafeSqlAppendable param(Object obj);
+    SafeSqlAppendable params(Object param1, Object param2);
+    SafeSqlAppendable params(Object param1, Object param2, Object param3);
+    SafeSqlAppendable params(Object param1, Object param2, Object param3, Object... others);
+    SafeSqlAppendable params(Object... parameters);
+    SafeSqlAppendable params(Iterable<?> iterable);
+    SafeSqlAppendable params(Stream<?> stream);
+    
+    SafeSqlAppendable append(SafeSql sql);
+    SafeSqlAppendable append(SafeSqlizable sqlizable);
+    SafeSqlAppendable append(String s);
+    SafeSqlAppendable append(char ch);
+    SafeSqlAppendable append(int i);
     
     /**
      * write a string literal by escaping
@@ -29,16 +30,29 @@ public interface SafeSqlAppendable {
      * @param s this string as literal string in SQL code
      * @return a reference to this object.
      */
-    public SafeSqlAppendable appendStringLiteral(String s);
-    public SafeSqlAppendable appendFormatted(String sql, Object... args);
-    public SafeSqlAppendable appendJoined(String delimiter, Collection<? extends SafeSqlizable> collection);
-    public SafeSqlAppendable appendJoined(String delimiter, String prefix, String suffix, Collection<? extends SafeSqlizable> collection);
-    public SafeSqlAppendable appendJoined(String delimiter, Stream<? extends SafeSqlizable> stream);
-    public SafeSqlAppendable appendJoined(String delimiter, String prefix, String suffix, Stream<? extends SafeSqlizable> stream);
-    public SafeSqlAppendable appendJoined(SafeSql delimiter, Collection<? extends SafeSqlizable> collection);
-    public SafeSqlAppendable appendJoined(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Collection<? extends SafeSqlizable> collection);
-    public SafeSqlAppendable appendJoined(SafeSql delimiter, Stream<? extends SafeSqlizable> stream);
-    public SafeSqlAppendable appendJoined(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Stream<? extends SafeSqlizable> stream);
+    SafeSqlAppendable appendStringLiteral(String s);
+    SafeSqlAppendable appendFormatted(String sql, Object... args);
+    
+    SafeSqlAppendable appendJoined(String delimiter, Iterable<SafeSql> iterable);
+    SafeSqlAppendable appendJoined(String delimiter, String prefix, String suffix, Iterable<SafeSql> iterable);
+    SafeSqlAppendable appendJoined(String delimiter, Stream<SafeSql> stream);
+    SafeSqlAppendable appendJoined(String delimiter, String prefix, String suffix, Stream<SafeSql> stream);
+    
+    SafeSqlAppendable appendJoined(SafeSql delimiter, Iterable<SafeSql> iterable);
+    SafeSqlAppendable appendJoined(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Iterable<SafeSql> iterable);
+    SafeSqlAppendable appendJoined(SafeSql delimiter, Stream<SafeSql> stream);
+    SafeSqlAppendable appendJoined(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Stream<SafeSql> stream);
+    
+    SafeSqlAppendable appendJoinedSqlizable(String delimiter, Iterable<? extends SafeSqlizable> iterable);
+    SafeSqlAppendable appendJoinedSqlizable(String delimiter, String prefix, String suffix, Iterable<? extends SafeSqlizable> iterable);
+    SafeSqlAppendable appendJoinedSqlizable(String delimiter, Stream<? extends SafeSqlizable> stream);
+    SafeSqlAppendable appendJoinedSqlizable(String delimiter, String prefix, String suffix, Stream<? extends SafeSqlizable> stream);
+    
+    SafeSqlAppendable appendJoinedSqlizable(SafeSql delimiter, Iterable<? extends SafeSqlizable> iterable);
+    SafeSqlAppendable appendJoinedSqlizable(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Iterable<? extends SafeSqlizable> iterable);
+    SafeSqlAppendable appendJoinedSqlizable(SafeSql delimiter, Stream<? extends SafeSqlizable> stream);
+    SafeSqlAppendable appendJoinedSqlizable(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Stream<? extends SafeSqlizable> stream);
+    
     
     /**
      * Write a byte array as literal in PostgreSQL
@@ -46,8 +60,8 @@ public interface SafeSqlAppendable {
      * @param bytes bytes to write as literal
      * @return a reference to this object.
      */
-    public SafeSqlAppendable appendBytesLiteral(byte[] bytes);
-    public SafeSqlAppendable appendIdentifier(String identifier);
-    public SafeSqlAppendable appendIdentifier(String container, String identifier);
+    SafeSqlAppendable appendBytesLiteral(byte[] bytes);
+    SafeSqlAppendable appendIdentifier(String identifier);
+    SafeSqlAppendable appendIdentifier(String container, String identifier);
     
 }

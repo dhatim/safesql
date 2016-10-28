@@ -32,9 +32,7 @@ public final class SafeSqlUtils {
     private static final String IDENTIFIER_QUOTE = "\"";
     private static final String ESCAPED_IDENTIFIER_QUOTE = "\"\"";
 
-    private static final Object[] EMPTY_PARAMETERS = {};
-
-    public static final SafeSql EMPTY = new SafeSqlImpl("", EMPTY_PARAMETERS);
+    public static final SafeSql EMPTY = new StringSafeSqlImpl("");
 
     private static final Pattern PATTERN = Pattern.compile("(?:\\{((?:\\d+|\\{(?:.*)\\})?)\\})");
 
@@ -46,7 +44,7 @@ public final class SafeSqlUtils {
         if (s.isEmpty()) {
             return EMPTY;
         }
-        return new SafeSqlImpl(s, EMPTY_PARAMETERS);
+        return new StringSafeSqlImpl(s);
     }
 
     public static SafeSql escape(Object o) {
@@ -57,7 +55,7 @@ public final class SafeSqlUtils {
         String sql = mustEscapeIdentifier(identifier)
                 ? escapeIdentifier(identifier)
                 : identifier;
-        return new SafeSqlImpl(sql, EMPTY_PARAMETERS);
+        return new StringSafeSqlImpl(sql);
     }
 
     /**

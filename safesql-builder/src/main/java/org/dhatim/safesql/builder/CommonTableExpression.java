@@ -30,7 +30,7 @@ public class CommonTableExpression implements SafeSqlizable {
     public void appendTo(SafeSqlAppendable builder) {
         builder.appendIdentifier(name);
         if (!columnNames.isEmpty()) {
-            builder.appendJoined(", ", "(", ")", columnNames.stream().map(Identifier::new));
+            builder.appendJoinedSqlizable(", ", "(", ")", columnNames.stream().map(Identifier::new));
         }
         builder.append(" AS (")
                 .append(query)

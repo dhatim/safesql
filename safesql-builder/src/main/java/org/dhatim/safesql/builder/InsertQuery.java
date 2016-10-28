@@ -32,7 +32,7 @@ public class InsertQuery implements SafeSqlizable {
     public void appendTo(SafeSqlAppendable builder) {
         if (!ctes.isEmpty()) {
             builder.append("WITH ");
-            builder.appendJoined(", ", ctes);
+            builder.appendJoinedSqlizable(", ", ctes);
             builder.append(" ");
         }
         builder.append("INSERT INTO ");
@@ -40,7 +40,7 @@ public class InsertQuery implements SafeSqlizable {
             builder.appendIdentifier(schema).append('.');
         }
         builder.appendIdentifier(tableName).append(' ');
-        builder.appendJoined(", ", "(", ")", columns.stream().map(Identifier::new));
+        builder.appendJoinedSqlizable(", ", "(", ")", columns.stream().map(Identifier::new));
         builder.append(' ');
         query.appendTo(builder);
     }
