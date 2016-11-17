@@ -89,7 +89,7 @@ public class SafeSqlBuilderTest {
         assertThat(new SafeSqlBuilder().joinSqlizables(", ", Arrays.asList(new MySafeSqlizable())).toSafeSql())
                 .hasSql(MySafeSqlizable.MUST_BE)
                 .hasParameters(5);
-        assertThat(new SafeSqlBuilder().join(", ", Arrays.asList()).toSafeSql())
+        assertThat(new SafeSqlBuilder().joinSafeSqls(", ", Arrays.asList()).toSafeSql())
                 .hasEmptySql()
                 .hasEmptyParameters();
     }
