@@ -15,13 +15,13 @@ public interface SafeSqlAppendable {
     SafeSqlAppendable params(Object... parameters);
     SafeSqlAppendable params(Iterable<?> iterable);
     SafeSqlAppendable params(Stream<?> stream);
-    
+
     SafeSqlAppendable append(SafeSql sql);
     SafeSqlAppendable append(SafeSqlizable sqlizable);
     SafeSqlAppendable append(String s);
     SafeSqlAppendable append(char ch);
     SafeSqlAppendable append(int i);
-    
+
     /**
      * write a string literal by escaping
      *
@@ -29,7 +29,7 @@ public interface SafeSqlAppendable {
      * @return a reference to this object.
      */
     SafeSqlAppendable literal(String s);
-    
+
     /**
      * Write a byte array as literal in PostgreSQL
      *
@@ -39,27 +39,32 @@ public interface SafeSqlAppendable {
     SafeSqlAppendable literal(byte[] bytes);
     SafeSqlAppendable identifier(String identifier);
     SafeSqlAppendable identifier(String container, String identifier);
-    
+
     SafeSqlAppendable format(String sql, Object... args);
-    
+
+    SafeSqlAppendable joinStrings(String delimiter, Iterable<String> iterable);
+    SafeSqlAppendable joinStrings(String delimiter, String prefix, String suffix, Iterable<String> iterable);
+    SafeSqlAppendable joinStrings(String delimiter, Stream<String> iterable);
+    SafeSqlAppendable joinStrings(String delimiter, String prefix, String suffix, Stream<String> iterable);
+
     SafeSqlAppendable join(String delimiter, Iterable<SafeSql> iterable);
     SafeSqlAppendable join(String delimiter, String prefix, String suffix, Iterable<SafeSql> iterable);
     SafeSqlAppendable join(String delimiter, Stream<SafeSql> stream);
     SafeSqlAppendable join(String delimiter, String prefix, String suffix, Stream<SafeSql> stream);
-    
+
     SafeSqlAppendable join(SafeSql delimiter, Iterable<SafeSql> iterable);
     SafeSqlAppendable join(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Iterable<SafeSql> iterable);
     SafeSqlAppendable join(SafeSql delimiter, Stream<SafeSql> stream);
     SafeSqlAppendable join(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Stream<SafeSql> stream);
-    
+
     SafeSqlAppendable joinSqlizables(String delimiter, Iterable<? extends SafeSqlizable> iterable);
     SafeSqlAppendable joinSqlizables(String delimiter, String prefix, String suffix, Iterable<? extends SafeSqlizable> iterable);
     SafeSqlAppendable joinSqlizables(String delimiter, Stream<? extends SafeSqlizable> stream);
     SafeSqlAppendable joinSqlizables(String delimiter, String prefix, String suffix, Stream<? extends SafeSqlizable> stream);
-    
+
     SafeSqlAppendable joinSqlizables(SafeSql delimiter, Iterable<? extends SafeSqlizable> iterable);
     SafeSqlAppendable joinSqlizables(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Iterable<? extends SafeSqlizable> iterable);
     SafeSqlAppendable joinSqlizables(SafeSql delimiter, Stream<? extends SafeSqlizable> stream);
     SafeSqlAppendable joinSqlizables(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Stream<? extends SafeSqlizable> stream);
-    
+
 }
