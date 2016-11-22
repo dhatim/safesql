@@ -1,9 +1,10 @@
 package org.dhatim.safesql;
 
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -19,10 +20,7 @@ import java.util.regex.Pattern;
 public final class SafeSqlUtils {
 
     private static final DateTimeFormatter TIMESTAMP_FORMATTER_WITH_TZ = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSX");
-    private static final DateTimeFormatter TIMESTAMP_FORMATTER_WITHOUT_TZ = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-    //private static final DateTimeFormatter TIME_FORMATTER_WITH_TZ = DateTimeFormatter.ofPattern("HH:mm:ss.SSSX");
-    private static final DateTimeFormatter TIME_FORMATTER_WITHOUT_TZ = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateFormat TIME_FORMAT_WITH_TZ = new SimpleDateFormat("hh:mm:ss:SSSXXX");
 
     private static final char STRING_QUOTE_CHAR = '\'';
     private static final String STRING_QUOTE = "'";
@@ -181,24 +179,25 @@ public final class SafeSqlUtils {
             sb.append(TIMESTAMP_FORMATTER_WITH_TZ.format(((Timestamp) obj).toLocalDateTime().atZone(zone)));
             sb.append(STRING_QUOTE);
         } else if (obj instanceof Time) {
-            sb.append("TIME ").append(STRING_QUOTE);
-            sb.append(TIME_FORMATTER_WITHOUT_TZ.format(((Time) obj).toLocalTime()));
+            sb.append("TIME WITH TIME ZONE ").append(STRING_QUOTE);
+            sb.append(TIME_FORMAT_WITH_TZ.format((Time) obj));
             sb.append(STRING_QUOTE);
-        } else if (obj instanceof Date) {
+        } else if (obj instanceof java.sql.Date) {
             sb.append("DATE ").append(STRING_QUOTE);
-            sb.append(DATE_FORMATTER.format(((Date) obj).toLocalDate()));
+            sb.append(((java.sql.Date) obj).toLocalDate().toString());
             sb.append(STRING_QUOTE);
         } else if (obj instanceof LocalDate) {
             sb.append("DATE ").append(STRING_QUOTE);
-            sb.append(DATE_FORMATTER.format((LocalDate) obj));
+            sb.append(((LocalDate) obj).toString());
             sb.append(STRING_QUOTE);
         } else if (obj instanceof LocalTime) {
             sb.append("TIME ").append(STRING_QUOTE);
-            sb.append(TIME_FORMATTER_WITHOUT_TZ.format((LocalTime) obj));
+            sb.append(((LocalTime) obj).toString());
             sb.append(STRING_QUOTE);
         } else if (obj instanceof LocalDateTime) {
             sb.append("TIMESTAMP ").append(STRING_QUOTE);
-            sb.append(TIMESTAMP_FORMATTER_WITHOUT_TZ.format((LocalDateTime) obj));
+            LocalDateTime other = (LocalDateTime) obj;
+            sb.append(other.toLocalDate().toString()).append(' ').append(other.toLocalTime().toString());
             sb.append(STRING_QUOTE);
         } else if (obj instanceof OffsetDateTime) {
             sb.append("TIMESTAMP WITH TIME ZONE ").append(STRING_QUOTE);
@@ -209,7 +208,7 @@ public final class SafeSqlUtils {
         } else if (obj instanceof SafeSqlLiteralizable) {
             ((SafeSqlLiteralizable) obj).appendLiteralized(sb);
         } else if (obj instanceof byte[]) {
-            sb.literal((byte[]) obj);
+            sb.append("BYTEA ").literal((byte[]) obj);
         } else {
             sb.literal(obj.toString());
         }
