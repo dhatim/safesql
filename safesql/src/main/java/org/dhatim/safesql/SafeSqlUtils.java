@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Objects;
@@ -20,7 +19,11 @@ import java.util.regex.Pattern;
 public final class SafeSqlUtils {
 
     private static final DateTimeFormatter TIMESTAMP_FORMATTER_WITH_TZ = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSX");
-    private static final DateFormat TIME_FORMAT_WITH_TZ = new SimpleDateFormat("hh:mm:ss:SSSXXX");
+
+    // Package visible for testing
+    static final DateFormat TIME_FORMAT_WITH_TZ = new SimpleDateFormat("hh:mm:ss:SSSXXX");
+    // Package visible for testing
+    static final DateFormat TIMESTAMP_FORMAT_WITH_TZ = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSSXXX");
 
     private static final char STRING_QUOTE_CHAR = '\'';
     private static final String STRING_QUOTE = "'";
@@ -174,9 +177,8 @@ public final class SafeSqlUtils {
         } else if (obj instanceof Number) {
             sb.append(((Number) obj).toString());
         } else if (obj instanceof Timestamp) {
-            ZoneId zone = ZoneId.of("UTC");
             sb.append("TIMESTAMP WITH TIME ZONE ").append(STRING_QUOTE);
-            sb.append(TIMESTAMP_FORMATTER_WITH_TZ.format(((Timestamp) obj).toLocalDateTime().atZone(zone)));
+            sb.append(TIMESTAMP_FORMAT_WITH_TZ.format((Timestamp) obj));
             sb.append(STRING_QUOTE);
         } else if (obj instanceof Time) {
             sb.append("TIME WITH TIME ZONE ").append(STRING_QUOTE);
