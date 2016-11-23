@@ -114,13 +114,13 @@ public abstract class AbstractSafeSqlBuilder<S extends AbstractSafeSqlBuilder<S>
 
     @Override
     public S params(Iterable<?> iterable) {
-        paramsIterator(iterable.iterator());
+        paramsIterator(DEFAULT_SEPARATOR, iterable.iterator());
         return myself;
     }
 
     @Override
     public S params(Stream<?> stream) {
-        paramsIterator(stream.iterator());
+        paramsIterator(DEFAULT_SEPARATOR, stream.iterator());
         return myself;
     }
 
@@ -133,13 +133,25 @@ public abstract class AbstractSafeSqlBuilder<S extends AbstractSafeSqlBuilder<S>
         }
     }
 
-    private void paramsIterator(Iterator<?> iterator) {
+    private void paramsIterator(String delimiter, Iterator<?> iterator) {
         boolean first = true;
         while (iterator.hasNext()) {
             if (first) {
                 first = false;
             } else {
-                append(DEFAULT_SEPARATOR);
+                append(delimiter);
+            }
+            param(iterator.next());
+        }
+    }
+
+    private void paramsIterator(SafeSql delimiter, Iterator<?> iterator) {
+        boolean first = true;
+        while (iterator.hasNext()) {
+            if (first) {
+                first = false;
+            } else {
+                append(delimiter);
             }
             param(iterator.next());
         }
@@ -451,6 +463,62 @@ public abstract class AbstractSafeSqlBuilder<S extends AbstractSafeSqlBuilder<S>
     @Deprecated
     public S appendIdentifier(String container, String identifier) {
         return identifier(container, identifier);
+    }
+
+    @Deprecated
+    public S params(String delimiter, Collection<?> collection) {
+        paramsIterator(delimiter, collection.iterator());
+        return myself;
+    }
+
+    @Deprecated
+    public S params(String delimiter, String prefix, String suffix, Collection<?> collection) {
+        append(prefix);
+        paramsIterator(delimiter, collection.iterator());
+        append(suffix);
+        return myself;
+    }
+
+    @Deprecated
+    public S params(String delimiter, Stream<?> stream) {
+        paramsIterator(delimiter, stream.iterator());
+        return myself;
+    }
+
+    @Deprecated
+    public S params(String delimiter, String prefix, String suffix, Stream<?> stream) {
+        append(prefix);
+        paramsIterator(delimiter, stream.iterator());
+        append(suffix);
+        return myself;
+    }
+
+    @Deprecated
+    public S params(SafeSql delimiter, Collection<?> collection) {
+        paramsIterator(delimiter, collection.iterator());
+        return myself;
+    }
+
+    @Deprecated
+    public S params(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Collection<?> collection) {
+        append(prefix);
+        paramsIterator(delimiter, collection.iterator());
+        append(suffix);
+        return myself;
+    }
+
+    @Deprecated
+    public S params(SafeSql delimiter, Stream<?> stream) {
+        paramsIterator(delimiter, stream.iterator());
+        return myself;
+    }
+
+    @Deprecated
+    public S params(SafeSql delimiter, SafeSql prefix, SafeSql suffix, Stream<?> stream) {
+        append(prefix);
+        paramsIterator(delimiter, stream.iterator());
+        append(suffix);
+        return myself;
     }
 
     @Override
