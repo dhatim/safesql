@@ -108,6 +108,7 @@ public abstract class AbstractSafeSqlBuilder<S extends AbstractSafeSqlBuilder<S>
                 break;
             default:
                 paramsArray(parameters);
+                break;
         }
         return myself;
     }

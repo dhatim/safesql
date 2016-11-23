@@ -6,6 +6,8 @@ import static org.dhatim.safesql.assertion.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -31,6 +33,9 @@ public class SafeSqlUtilsTest {
         }
 
     }
+
+    private static final DateFormat TIME_FORMAT_WITH_TZ = new SimpleDateFormat("hh:mm:ss:SSSXXX");
+    private static final DateFormat TIMESTAMP_FORMAT_WITH_TZ = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSSXXX");
 
     @Test
     public void testFromConstant() {
@@ -80,8 +85,8 @@ public class SafeSqlUtilsTest {
         assertThat(SafeSqlUtils.toString(safesql("SELECT {} FROM table", false))).as("Boolean false").isEqualTo("SELECT FALSE FROM table");
         assertThat(SafeSqlUtils.toString(safesql("SELECT {} FROM table", new BigDecimal("0")))).as("BigDecimal").isEqualTo("SELECT 0::numeric FROM table");
 
-        assertThat(SafeSqlUtils.toString(safesql("SELECT {}", new Timestamp(0)))).as("Timestamp").isEqualTo("SELECT TIMESTAMP WITH TIME ZONE '" + SafeSqlUtils.TIMESTAMP_FORMAT_WITH_TZ.format(new Timestamp(0)) + "'");
-        assertThat(SafeSqlUtils.toString(safesql("SELECT {}", new Time(0)))).as("Time").isEqualTo("SELECT TIME WITH TIME ZONE '" + SafeSqlUtils.TIME_FORMAT_WITH_TZ.format(new Timestamp(0)) + "'");
+        assertThat(SafeSqlUtils.toString(safesql("SELECT {}", new Timestamp(0)))).as("Timestamp").isEqualTo("SELECT TIMESTAMP WITH TIME ZONE '" + TIMESTAMP_FORMAT_WITH_TZ.format(new Timestamp(0)) + "'");
+        assertThat(SafeSqlUtils.toString(safesql("SELECT {}", new Time(0)))).as("Time").isEqualTo("SELECT TIME WITH TIME ZONE '" + TIME_FORMAT_WITH_TZ.format(new Timestamp(0)) + "'");
         assertThat(SafeSqlUtils.toString(safesql("SELECT {}", new java.sql.Date(0)))).as("java.sql.Date").isEqualTo("SELECT DATE '1970-01-01'");
         assertThat(SafeSqlUtils.toString(safesql("SELECT {}", LocalDate.of(1970, 1, 1)))).as("LocalDate").isEqualTo("SELECT DATE '1970-01-01'");
         assertThat(SafeSqlUtils.toString(safesql("SELECT {}", LocalTime.of(1, 10)))).as("LocalTime").isEqualTo("SELECT TIME '01:10'");
