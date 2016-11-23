@@ -26,6 +26,7 @@ public class SafeSqlRewriter {
         this.writer = writer;
     }
 
+    //TODO miss $$ notation
     public void writeTo(SafeSql value, SafeSqlBuilder sb) {
         Object[] parameters = value.getParameters();
         int index = 0;

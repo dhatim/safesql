@@ -556,7 +556,7 @@ public abstract class AbstractSafeSqlBuilder<S extends AbstractSafeSqlBuilder<S>
     void append(SafeSqlBuilder other, Position after) {
         sqlBuilder.append(other.sqlBuilder, after.sqlPosition, other.sqlBuilder.length());
         int afterLength = after.paramPosition;
-        parameters.addAll(Arrays.asList(other.parameters).subList(afterLength, other.parameters.size() - afterLength));
+        parameters.addAll(other.parameters.subList(afterLength, other.parameters.size() - afterLength));
     }
 
     static Position getLength(SafeSql sql) {

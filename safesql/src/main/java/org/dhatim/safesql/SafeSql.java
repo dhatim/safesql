@@ -4,7 +4,7 @@ package org.dhatim.safesql;
  * An object that implements this interface encapsulates SQL that is guaranteed to use placeholder parameters
  */
 public interface SafeSql {
-    
+
     /**
      * Retrieves the sql query that may contain one or more <code>'?'</code> parameter placeholder
      * @return the sql query
@@ -24,5 +24,17 @@ public interface SafeSql {
     default String asString() {
         return SafeSqlUtils.toString(this);
     }
-    
+
+    static SafeSql constant(String s) {
+        return SafeSqlUtils.fromConstant(s);
+    }
+
+    static SafeSql identifier(String identifier) {
+        return SafeSqlUtils.fromIdentifier(identifier);
+    }
+
+    static SafeSql parameter(Object parameter) {
+        return SafeSqlUtils.escape(parameter);
+    }
+
 }

@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.MissingFormatArgumentException;
 import java.util.UUID;
 import org.junit.Test;
 
@@ -60,10 +61,13 @@ public class SafeSqlUtilsTest {
         assertThat(SafeSqlUtils.mustEscapeIdentifier("aa")).as("Lower").isFalse();
         assertThat(SafeSqlUtils.mustEscapeIdentifier("a\"a")).as("Double quote").isTrue();
         assertThat(SafeSqlUtils.mustEscapeIdentifier("Étant")).as("no identifier character").isTrue();
+        assertThat(SafeSqlUtils.mustEscapeIdentifier("%aA")).as("no identifier character (special)").isTrue();
     }
 
     @Test
     public void testToString() {
+        assertThat(SafeSqlUtils.toString(safesql("SELECT {} FROM table", new Object[] {null}))).isEqualTo("SELECT NULL FROM table");
+
         assertThat(SafeSqlUtils.toString(safesql("SELECT {} FROM table", 5))).isEqualTo("SELECT 5 FROM table");
         assertThat(SafeSqlUtils.toString(safesql("SELECT {} FROM table", "Cheveux d'ange"))).isEqualTo("SELECT 'Cheveux d''ange' FROM table");
         assertThat(SafeSqlUtils.toString(safesql("SELECT '?', {} FROM table", 5))).isEqualTo("SELECT '?', 5 FROM table");
@@ -105,6 +109,20 @@ public class SafeSqlUtilsTest {
         assertThat(SafeSqlUtils.format("SELECT * FROM table WHERE col1 = {1} AND col2 = {2}", 5, "Hello"))
                 .hasSql("SELECT * FROM table WHERE col1 = ? AND col2 = ?")
                 .hasParameters(5, "Hello");
+
+        assertThat(SafeSqlUtils.format("SELECT * FROM table WHERE col1 = {{}} AND col2 = {}", 5))
+                .hasSql("SELECT * FROM table WHERE col1 = {} AND col2 = ?")
+                .hasParameters(5);
+    }
+
+    @Test(expected=MissingFormatArgumentException.class)
+    public void testFormatMissing() {
+        SafeSqlUtils.format("SELECT {}");
+    }
+
+    @Test(expected=MissingFormatArgumentException.class)
+    public void testFormatMissingCustom() {
+        SafeSqlUtils.format("SELECT {3}");
     }
 
     private static SafeSql safesql(String sql, Object... args) {

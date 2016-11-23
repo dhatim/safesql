@@ -11,6 +11,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.MissingFormatArgumentException;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -105,12 +106,18 @@ public final class SafeSqlUtils {
             lastIndex = matcher.end();
             builder.append(before);
             if (parameter.isEmpty()) {
+                if (argIndex >= arguments.length) {
+                    throw new MissingFormatArgumentException("Argument " + argIndex);
+                }
                 builder.param(arguments[argIndex++]);
             } else if (parameter.startsWith("{")) {
                 builder.append(parameter);
             } else {
-                int customArgIndex = Integer.parseInt(parameter);
-                builder.param(arguments[customArgIndex - 1]);
+                int customArgIndex = Integer.parseInt(parameter) - 1;
+                if (customArgIndex < 0 || customArgIndex >= arguments.length) {
+                    throw new MissingFormatArgumentException("Argument " + customArgIndex);
+                }
+                builder.param(arguments[customArgIndex]);
             }
         }
         String lastPart = sql.substring(lastIndex);
