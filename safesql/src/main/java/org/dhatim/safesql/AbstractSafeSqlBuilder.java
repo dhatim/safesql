@@ -68,11 +68,9 @@ public abstract class AbstractSafeSqlBuilder<S extends AbstractSafeSqlBuilder<S>
 
     @Override
     public S params(Object... parameters) {
-        if (parameters.length == 0) {
-            // Do nothing
-        } else if (parameters.length == 1) {
+        if (parameters.length == 1) {
             param(parameters[0]);
-        } else {
+        } else if (parameters.length != 0) {
             for (int i=0; i<parameters.length; i++) {
                 if (i > 0) {
                     append(DEFAULT_SEPARATOR);
