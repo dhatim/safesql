@@ -2,6 +2,7 @@ package org.dhatim.safesql.builder;
 
 import java.util.ArrayList;
 import org.dhatim.safesql.SafeSql;
+import org.dhatim.safesql.SafeSqlAppendable;
 import org.dhatim.safesql.SafeSqlBuilder;
 import org.dhatim.safesql.SafeSqlUtils;
 import org.dhatim.safesql.SafeSqlizable;
@@ -43,7 +44,7 @@ public abstract class Case<T extends SafeSqlizable> implements Operand {
         }
         
         @Override
-        public void appendTo(SafeSqlBuilder builder) {
+        public void appendTo(SafeSqlAppendable builder) {
             builder.append("WHEN ").append(expression).append(" THEN ").append(result);
         }
 
@@ -66,9 +67,9 @@ public abstract class Case<T extends SafeSqlizable> implements Operand {
     protected abstract SafeSql getCaseClause();
     
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
+    public void appendTo(SafeSqlAppendable builder) {
         builder.append(getCaseClause()).append(" ");
-        builder.appendJoined(" ", whens).append(" ");
+        builder.joinSqlizables(" ", whens).append(" ");
         if (elseOperand != null) {
             builder.append("ELSE ").append(elseOperand).append(" ");
         }

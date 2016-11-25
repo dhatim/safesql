@@ -3,7 +3,7 @@ package org.dhatim.safesql.builder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlAppendable;
 import org.dhatim.safesql.SafeSqlizable;
 
 public class CommonTableExpression implements SafeSqlizable {
@@ -27,10 +27,10 @@ public class CommonTableExpression implements SafeSqlizable {
     }
     
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
-        builder.appendIdentifier(name);
+    public void appendTo(SafeSqlAppendable builder) {
+        builder.identifier(name);
         if (!columnNames.isEmpty()) {
-            builder.appendJoined(", ", "(", ")", columnNames.stream().map(Identifier::new));
+            builder.joinSqlizables(", ", "(", ")", columnNames.stream().map(Identifier::new));
         }
         builder.append(" AS (")
                 .append(query)

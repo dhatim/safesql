@@ -1,6 +1,6 @@
 package org.dhatim.safesql.builder;
 
-import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlAppendable;
 
 public class QueryOperand implements Operand {
     
@@ -11,7 +11,7 @@ public class QueryOperand implements Operand {
     }
 
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
+    public void appendTo(SafeSqlAppendable builder) {
         builder.append('(');
         query.appendTo(builder);
         builder.append(')');

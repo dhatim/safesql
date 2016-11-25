@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlAppendable;
 
 public class Row implements Operand {
 
@@ -27,8 +27,8 @@ public class Row implements Operand {
     }
 
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
-        builder.append("(").appendJoined(", ", elements).append(")");
+    public void appendTo(SafeSqlAppendable builder) {
+        builder.append("(").joinSqlizables(", ", elements).append(")");
     }
 
 }

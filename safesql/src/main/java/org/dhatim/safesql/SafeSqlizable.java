@@ -13,5 +13,5 @@ public interface SafeSqlizable {
         return sb.toSafeSql();
     }
     
-    void appendTo(SafeSqlBuilder builder);
+    void appendTo(SafeSqlAppendable builder);
 }

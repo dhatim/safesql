@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlAppendable;
 import org.dhatim.safesql.SafeSqlizable;
 
 public class SelectQuery implements WhereClause, SqlQuery {
@@ -22,11 +22,11 @@ public class SelectQuery implements WhereClause, SqlQuery {
         }
         
         @Override
-        public void appendTo(SafeSqlBuilder builder) {
+        public void appendTo(SafeSqlAppendable builder) {
             if (alias != null) {
                 builder.append(alias).append('.');
             }
-            builder.appendIdentifier(column).append(' ').append(order);
+            builder.identifier(column).append(' ').append(order);
         }
         
     }
@@ -215,34 +215,34 @@ public class SelectQuery implements WhereClause, SqlQuery {
     }
 
     @Override
-    public void appendTo(SafeSqlBuilder sb) {
+    public void appendTo(SafeSqlAppendable sb) {
         if (!ctes.isEmpty()) {
             sb.append("WITH ");
-            sb.appendJoined(", ", ctes);
+            sb.joinSqlizables(", ", ctes);
             sb.append(" ");
         }
         sb.append("SELECT ");
         if (distinct) {
             sb.append("DISTINCT ");
         }
-        sb.appendJoined(", ", selects);
+        sb.joinSqlizables(", ", selects);
         if (!froms.isEmpty()) {
-            sb.append(" FROM ").appendJoined(", ", froms);
+            sb.append(" FROM ").joinSqlizables(", ", froms);
         }
         if (!conditions.isEmpty()) {
-            sb.append(" WHERE ").appendJoined(" AND ", conditions);
+            sb.append(" WHERE ").joinSqlizables(" AND ", conditions);
         }
         if (!groupBy.isEmpty()) {
-            sb.append(" GROUP BY ").appendJoined(", ", groupBy);
+            sb.append(" GROUP BY ").joinSqlizables(", ", groupBy);
         }
         if (!havings.isEmpty()) {
-            sb.append(" HAVING ").appendJoined(" AND ", havings);
+            sb.append(" HAVING ").joinSqlizables(" AND ", havings);
         }
         if (!windows.isEmpty()) {
-            sb.append(" WINDOW ").appendJoined(", ", windows);
+            sb.append(" WINDOW ").joinSqlizables(", ", windows);
         }
         if (!orders.isEmpty()) {
-            sb.append(" ORDER BY ").appendJoined(", ", orders);
+            sb.append(" ORDER BY ").joinSqlizables(", ", orders);
         }
         if (limit != null) {
             sb.append(" LIMIT " + limit);
