@@ -67,48 +67,18 @@ public abstract class AbstractSafeSqlBuilder<S extends AbstractSafeSqlBuilder<S>
     }
 
     @Override
-    public S params(Object param1, Object param2) {
-        appendObject(param1);
-        append(DEFAULT_SEPARATOR);
-        appendObject(param2);
-        return myself;
-    }
-
-    @Override
-    public S params(Object param1, Object param2, Object param3) {
-        appendObject(param1);
-        append(DEFAULT_SEPARATOR);
-        appendObject(param2);
-        append(DEFAULT_SEPARATOR);
-        appendObject(param3);
-        return myself;
-    }
-
-    @Override
-    public S params(Object param1, Object param2, Object param3, Object... others) {
-        params(param1, param2, param3);
-        append(DEFAULT_SEPARATOR);
-        paramsArray(others);
-        return myself;
-    }
-
-    @Override
     public S params(Object... parameters) {
-        switch (parameters.length) {
-            case 0:
-                break; // Do nothing
-            case 1:
-                param(parameters[0]);
-                break;
-            case 2:
-                params(parameters[0], parameters[1]);
-                break;
-            case 3:
-                params(parameters[0], parameters[1], parameters[2]);
-                break;
-            default:
-                paramsArray(parameters);
-                break;
+        if (parameters.length == 0) {
+            // Do nothing
+        } else if (parameters.length == 1) {
+            param(parameters[0]);
+        } else {
+            for (int i=0; i<parameters.length; i++) {
+                if (i > 0) {
+                    append(DEFAULT_SEPARATOR);
+                }
+                param(parameters[i]);
+            }
         }
         return myself;
     }
@@ -123,15 +93,6 @@ public abstract class AbstractSafeSqlBuilder<S extends AbstractSafeSqlBuilder<S>
     public S params(Stream<?> stream) {
         paramsIterator(DEFAULT_SEPARATOR, stream.iterator());
         return myself;
-    }
-
-    private void paramsArray(Object... objects) {
-        for (int i=0; i<objects.length; i++) {
-            if (i > 0) {
-                append(DEFAULT_SEPARATOR);
-            }
-            param(objects[i]);
-        }
     }
 
     private void paramsIterator(String delimiter, Iterator<?> iterator) {

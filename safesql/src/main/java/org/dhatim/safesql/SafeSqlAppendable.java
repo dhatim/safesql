@@ -9,9 +9,6 @@ public interface SafeSqlAppendable {
     SafeSqlAppendable param(double num);
     SafeSqlAppendable param(boolean bool);
     SafeSqlAppendable param(Object obj);
-    SafeSqlAppendable params(Object param1, Object param2);
-    SafeSqlAppendable params(Object param1, Object param2, Object param3);
-    SafeSqlAppendable params(Object param1, Object param2, Object param3, Object... others);
     SafeSqlAppendable params(Object... parameters);
     SafeSqlAppendable params(Iterable<?> iterable);
     SafeSqlAppendable params(Stream<?> stream);
