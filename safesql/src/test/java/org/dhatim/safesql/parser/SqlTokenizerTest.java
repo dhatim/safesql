@@ -15,7 +15,7 @@ public class SqlTokenizerTest {
 
     @Test
     public void testSimpleSql() {
-        String sql = "SELECT jambon FROM charcuterie WHERE taille = 5";
+        String sql = "SELECT lorem FROM ipsum WHERE dolor = 5";
         assertThat(tokenize(sql)).hasTokenClasses(SqlTokenKind.KEYWORD, SqlTokenKind.WHITESPACE, SqlTokenKind.IDENTIFIER, SqlTokenKind.WHITESPACE, SqlTokenKind.KEYWORD, SqlTokenKind.WHITESPACE, 
                         SqlTokenKind.IDENTIFIER, SqlTokenKind.WHITESPACE, SqlTokenKind.KEYWORD, SqlTokenKind.WHITESPACE, SqlTokenKind.IDENTIFIER, SqlTokenKind.WHITESPACE, 
                         SqlTokenKind.SYMBOL, SqlTokenKind.WHITESPACE, SqlTokenKind.LITERAL);

@@ -75,6 +75,10 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+/**
+ * Parser for PostgreSQL language
+ * Experimental. 
+ */
 public class SqlTokenizer {
     
     enum CharType {
@@ -204,7 +208,7 @@ public class SqlTokenizer {
         this.origin = sql;
         this.chars = sql.toCharArray();
     }
-
+    
     public boolean hasMoreTokens() {
     	boolean has = position+1 < chars.length;
     	debug(() -> "hasMoreTokens = " + has + " because position " + position + "/" + chars.length);
