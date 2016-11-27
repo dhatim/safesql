@@ -1,14 +1,14 @@
 package org.dhatim.safesql.builder;
 
 import org.dhatim.safesql.SafeSql;
-import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlAppendable;
 import org.dhatim.safesql.SafeSqlUtils;
 
 public class Literal implements Operand {
     
     private static final Literal NULL_LITERAL = new Literal(null) {
         @Override
-        public void appendTo(SafeSqlBuilder builder) {
+        public void appendTo(SafeSqlAppendable builder) {
             builder.append("NULL");
         }
         
@@ -24,13 +24,18 @@ public class Literal implements Operand {
         this.value = value;
     }
     
+    @Deprecated
     public static Literal from(String value) {
+        return of(value);
+    }
+    
+    public static Literal of(String value) {
         return value == null ? NULL_LITERAL : new Literal(value);
     }
     
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
-        builder.appendStringLiteral(value);
+    public void appendTo(SafeSqlAppendable builder) {
+        builder.literal(value);
     }
     
 }

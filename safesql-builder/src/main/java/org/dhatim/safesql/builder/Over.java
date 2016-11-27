@@ -1,6 +1,6 @@
 package org.dhatim.safesql.builder;
 
-import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlAppendable;
 
 public class Over implements Operand {
 
@@ -21,11 +21,11 @@ public class Over implements Operand {
     }
     
     @Override
-    public void appendTo(SafeSqlBuilder sb) {
+    public void appendTo(SafeSqlAppendable sb) {
         sb.append(windowFunction);
         sb.append(" OVER ");
         if (window instanceof NamedWindow) {
-            sb.appendIdentifier(((NamedWindow) window).getName());
+            sb.identifier(((NamedWindow) window).getName());
         } else {
             sb.append(window);
         }

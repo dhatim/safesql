@@ -3,7 +3,7 @@ package org.dhatim.safesql.builder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlAppendable;
 
 public class Values implements SqlQuery {
 
@@ -21,10 +21,10 @@ private final ArrayList<Row> rows = new ArrayList<>();
     }
     
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
+    public void appendTo(SafeSqlAppendable builder) {
         validate();
         builder.append("VALUES ");
-        builder.appendJoined(", ", rows);
+        builder.joinSqlizables(", ", rows);
     }
     
     private void validate() {

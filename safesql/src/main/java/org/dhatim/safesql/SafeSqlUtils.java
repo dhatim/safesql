@@ -1,16 +1,17 @@
 package org.dhatim.safesql;
 
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.MissingFormatArgumentException;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -19,10 +20,9 @@ import java.util.regex.Pattern;
 public final class SafeSqlUtils {
 
     private static final DateTimeFormatter TIMESTAMP_FORMATTER_WITH_TZ = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSX");
-    private static final DateTimeFormatter TIMESTAMP_FORMATTER_WITHOUT_TZ = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-    //private static final DateTimeFormatter TIME_FORMATTER_WITH_TZ = DateTimeFormatter.ofPattern("HH:mm:ss.SSSX");
-    private static final DateTimeFormatter TIME_FORMATTER_WITHOUT_TZ = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    private static final DateFormat TIME_FORMAT_WITH_TZ = new SimpleDateFormat("hh:mm:ss:SSSXXX");
+    private static final DateFormat TIMESTAMP_FORMAT_WITH_TZ = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSSXXX");
 
     private static final char STRING_QUOTE_CHAR = '\'';
     private static final String STRING_QUOTE = "'";
@@ -32,9 +32,7 @@ public final class SafeSqlUtils {
     private static final String IDENTIFIER_QUOTE = "\"";
     private static final String ESCAPED_IDENTIFIER_QUOTE = "\"\"";
 
-    private static final Object[] EMPTY_PARAMETERS = {};
-
-    public static final SafeSql EMPTY = new SafeSqlImpl("", EMPTY_PARAMETERS);
+    public static final SafeSql EMPTY = new StringSafeSqlImpl("");
 
     private static final Pattern PATTERN = Pattern.compile("(?:\\{((?:\\d+|\\{(?:.*)\\})?)\\})");
 
@@ -46,7 +44,7 @@ public final class SafeSqlUtils {
         if (s.isEmpty()) {
             return EMPTY;
         }
-        return new SafeSqlImpl(s, EMPTY_PARAMETERS);
+        return new StringSafeSqlImpl(s);
     }
 
     public static SafeSql escape(Object o) {
@@ -57,7 +55,7 @@ public final class SafeSqlUtils {
         String sql = mustEscapeIdentifier(identifier)
                 ? escapeIdentifier(identifier)
                 : identifier;
-        return new SafeSqlImpl(sql, EMPTY_PARAMETERS);
+        return new StringSafeSqlImpl(sql);
     }
 
     /**
@@ -96,7 +94,7 @@ public final class SafeSqlUtils {
      * The escape sequence is <code>{{.*}}</code>.
      * @param arguments arguments list
      */
-    public static void formatTo(SafeSqlBuilder builder, String sql, Object... arguments) {
+    public static void formatTo(SafeSqlAppendable builder, String sql, Object... arguments) {
         Matcher matcher = PATTERN.matcher(sql);
         int lastIndex = 0;
         int argIndex = 0;
@@ -106,12 +104,18 @@ public final class SafeSqlUtils {
             lastIndex = matcher.end();
             builder.append(before);
             if (parameter.isEmpty()) {
+                if (argIndex >= arguments.length) {
+                    throw new MissingFormatArgumentException("Argument " + argIndex);
+                }
                 builder.param(arguments[argIndex++]);
             } else if (parameter.startsWith("{")) {
                 builder.append(parameter);
             } else {
-                int customArgIndex = Integer.parseInt(parameter);
-                builder.param(arguments[customArgIndex - 1]);
+                int customArgIndex = Integer.parseInt(parameter) - 1;
+                if (customArgIndex < 0 || customArgIndex >= arguments.length) {
+                    throw new MissingFormatArgumentException("Argument " + customArgIndex);
+                }
+                builder.param(arguments[customArgIndex]);
             }
         }
         String lastPart = sql.substring(lastIndex);
@@ -178,42 +182,42 @@ public final class SafeSqlUtils {
         } else if (obj instanceof Number) {
             sb.append(((Number) obj).toString());
         } else if (obj instanceof Timestamp) {
-            ZoneId zone = ZoneId.of("UTC");
             sb.append("TIMESTAMP WITH TIME ZONE ").append(STRING_QUOTE);
-            sb.append(TIMESTAMP_FORMATTER_WITH_TZ.format(((Timestamp) obj).toLocalDateTime().atZone(zone)));
+            sb.append(TIMESTAMP_FORMAT_WITH_TZ.format((Timestamp) obj));
             sb.append(STRING_QUOTE);
         } else if (obj instanceof Time) {
-            sb.append("TIME ").append(STRING_QUOTE);
-            sb.append(TIME_FORMATTER_WITHOUT_TZ.format(((Time) obj).toLocalTime()));
+            sb.append("TIME WITH TIME ZONE ").append(STRING_QUOTE);
+            sb.append(TIME_FORMAT_WITH_TZ.format((Time) obj));
             sb.append(STRING_QUOTE);
-        } else if (obj instanceof Date) {
+        } else if (obj instanceof java.sql.Date) {
             sb.append("DATE ").append(STRING_QUOTE);
-            sb.append(DATE_FORMATTER.format(((Date) obj).toLocalDate()));
+            sb.append(((java.sql.Date) obj).toLocalDate().toString());
             sb.append(STRING_QUOTE);
         } else if (obj instanceof LocalDate) {
             sb.append("DATE ").append(STRING_QUOTE);
-            sb.append(DATE_FORMATTER.format((LocalDate) obj));
+            sb.append(((LocalDate) obj).toString());
             sb.append(STRING_QUOTE);
         } else if (obj instanceof LocalTime) {
             sb.append("TIME ").append(STRING_QUOTE);
-            sb.append(TIME_FORMATTER_WITHOUT_TZ.format((LocalTime) obj));
+            sb.append(((LocalTime) obj).toString());
             sb.append(STRING_QUOTE);
         } else if (obj instanceof LocalDateTime) {
             sb.append("TIMESTAMP ").append(STRING_QUOTE);
-            sb.append(TIMESTAMP_FORMATTER_WITHOUT_TZ.format((LocalDateTime) obj));
+            LocalDateTime other = (LocalDateTime) obj;
+            sb.append(other.toLocalDate().toString()).append(' ').append(other.toLocalTime().toString());
             sb.append(STRING_QUOTE);
         } else if (obj instanceof OffsetDateTime) {
             sb.append("TIMESTAMP WITH TIME ZONE ").append(STRING_QUOTE);
             sb.append(TIMESTAMP_FORMATTER_WITH_TZ.format((OffsetDateTime) obj));
             sb.append(STRING_QUOTE);
         } else if (obj instanceof UUID) {
-            sb.append("UUID ").appendStringLiteral(obj.toString());
+            sb.append("UUID ").literal(obj.toString());
         } else if (obj instanceof SafeSqlLiteralizable) {
             ((SafeSqlLiteralizable) obj).appendLiteralized(sb);
         } else if (obj instanceof byte[]) {
-            sb.appendBytesLiteral((byte[]) obj);
+            sb.append("BYTEA ").literal((byte[]) obj);
         } else {
-            sb.appendStringLiteral(obj.toString());
+            sb.literal(obj.toString());
         }
     }
 

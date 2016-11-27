@@ -3,7 +3,7 @@ package org.dhatim.safesql.builder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlAppendable;
 import org.dhatim.safesql.SafeSqlizable;
 
 public abstract class From extends AbstractHasJointure implements SafeSqlizable {
@@ -20,11 +20,11 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
         }
         
         @Override
-        protected void render(SafeSqlBuilder sb) {
+        protected void render(SafeSqlAppendable sb) {
             if (schema != null) {
-                sb.appendIdentifier(schema).append(".");
+                sb.identifier(schema).append(".");
             }
-            sb.appendIdentifier(tableName);
+            sb.identifier(tableName);
         }
         
     }
@@ -39,7 +39,7 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
         }
         
         @Override
-        protected void render(SafeSqlBuilder sb) {
+        protected void render(SafeSqlAppendable sb) {
             sb.append('(');
             sb.append(query);
             sb.append(')');
@@ -59,20 +59,20 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
         return alias;
     }
 
-    protected abstract void render(SafeSqlBuilder sb);
+    protected abstract void render(SafeSqlAppendable sb);
 
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
+    public void appendTo(SafeSqlAppendable builder) {
         render(builder);
         if (alias != null) {
             builder.append(" ").append(alias);
         }
         if (!columnAliases.isEmpty()) {
-            builder.append(" ").appendJoined(", ", "(", ")", columnAliases.stream().map(Identifier::new));
+            builder.append(" ").joinSqlizables(", ", "(", ")", columnAliases.stream().map(Identifier::new));
         }
         List<Jointure> jointures = getJointures();
         if (!jointures.isEmpty()) {
-            builder.append(" ").appendJoined(" ", jointures);
+            builder.append(" ").joinSqlizables(" ", jointures);
         }
     }
     

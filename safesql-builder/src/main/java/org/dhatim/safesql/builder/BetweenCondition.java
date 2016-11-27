@@ -1,6 +1,6 @@
 package org.dhatim.safesql.builder;
 
-import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlAppendable;
 
 public class BetweenCondition extends AbstractCondition<Operand, RelationalOperator, LowHighOperand> {
     
@@ -26,7 +26,7 @@ class LowHighOperand implements Operand {
     }
     
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
+    public void appendTo(SafeSqlAppendable builder) {
         builder.append(low).append(" AND ").append(high);
     }
     

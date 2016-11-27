@@ -1,6 +1,6 @@
 package org.dhatim.safesql.builder;
 
-import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlAppendable;
 
 public class UnaryCompute implements Operand {
 
@@ -21,7 +21,7 @@ public class UnaryCompute implements Operand {
     }
     
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
+    public void appendTo(SafeSqlAppendable builder) {
         builder.append(operator).append("(").append(operand).append(")");
     }
 

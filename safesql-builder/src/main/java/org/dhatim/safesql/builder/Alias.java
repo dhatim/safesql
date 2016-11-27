@@ -2,7 +2,7 @@ package org.dhatim.safesql.builder;
 
 import java.util.Objects;
 import org.dhatim.safesql.SafeSql;
-import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlAppendable;
 import org.dhatim.safesql.SafeSqlUtils;
 import org.dhatim.safesql.SafeSqlizable;
 
@@ -52,8 +52,8 @@ public final class Alias implements SafeSqlizable {
     }
     
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
-        builder.appendIdentifier(name);
+    public void appendTo(SafeSqlAppendable builder) {
+        builder.identifier(name);
     }
 
 }

@@ -3,7 +3,7 @@ package org.dhatim.safesql.builder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.dhatim.safesql.SafeSqlBuilder;
+import org.dhatim.safesql.SafeSqlAppendable;
 import org.dhatim.safesql.SafeSqlizable;
 
 public class InsertQuery implements SafeSqlizable {
@@ -29,18 +29,18 @@ public class InsertQuery implements SafeSqlizable {
     }
     
     @Override
-    public void appendTo(SafeSqlBuilder builder) {
+    public void appendTo(SafeSqlAppendable builder) {
         if (!ctes.isEmpty()) {
             builder.append("WITH ");
-            builder.appendJoined(", ", ctes);
+            builder.joinSqlizables(", ", ctes);
             builder.append(" ");
         }
         builder.append("INSERT INTO ");
         if (schema != null) {
-            builder.appendIdentifier(schema).append('.');
+            builder.identifier(schema).append('.');
         }
-        builder.appendIdentifier(tableName).append(' ');
-        builder.appendJoined(", ", "(", ")", columns.stream().map(Identifier::new));
+        builder.identifier(tableName).append(' ');
+        builder.joinSqlizables(", ", "(", ")", columns.stream().map(Identifier::new));
         builder.append(' ');
         query.appendTo(builder);
     }
