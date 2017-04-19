@@ -313,8 +313,12 @@ public abstract class AbstractSafeSqlBuilder<S extends AbstractSafeSqlBuilder<S>
 
     @Override
     public S identifier(String container, String identifier) {
-        sqlBuilder.append(SafeSqlUtils.mayEscapeIdentifier(container)).append('.').append(SafeSqlUtils.mayEscapeIdentifier(identifier));
-        return myself;
+        if (null == container) {
+            return identifier(identifier);
+        } else {
+            sqlBuilder.append(SafeSqlUtils.mayEscapeIdentifier(container)).append('.').append(SafeSqlUtils.mayEscapeIdentifier(identifier));
+            return myself;
+        }
     }
 
     protected final String mayEscapeIdentifier(String identifier) {
