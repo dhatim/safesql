@@ -68,11 +68,11 @@ public abstract class From extends AbstractHasJointure implements SafeSqlizable 
             builder.append(" ").append(alias);
         }
         if (!columnAliases.isEmpty()) {
-            builder.append(" ").joinSqlizables(", ", "(", ")", columnAliases.stream().map(Identifier::new));
+            builder.append(" ").joinedSqlizables(", ", "(", ")", columnAliases.stream().map(Identifier::new));
         }
         List<Jointure> jointures = getJointures();
         if (!jointures.isEmpty()) {
-            builder.append(" ").joinSqlizables(" ", jointures);
+            builder.append(" ").joinedSqlizables(" ", jointures);
         }
     }
     

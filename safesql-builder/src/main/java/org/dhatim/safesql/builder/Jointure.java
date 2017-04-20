@@ -47,11 +47,11 @@ public class Jointure extends AbstractHasJointure implements WhereClause, SafeSq
         }
         List<Jointure> jointures = getJointures();
         if (!jointures.isEmpty()) {
-            sb.append(" ").joinSqlizables(" ", jointures).append(")");
+            sb.append(" ").joinedSqlizables(" ", jointures).append(")");
         }
         sb.append(" ON ");
         if (!conditions.isEmpty()) {
-            sb.joinSqlizables(" AND ", conditions);
+            sb.joinedSqlizables(" AND ", conditions);
         }
     }
 

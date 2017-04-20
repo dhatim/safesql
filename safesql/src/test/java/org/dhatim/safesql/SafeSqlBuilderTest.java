@@ -93,13 +93,13 @@ public class SafeSqlBuilderTest {
     public void testAppendJoined() {
         List<SafeSqlizable> list = Arrays.asList(new MySafeSqlizable(), new MySafeSqlizable());
         
-        assertThat(new SafeSqlBuilder().append("(").joinSqlizables("; ", list).append(")").toSafeSql())
+        assertThat(new SafeSqlBuilder().append("(").joinedSqlizables("; ", list).append(")").toSafeSql())
                 .hasSql("(" + MySafeSqlizable.MUST_BE + "; " + MySafeSqlizable.MUST_BE + ")")
                 .hasParameters(5, 5);
-        assertThat(new SafeSqlBuilder().joinSqlizables(", ", Arrays.asList(new MySafeSqlizable())).toSafeSql())
+        assertThat(new SafeSqlBuilder().joinedSqlizables(", ", Arrays.asList(new MySafeSqlizable())).toSafeSql())
                 .hasSql(MySafeSqlizable.MUST_BE)
                 .hasParameters(5);
-        assertThat(new SafeSqlBuilder().joinSafeSqls(", ", Arrays.asList()).toSafeSql())
+        assertThat(new SafeSqlBuilder().joinedSafeSqls(", ", Arrays.asList()).toSafeSql())
                 .hasEmptySql()
                 .hasEmptyParameters();
     }

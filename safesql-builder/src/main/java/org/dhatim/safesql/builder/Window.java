@@ -32,7 +32,7 @@ public class Window implements SafeSqlizable {
     @Override
     public void appendTo(SafeSqlAppendable builder) {
         builder.append("(PARTITION BY ")
-                .joinSqlizables(", ", partition)
+                .joinedSqlizables(", ", partition)
                 .append(')');
     }
     

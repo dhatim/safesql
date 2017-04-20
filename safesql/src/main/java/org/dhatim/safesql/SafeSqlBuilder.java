@@ -19,9 +19,9 @@ public class SafeSqlBuilder extends AbstractSafeSqlBuilder<SafeSqlBuilder> {
     private SafeSqlBuilder(StringBuilder stringBuilder, ArrayList<Object> parameters) {
         super(SafeSqlBuilder.class, stringBuilder, parameters);
     }
-    
+
     @Override
-    public SafeSqlBuilder copy() {
+    public SafeSqlBuilder clone() {
         return new SafeSqlBuilder(this);
     }
 
