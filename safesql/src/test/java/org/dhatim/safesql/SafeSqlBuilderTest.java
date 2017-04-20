@@ -1,9 +1,8 @@
 package org.dhatim.safesql;
 
-import static org.dhatim.safesql.assertion.Assertions.*;
-
 import java.util.Arrays;
 import java.util.List;
+import static org.dhatim.safesql.assertion.Assertions.*;
 import org.junit.Test;
 
 public class SafeSqlBuilderTest {
@@ -49,6 +48,17 @@ public class SafeSqlBuilderTest {
         
         assertThat(new SafeSqlBuilder().append("SELECT ").identifier("hello").toSafeSql())
                 .hasSql("SELECT hello")
+                .hasEmptyParameters();
+    }
+    
+    @Test
+    public void testIdentifier2() {
+        assertThat(new SafeSqlBuilder().append("SELECT ").identifier("foo", "bar").toSafeSql())
+                .hasSql("SELECT foo.bar")
+                .hasEmptyParameters();
+
+        assertThat(new SafeSqlBuilder().append("SELECT ").identifier(null, "baz").toSafeSql())
+                .hasSql("SELECT baz")
                 .hasEmptyParameters();
     }
     
