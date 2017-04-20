@@ -69,7 +69,7 @@ public abstract class Case<T extends SafeSqlizable> implements Operand {
     @Override
     public void appendTo(SafeSqlAppendable builder) {
         builder.append(getCaseClause()).append(" ");
-        builder.joinSqlizables(" ", whens).append(" ");
+        builder.joinedSqlizables(" ", whens).append(" ");
         if (elseOperand != null) {
             builder.append("ELSE ").append(elseOperand).append(" ");
         }

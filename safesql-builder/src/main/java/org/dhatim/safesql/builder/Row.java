@@ -28,7 +28,7 @@ public class Row implements Operand {
 
     @Override
     public void appendTo(SafeSqlAppendable builder) {
-        builder.append("(").joinSqlizables(", ", elements).append(")");
+        builder.append("(").joinedSqlizables(", ", elements).append(")");
     }
 
 }

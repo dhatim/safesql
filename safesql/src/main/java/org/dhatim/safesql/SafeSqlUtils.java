@@ -126,7 +126,8 @@ public final class SafeSqlUtils {
 
     public static SafeSql concat(SafeSql s1, SafeSql s2) {
         String sql = s1.asSql() + s2.asSql();
-        Object[] p1 = s1.getParameters(), p2 = s2.getParameters();
+        Object[] p1 = s1.getParameters();
+        Object[] p2 = s2.getParameters();
         Object[] params = Arrays.copyOf(p1, p1.length + p2.length);
         System.arraycopy(p2, 0, params, p1.length, p2.length);
         return new SafeSqlImpl(sql, params);
