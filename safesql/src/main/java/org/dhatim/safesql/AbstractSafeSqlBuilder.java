@@ -35,9 +35,6 @@ public abstract class AbstractSafeSqlBuilder<S extends AbstractSafeSqlBuilder<S>
     }
 
     @Override
-    public abstract S clone();
-
-    @Override
     public S param(int num) {
         appendObject(num);
         return myself;
