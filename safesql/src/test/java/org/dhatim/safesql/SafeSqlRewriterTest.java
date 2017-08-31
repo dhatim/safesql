@@ -11,7 +11,7 @@ public class SafeSqlRewriterTest {
                .append("SELECT * FROM table WHERE ").identifier("FILE").append(" = ").param(null).append(" AND name = ").param("Hello")
                .toSafeSql();
 
-        SafeSqlRewriter rewriter = new SafeSqlRewriter((sb, oldParam) -> {
+        SafeSqlRewriter rewriter = SafeSqlRewriter.create((sb, oldParam) -> {
             if (oldParam == null) {
                 sb.append("(NULL)");
             } else {

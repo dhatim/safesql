@@ -37,4 +37,12 @@ public interface SafeSql {
         return SafeSqlUtils.escape(parameter);
     }
 
+    static SafeSql literal(String string) {
+        return SafeSqlUtils.fromConstant(SafeSqlUtils.escapeString(string));
+    }
+
+    static SafeSql concat(SafeSql a, SafeSql b) {
+        return SafeSqlUtils.concat(a, b);
+    }
+
 }

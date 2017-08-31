@@ -66,7 +66,7 @@ public final class SafeSqlUtils {
      * @return a literalized version of the given SafeSql
      */
     public static SafeSql literalize(SafeSql sql) {
-        return new SafeSqlRewriter(SafeSqlUtils::appendEscapedParam).write(sql);
+        return SafeSqlRewriter.create(SafeSqlUtils::appendEscapedParam).write(sql);
     }
 
     /**
