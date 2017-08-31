@@ -1,30 +1,14 @@
 package org.dhatim.safesql;
 
+import java.util.Objects;
 import java.util.StringTokenizer;
+import java.util.function.BiConsumer;
 
-public class SafeSqlRewriter {
-
-    public interface ParameterWriter {
-        void writeTo(SafeSqlBuilder sb, Object oldParameter);
-    }
+public abstract class SafeSqlRewriter {
 
     private static final int STATE_0 = 0;
     private static final int STATE_STRING = 1;
     private static final int STATE_IDENT = 2;
-
-    private ParameterWriter writer;
-
-    public SafeSqlRewriter(ParameterWriter writer) {
-        this.writer = writer;
-    }
-
-    public ParameterWriter getWriter() {
-        return writer;
-    }
-
-    public void setWriter(ParameterWriter writer) {
-        this.writer = writer;
-    }
 
     //TODO miss $$ notation
     public void writeTo(SafeSql value, SafeSqlBuilder sb) {
@@ -60,7 +44,7 @@ public class SafeSqlRewriter {
                         throw new IndexOutOfBoundsException("Parameter: " + idx + ", size: " + parameters.length);
                     }
                     Object parameter = parameters[idx];
-                    writer.writeTo(sb, parameter);
+                    processParameter(sb, parameter);
                 }
                 break;
             default:
@@ -74,6 +58,18 @@ public class SafeSqlRewriter {
         SafeSqlBuilder sb = new SafeSqlBuilder();
         writeTo(value, sb);
         return sb.toSafeSql();
+    }
+
+    protected abstract void processParameter(SafeSqlBuilder sb, Object oldParameter);
+
+    public static SafeSqlRewriter create(BiConsumer<SafeSqlBuilder, Object> parameterRewriter) {
+        Objects.requireNonNull(parameterRewriter);
+        return new SafeSqlRewriter() {
+            @Override
+            protected void processParameter(SafeSqlBuilder sb, Object oldParameter) {
+                parameterRewriter.accept(sb, oldParameter);
+            }
+        };
     }
 
 }
