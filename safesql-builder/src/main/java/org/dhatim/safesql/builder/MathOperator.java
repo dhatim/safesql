@@ -8,7 +8,8 @@ public enum MathOperator implements Operator {
     ADD("+"),
     SUB("-"),
     MUL("*"),
-    DIV("/");
+    DIV("/"),
+    MOD("%");
     
     private final String sql;
 
