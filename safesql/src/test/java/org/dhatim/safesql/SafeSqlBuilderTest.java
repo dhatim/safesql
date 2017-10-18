@@ -2,6 +2,8 @@ package org.dhatim.safesql;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
+
 import static org.dhatim.safesql.assertion.Assertions.*;
 import org.junit.Test;
 
@@ -88,6 +90,28 @@ public class SafeSqlBuilderTest {
                 .hasSql(MySafeSqlizable.MUST_BE + " ORDER BY name")
                 .hasParameters(5);
     }
+
+    @Test
+    public void testParams() {
+        assertThat(new SafeSqlBuilder().params(1, 2, 3).toSafeSql())
+        .hasSql("?, ?, ?")
+        .hasParameters(1, 2, 3);
+    }
+
+    @Test
+    public void testStreamParams() {
+        assertThat(new SafeSqlBuilder().params(Stream.of(1, 2, 3)).toSafeSql())
+                .hasSql("?, ?, ?")
+                .hasParameters(1, 2, 3);
+    }
+
+    @Test
+    public void testLongParam() {
+        assertThat(new SafeSqlBuilder().param(1L).toSafeSql())
+                .hasSql("?")
+                .hasParameters(1L);
+    }
+
 
     @Test
     public void testAppendJoined() {
