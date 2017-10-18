@@ -94,13 +94,20 @@ public class SafeSqlBuilderTest {
     @Test
     public void testParams() {
         assertThat(new SafeSqlBuilder().params(1, 2, 3).toSafeSql())
-        .hasSql("?, ?, ?")
-        .hasParameters(1, 2, 3);
+                .hasSql("?, ?, ?")
+                .hasParameters(1, 2, 3);
     }
 
     @Test
     public void testStreamParams() {
         assertThat(new SafeSqlBuilder().params(Stream.of(1, 2, 3)).toSafeSql())
+                .hasSql("?, ?, ?")
+                .hasParameters(1, 2, 3);
+    }
+
+    @Test
+    public void testIterableParams() {
+        assertThat(new SafeSqlBuilder().params(Arrays.asList(1, 2, 3)).toSafeSql())
                 .hasSql("?, ?, ?")
                 .hasParameters(1, 2, 3);
     }
@@ -112,6 +119,27 @@ public class SafeSqlBuilderTest {
                 .hasParameters(1L);
     }
 
+    @Test
+    public void testAppends() {
+        assertThat(new SafeSqlBuilder().append(1).append(1L).toSafeSql())
+                .hasSql("11")
+                .hasEmptyParameters();
+    }
+
+    @Test
+    public void testJoined() {
+        assertThat(new SafeSqlBuilder().joined(",", Arrays.asList("1", "2", "3")).toSafeSql())
+                .hasSql("1,2,3")
+                .hasEmptyParameters();
+    }
+
+    @Test
+    public void testJoinedSafeSqls() {
+        SafeSql sql = SafeSql.parameter(1);
+        assertThat(new SafeSqlBuilder().joinedSafeSqls(",", Arrays.asList(sql, sql, sql)).toSafeSql())
+                .hasSql("?,?,?")
+                .hasParameters(1, 1, 1);
+    }
 
     @Test
     public void testAppendJoined() {
