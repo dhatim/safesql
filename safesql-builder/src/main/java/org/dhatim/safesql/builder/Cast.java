@@ -1,6 +1,6 @@
 package org.dhatim.safesql.builder;
 
-import org.dhatim.safesql.SafeSqlAppendable;
+import org.dhatim.safesql.SafeSqlBuilder;
 
 public class Cast implements Operand {
 
@@ -13,7 +13,7 @@ public class Cast implements Operand {
     }
 
     @Override
-    public void appendTo(SafeSqlAppendable builder) {
+    public void appendTo(SafeSqlBuilder builder) {
         builder.append(operand)
                 .append("::")
                 .append(sqlType);
@@ -22,11 +22,11 @@ public class Cast implements Operand {
     public Operand getOperand() {
         return operand;
     }
-    
+
     public String getSqlType() {
         return sqlType;
     }
-    
+
     @Override
     public String toString() {
         return "Cast{" + operand + "::" + sqlType + "}";

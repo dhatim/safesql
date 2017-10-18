@@ -28,7 +28,7 @@ public class SafeSqlUtilsTest {
         }
 
         @Override
-        public void appendLiteralized(SafeSqlAppendable sb) {
+        public void appendLiteralized(SafeSqlBuilder sb) {
             sb.literal(data);
         }
 

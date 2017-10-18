@@ -1,10 +1,10 @@
 package org.dhatim.safesql.builder;
 
 import java.util.Objects;
-import org.dhatim.safesql.SafeSqlAppendable;
+import org.dhatim.safesql.SafeSqlBuilder;
 
 public class Column implements Operand {
-    
+
     private static class Distinct implements Operand {
 
         private final Operand operand;
@@ -12,12 +12,12 @@ public class Column implements Operand {
         public Distinct(Operand operand) {
             this.operand = operand;
         }
-        
+
         @Override
-        public void appendTo(SafeSqlAppendable builder) {
+        public void appendTo(SafeSqlBuilder builder) {
             builder.append("DISTINCT ").append(operand);
         }
-        
+
     }
 
     private static final String ALL = "*";
@@ -34,28 +34,28 @@ public class Column implements Operand {
     public Column(String name) {
         this(null, name);
     }
-    
+
     public Alias getAlias() {
         return alias;
     }
-    
+
     public String getName() {
         return name;
     }
 
     @Override
-    public void appendTo(SafeSqlAppendable builder) {
+    public void appendTo(SafeSqlBuilder builder) {
         if (alias != null) {
             builder.append(alias).append(".");
         }
         builder.identifier(name);
     }
-    
+
     @Override
     public int hashCode() {
         return 56 ^ name.hashCode() ^ Objects.hashCode(alias);
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
@@ -78,13 +78,13 @@ public class Column implements Operand {
     public static Column allOf(Alias alias) {
         return new Column(alias, ALL);
     }
-    
+
     public static Column idOf(Alias alias) {
         return new Column(alias, "id");
     }
-    
+
     public static Operand distinct(Column column) {
         return new Distinct(column);
     }
-    
+
 }

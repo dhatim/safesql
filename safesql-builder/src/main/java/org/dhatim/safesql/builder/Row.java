@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.dhatim.safesql.SafeSqlAppendable;
+import org.dhatim.safesql.SafeSqlBuilder;
 
 public class Row implements Operand {
 
@@ -13,21 +13,21 @@ public class Row implements Operand {
     public Row(Operand... elements) {
         this(Arrays.asList(elements));
     }
-    
+
     public Row(List<Operand> elements) {
         this.elements.addAll(elements);
     }
-    
+
     public List<Operand> getElements() {
         return Collections.unmodifiableList(elements);
     }
-    
+
     public int getLength() {
         return elements.size();
     }
 
     @Override
-    public void appendTo(SafeSqlAppendable builder) {
+    public void appendTo(SafeSqlBuilder builder) {
         builder.append("(").joinedSqlizables(", ", elements).append(")");
     }
 

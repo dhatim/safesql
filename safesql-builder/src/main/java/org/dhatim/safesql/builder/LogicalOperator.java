@@ -1,11 +1,11 @@
 package org.dhatim.safesql.builder;
 
 import org.dhatim.safesql.SafeSql;
-import org.dhatim.safesql.SafeSqlAppendable;
+import org.dhatim.safesql.SafeSqlBuilder;
 import org.dhatim.safesql.SafeSqlUtils;
 
 public enum LogicalOperator implements ConditionalOperator {
-    AND("AND"), 
+    AND("AND"),
     OR("OR");
 
     private String sql;
@@ -23,9 +23,9 @@ public enum LogicalOperator implements ConditionalOperator {
     public SafeSql toSafeSql() {
         return SafeSqlUtils.fromConstant(sql);
     }
-    
+
     @Override
-    public void appendTo(SafeSqlAppendable builder) {
+    public void appendTo(SafeSqlBuilder builder) {
         builder.append(sql);
     }
 }

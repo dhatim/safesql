@@ -1,6 +1,6 @@
 package org.dhatim.safesql.builder;
 
-import org.dhatim.safesql.SafeSqlAppendable;
+import org.dhatim.safesql.SafeSqlBuilder;
 
 public class BooleanOperand implements Operand, Condition {
 
@@ -10,26 +10,26 @@ public class BooleanOperand implements Operand, Condition {
     public BooleanOperand(Operand operand) {
         this(operand, false);
     }
-    
+
     public BooleanOperand(Condition condition) {
         this(condition, false);
     }
-    
+
     protected BooleanOperand(Expression expression, boolean not) {
         this.not = not;
         this.expression = expression;
     }
-    
+
     protected Expression getExpression() {
         return expression;
     }
-    
+
     protected boolean isNegative() {
         return not;
     }
-    
+
     @Override
-    public void appendTo(SafeSqlAppendable builder) {
+    public void appendTo(SafeSqlBuilder builder) {
         if (not) {
             builder.append("NOT ");
         }
@@ -47,9 +47,9 @@ public class BooleanOperand implements Operand, Condition {
         }
         return newOp;
     }
-    
+
     protected BooleanOperand create(Expression expression, boolean not) {
         return new BooleanOperand(expression, not);
     }
-    
+
 }

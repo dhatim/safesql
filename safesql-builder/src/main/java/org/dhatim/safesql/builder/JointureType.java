@@ -1,7 +1,7 @@
 package org.dhatim.safesql.builder;
 
 import org.dhatim.safesql.SafeSql;
-import org.dhatim.safesql.SafeSqlAppendable;
+import org.dhatim.safesql.SafeSqlBuilder;
 import org.dhatim.safesql.SafeSqlUtils;
 import org.dhatim.safesql.SafeSqlizable;
 
@@ -11,9 +11,9 @@ public enum JointureType implements SafeSqlizable {
     RIGHT_OUTER     ("RIGHT JOIN"),
     FULL_OUTER      ("FULL JOIN"),
     CROSS           ("CROSS JOIN");
-    
+
     private final String sql;
-    
+
     private JointureType(String sql) {
         this.sql = sql;
     }
@@ -22,10 +22,10 @@ public enum JointureType implements SafeSqlizable {
     public SafeSql toSafeSql() {
         return SafeSqlUtils.fromConstant(sql);
     }
-    
+
     @Override
-    public void appendTo(SafeSqlAppendable builder) {
+    public void appendTo(SafeSqlBuilder builder) {
         builder.append(sql);
     }
-    
+
 }

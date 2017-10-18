@@ -1,11 +1,11 @@
 package org.dhatim.safesql.builder;
 
 import org.dhatim.safesql.SafeSql;
-import org.dhatim.safesql.SafeSqlAppendable;
+import org.dhatim.safesql.SafeSqlBuilder;
 import org.dhatim.safesql.SafeSqlUtils;
 
-public enum RelationalOperator implements ConditionalOperator { 
-    IN("IN"), 
+public enum RelationalOperator implements ConditionalOperator {
+    IN("IN"),
     NOT_IN("NOT IN"),
     BETWEEN("BETWEEN"),
     NOT_BETWEEN("NOT BETWEEN");
@@ -25,9 +25,9 @@ public enum RelationalOperator implements ConditionalOperator {
     public SafeSql toSafeSql() {
         return SafeSqlUtils.fromConstant(sql);
     }
-    
+
     @Override
-    public void appendTo(SafeSqlAppendable builder) {
+    public void appendTo(SafeSqlBuilder builder) {
         builder.append(sql);
     }
 }

@@ -1,7 +1,7 @@
 package org.dhatim.safesql.builder;
 
 import java.util.Arrays;
-import org.dhatim.safesql.SafeSqlAppendable;
+import org.dhatim.safesql.SafeSqlBuilder;
 
 public class Call implements Operand {
 
@@ -12,17 +12,17 @@ public class Call implements Operand {
         this.functionName = functionName;
         this.arguments = arguments.clone();
     }
-    
+
     public String getFunctionName() {
         return functionName;
     }
-    
+
     public Operand[] getArguments() {
         return arguments.clone();
     }
 
     @Override
-    public void appendTo(SafeSqlAppendable builder) {
+    public void appendTo(SafeSqlBuilder builder) {
         builder.append(functionName).append("(");
         builder.joinedSqlizables(", ", Arrays.asList(arguments));
         builder.append(")");

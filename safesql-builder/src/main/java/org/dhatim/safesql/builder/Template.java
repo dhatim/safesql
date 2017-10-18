@@ -3,25 +3,25 @@ package org.dhatim.safesql.builder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import org.dhatim.safesql.SafeSqlAppendable;
+import org.dhatim.safesql.SafeSqlBuilder;
 import org.dhatim.safesql.SafeSqlizable;
 
 public class Template {
 
     private static interface Element {
-        
+
         SafeSqlizable generate(Operand[] parameters);
-        
+
     }
-    
+
     private static class Parameter implements Element {
-        
+
         private final int index;
-        
+
         public Parameter(int index) {
             this.index = index;
         }
-        
+
         @Override
         public SafeSqlizable generate(Operand[] parameters) {
             if (index > parameters.length) {
@@ -29,50 +29,51 @@ public class Template {
             }
             return parameters[index - 1];
         }
-        
+
     }
-    
+
     private static class Constant extends org.dhatim.safesql.builder.Constant implements Element {
 
         public Constant(String sql) {
             super(sql);
         }
-        
+
+        @Override
         public SafeSqlizable generate(Operand[] parameters) {
             return this;
         }
-        
+
     }
-    
+
     protected class TemplateOperand implements Operand {
-        
+
         private final SafeSqlizable[] elements;
-        
+
         public TemplateOperand(SafeSqlizable[] elements) {
             this.elements = elements.clone();
         }
 
         @Override
-        public void appendTo(SafeSqlAppendable builder) {
+        public void appendTo(SafeSqlBuilder builder) {
             for (SafeSqlizable element : elements) {
                 builder.append(element);
             }
         }
-        
+
         public Template getTemplate() {
             return Template.this;
         }
-        
+
     }
-    
+
     private final String pattern;
     private final ArrayList<Element> elements = new ArrayList<>();
-    
+
     protected Template(String pattern) {
         this.pattern = pattern;
         compile(pattern, elements);
     }
-    
+
     protected void compile(String pattern, List<Element> toList) {
         StringTokenizer tokenizer = new StringTokenizer(pattern, "{}", true);
         boolean parameter = false;
@@ -91,7 +92,7 @@ public class Template {
             }
         }
     }
-    
+
     public String getPattern() {
         return pattern;
     }
@@ -99,7 +100,7 @@ public class Template {
     public static Template of(String pattern) {
         return new Template(pattern);
     }
-    
+
     private static Parameter toParameter(String value) {
         int index = Integer.parseInt(value);
         if (index <= 0) {
@@ -107,7 +108,7 @@ public class Template {
         }
         return new Parameter(index);
     }
-    
+
     public Operand generate(Operand... parameters) {
         SafeSqlizable[] parts = new SafeSqlizable[elements.size()];
         for (int i=0; i<elements.size(); i++) {
@@ -115,9 +116,9 @@ public class Template {
         }
         return create(parts);
     }
-    
+
     protected Operand create(SafeSqlizable[] parts) {
         return new TemplateOperand(parts);
     }
-    
+
 }

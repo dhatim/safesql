@@ -8,7 +8,7 @@ public class SafeSqlizableChainTest {
     private static final class Constant implements SafeSqlizable {
 
         @Override
-        public void appendTo(SafeSqlAppendable builder) {
+        public void appendTo(SafeSqlBuilder builder) {
             builder.append("SELECT");
         }
 

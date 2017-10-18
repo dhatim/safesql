@@ -4,67 +4,67 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.dhatim.safesql.SafeSqlAppendable;
+import org.dhatim.safesql.SafeSqlBuilder;
 import org.dhatim.safesql.SafeSqlizable;
 
 public class SelectQuery implements WhereClause, SqlQuery {
-    
+
     private static class OrderElement implements SafeSqlizable {
-        
+
         private final Alias alias;
         private final String column;
         private final Order order;
-        
+
         public OrderElement(Alias alias, String column, Order order) {
             this.column = column;
             this.order = order;
             this.alias = alias;
         }
-        
+
         @Override
-        public void appendTo(SafeSqlAppendable builder) {
+        public void appendTo(SafeSqlBuilder builder) {
             if (alias != null) {
                 builder.append(alias).append('.');
             }
             builder.identifier(column).append(' ').append(order);
         }
-        
+
     }
-    
+
     private final BuilderContext context;
-    
+
     private final List<CommonTableExpression> ctes = new ArrayList<>();
 
     private final List<Operand> selects = new ArrayList<>();
     private final List<From> froms = new ArrayList<>();
 
     private final List<Condition> conditions = new ArrayList<>();
-    
+
     private final List<Operand> groupBy = new ArrayList<>();
-    
+
     private final List<Condition> havings = new ArrayList<>();
-    
+
     private final List<NamedWindow> windows = new ArrayList<>();
-    
+
     private boolean distinct;
-    
+
     private Integer limit;
-    
+
     private final List<OrderElement> orders = new ArrayList<>();
-    
+
     public SelectQuery() {
          this(new BuilderContext());
     }
-    
+
     public SelectQuery(SelectQuery other) {
         this(other.context, other.ctes, other.selects, other.froms, other.conditions, other.havings, other.groupBy, other.windows, other.distinct, other.orders, other.limit);
     }
-    
+
     private SelectQuery(BuilderContext context) {
         this.context = context;
     }
-    
-    private SelectQuery(BuilderContext context, List<CommonTableExpression> ctes, List<Operand> selects, List<From> froms, List<Condition> conditions, 
+
+    private SelectQuery(BuilderContext context, List<CommonTableExpression> ctes, List<Operand> selects, List<From> froms, List<Condition> conditions,
             List<Condition> havings, List<Operand> groupBy, List<NamedWindow> windows, boolean distinct, List<OrderElement> orders, Integer limit) {
         this(new BuilderContext(context));
         this.ctes.addAll(ctes);
@@ -83,21 +83,21 @@ public class SelectQuery implements WhereClause, SqlQuery {
         selects.add(operand);
         return this;
     }
-    
+
     public void clearSelects() {
         selects.clear();
     }
-    
+
     public SelectQuery with(String name, SqlQuery query) {
         ctes.add(new CommonTableExpression(name, query));
         return this;
     }
-    
+
     public SelectQuery with(String name, List<String> columnNames, SqlQuery query) {
         ctes.add(new CommonTableExpression(name, columnNames, query));
         return this;
     }
-    
+
     public SelectQuery select(String columnName) {
         return select(new Column(columnName));
     }
@@ -109,7 +109,7 @@ public class SelectQuery implements WhereClause, SqlQuery {
     public SelectQuery select(String columnName, From from) {
         return select(new Column(from.getAlias(), columnName));
     }
-    
+
     public SelectQuery select(Operand operand, Alias alias) {
         return select(new NamedOperand(operand, alias));
     }
@@ -129,19 +129,19 @@ public class SelectQuery implements WhereClause, SqlQuery {
     public From from(String schema, String tableName, Alias alias, List<String> columnNames) {
         return from(From.table(schema, tableName, alias, columnNames));
     }
-    
+
     public From from(String schema, String tableName, Alias alias) {
         return from(From.table(schema, tableName, alias));
     }
-    
+
     public From from(SqlQuery query, Alias alias) {
         return from(From.query(query, alias, Collections.emptyList()));
     }
-    
+
     public From from(SqlQuery query, Alias alias, List<String> columnNames) {
         return from(From.query(query, alias, columnNames));
     }
-    
+
     public void clearFroms() {
         froms.clear();
     }
@@ -150,17 +150,17 @@ public class SelectQuery implements WhereClause, SqlQuery {
         froms.add(from);
         return from;
     }
-    
+
     public SelectQuery groupBy(Column... columns) {
         groupBy.addAll(Arrays.asList(columns));
         return this;
     }
-    
+
     public SelectQuery groupBy(Column column) {
         groupBy.add(column);
         return this;
     }
-    
+
     public void clearGroupBys() {
         groupBy.clear();
     }
@@ -179,25 +179,25 @@ public class SelectQuery implements WhereClause, SqlQuery {
             }
         };
     }
-    
+
     public void clearHavings() {
         havings.clear();
     }
-    
+
     public SelectQuery windows(NamedWindow... namedWindows) {
         windows.addAll(Arrays.asList(namedWindows));
         return this;
     }
-    
+
     public SelectQuery window(NamedWindow window) {
         windows.add(window);
         return this;
     }
-    
+
     public void clearWindows() {
         windows.clear();
     }
-    
+
     public Alias generate() {
         return generate("_1");
     }
@@ -205,17 +205,17 @@ public class SelectQuery implements WhereClause, SqlQuery {
     public Alias generate(String suggestion) {
         return context.generate(suggestion);
     }
-    
+
     public String generateIdentifier() {
         return generateIdentifier("_ident1");
     }
-    
+
     public String generateIdentifier(String suggestion) {
         return context.generateIdentifier(suggestion);
     }
 
     @Override
-    public void appendTo(SafeSqlAppendable sb) {
+    public void appendTo(SafeSqlBuilder sb) {
         if (!ctes.isEmpty()) {
             sb.append("WITH ");
             sb.joinedSqlizables(", ", ctes);
@@ -254,32 +254,32 @@ public class SelectQuery implements WhereClause, SqlQuery {
         conditions.add(condition);
         return this;
     }
-    
+
     public SelectQuery distinct() {
         this.distinct = true;
         return this;
     }
-    
+
     public SelectQuery limit(int limit) {
         this.limit = limit;
         return this;
     }
-    
+
     public SelectQuery noLimit() {
         this.limit = null;
         return this;
     }
-    
+
     public SelectQuery orderBy(String column, Order order) {
         orders.add(new OrderElement(null, column, order));
         return this;
     }
-    
+
     public SelectQuery orderBy(Alias alias, String column, Order order) {
         orders.add(new OrderElement(alias, column, order));
         return this;
     }
-    
+
     public static SelectQuery withContextOf(SelectQuery other) {
         return new SelectQuery(other.context);
     }
