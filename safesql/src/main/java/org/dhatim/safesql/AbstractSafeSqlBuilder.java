@@ -508,6 +508,10 @@ public abstract class AbstractSafeSqlBuilder<S extends AbstractSafeSqlBuilder<S>
         }
     }
 
+    public boolean isEmpty() {
+        return sqlBuilder.length() == 0 && parameters.isEmpty();
+    }
+
     private void appendObject(Object o) {
         sqlBuilder.append('?');
         parameters.add(o);
