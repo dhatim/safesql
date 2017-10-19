@@ -3,30 +3,30 @@ package org.dhatim.safesql.builder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.dhatim.safesql.SafeSqlAppendable;
+import org.dhatim.safesql.SafeSqlBuilder;
 
 public class Values implements SqlQuery {
 
 private final ArrayList<Row> rows = new ArrayList<>();
-    
+
     public Values() {
     }
-    
+
     public Values(Row... rows) {
         this(Arrays.asList(rows));
     }
-    
+
     public Values(List<Row> rows) {
         this.rows.addAll(rows);
     }
-    
+
     @Override
-    public void appendTo(SafeSqlAppendable builder) {
+    public void appendTo(SafeSqlBuilder builder) {
         validate();
         builder.append("VALUES ");
         builder.joinedSqlizables(", ", rows);
     }
-    
+
     private void validate() {
         if (rows.isEmpty()) {
             throw new BuilderException("VALUES clause muse have at least one row");

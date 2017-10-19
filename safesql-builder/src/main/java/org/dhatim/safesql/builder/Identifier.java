@@ -1,7 +1,7 @@
 package org.dhatim.safesql.builder;
 
 import org.dhatim.safesql.SafeSql;
-import org.dhatim.safesql.SafeSqlAppendable;
+import org.dhatim.safesql.SafeSqlBuilder;
 import org.dhatim.safesql.SafeSqlUtils;
 import org.dhatim.safesql.SafeSqlizable;
 
@@ -12,16 +12,16 @@ public final class Identifier implements SafeSqlizable {
     public Identifier(String name) {
         this.name = name;
     }
-    
+
     public String getName() {
         return name;
     }
-    
+
     @Override
-    public void appendTo(SafeSqlAppendable builder) {
+    public void appendTo(SafeSqlBuilder builder) {
         builder.identifier(name);
     }
-    
+
     @Override
     public SafeSql toSafeSql() {
         return SafeSqlUtils.fromIdentifier(name);

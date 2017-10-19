@@ -5,14 +5,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.dhatim.safesql.SafeSql;
-import org.dhatim.safesql.SafeSqlAppendable;
 import org.dhatim.safesql.SafeSqlBuilder;
 
 public class ConditionGroup implements Condition {
-    
+
     private final List<Condition> conditions;
     private final LogicalOperator operator;
-    
+
     ConditionGroup(LogicalOperator operator) {
         this.conditions = new ArrayList<>();
         this.operator = operator;
@@ -27,18 +26,18 @@ public class ConditionGroup implements Condition {
     }
 
     @Override
-    public void appendTo(SafeSqlAppendable builder) {
+    public void appendTo(SafeSqlBuilder builder) {
         SafeSql spacedOperator = new SafeSqlBuilder().append(' ').append(operator).append(' ').toSafeSql();
         builder.append("(")
                 .joinedSqlizables(spacedOperator, conditions)
                 .append(")");
     }
-    
+
     @Override
     public Condition negate() {
         return new ConditionGroup(conditions.stream().map(Condition::negate).collect(Collectors.toList()), operator == LogicalOperator.AND ? LogicalOperator.OR : LogicalOperator.AND);
     }
-    
+
     public void add(Condition condition) {
         if (condition instanceof ConditionGroup && ((ConditionGroup) condition).operator == operator) {
             conditions.addAll(((ConditionGroup) condition).conditions);
@@ -46,7 +45,7 @@ public class ConditionGroup implements Condition {
             conditions.add(condition);
         }
     }
-    
+
     public static Condition create(LogicalOperator operator, Condition left, Condition right, Condition... others) {
         ConditionGroup group = new ConditionGroup(operator);
         group.add(left);

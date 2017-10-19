@@ -1,15 +1,15 @@
 package org.dhatim.safesql.builder;
 
 import org.dhatim.safesql.SafeSql;
-import org.dhatim.safesql.SafeSqlAppendable;
+import org.dhatim.safesql.SafeSqlBuilder;
 import org.dhatim.safesql.SafeSqlUtils;
 
 public enum ComparisonOperator implements ConditionalOperator {
-    EQ("="), 
-    NE("<>"), 
-    GT(">"), 
-    GE(">="), 
-    LT("<"), 
+    EQ("="),
+    NE("<>"),
+    GT(">"),
+    GE(">="),
+    LT("<"),
     LE("<="),
     LIKE("LIKE"),
     NLIKE("NOT LIKE"),
@@ -26,9 +26,9 @@ public enum ComparisonOperator implements ConditionalOperator {
     public String toString() {
         return sql;
     }
-    
+
     @Override
-    public void appendTo(SafeSqlAppendable builder) {
+    public void appendTo(SafeSqlBuilder builder) {
         builder.append(sql);
     }
 

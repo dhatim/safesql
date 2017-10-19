@@ -1,18 +1,18 @@
 package org.dhatim.safesql.builder;
 
 import org.dhatim.safesql.SafeSql;
-import org.dhatim.safesql.SafeSqlAppendable;
+import org.dhatim.safesql.SafeSqlBuilder;
 import org.dhatim.safesql.SafeSqlUtils;
 
 public enum StringOperator implements Operator {
     CONCAT("||");
-    
+
     private final String sql;
 
     private StringOperator(String sql) {
         this.sql = sql;
     }
-    
+
     @Override
     public String toString() {
         return sql;
@@ -22,9 +22,9 @@ public enum StringOperator implements Operator {
     public SafeSql toSafeSql() {
         return SafeSqlUtils.fromConstant(sql);
     }
-    
+
     @Override
-    public void appendTo(SafeSqlAppendable builder) {
+    public void appendTo(SafeSqlBuilder builder) {
         builder.append(sql);
     }
 }

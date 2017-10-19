@@ -19,5 +19,5 @@ package org.dhatim.safesql;
  * A query parameter requiring special literalization.
  */
 public interface SafeSqlLiteralizable {
-    void appendLiteralized(SafeSqlAppendable sb);
+    void appendLiteralized(SafeSqlBuilder sb);
 }

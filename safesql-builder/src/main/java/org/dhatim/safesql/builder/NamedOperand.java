@@ -1,7 +1,6 @@
 package org.dhatim.safesql.builder;
 
 import org.dhatim.safesql.SafeSql;
-import org.dhatim.safesql.SafeSqlAppendable;
 import org.dhatim.safesql.SafeSqlBuilder;
 
 public class NamedOperand implements Operand {
@@ -13,15 +12,15 @@ public class NamedOperand implements Operand {
         this.operand = operand;
         this.alias = alias;
     }
-    
+
     public Alias getAlias() {
         return alias;
     }
-    
+
     public Operand getOperand() {
         return operand;
     }
-    
+
     @Override
     public SafeSql toSafeSql() {
         return new SafeSqlBuilder()
@@ -30,9 +29,9 @@ public class NamedOperand implements Operand {
                 .append(alias)
                 .toSafeSql();
     }
-    
+
     @Override
-    public void appendTo(SafeSqlAppendable builder) {
+    public void appendTo(SafeSqlBuilder builder) {
         builder.append(operand)
                 .append(" AS ")
                 .append(alias);
