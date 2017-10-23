@@ -1,7 +1,6 @@
 package org.dhatim.safesql;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -174,7 +173,9 @@ public class SafeSqlBuilder implements SafeSqlizable {
      */
     public SafeSqlBuilder append(SafeSql s) {
         sql.append(s.asSql());
-        parameters.addAll(Arrays.asList(s.getParameters()));
+        for (Object parameter : s.getParameters()) {
+            parameters.add(parameter);
+        }
         return this;
     }
 
