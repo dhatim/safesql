@@ -36,6 +36,8 @@ public final class SafeSqlUtils {
 
     private static final Pattern PATTERN = Pattern.compile("(?:\\{((?:\\d+|\\{(?:.*)\\})?)\\})");
 
+    private static final Pattern DEFAULT_LIKE_VALUE_ESCAPE = Pattern.compile("([\\_%])");
+
     private SafeSqlUtils() {
     }
 
@@ -135,6 +137,14 @@ public final class SafeSqlUtils {
 
     public static boolean isEmpty(SafeSql s) {
         return s.asSql().isEmpty();
+    }
+
+    public static String escapeLikeValue(String s, char escapeChar) {
+        return Pattern.compile("([" + escapeChar + "_%])").matcher(s).replaceAll(escapeChar + "$1");
+    }
+
+    public static String escapeLikeValue(String s) {
+        return DEFAULT_LIKE_VALUE_ESCAPE.matcher(s).replaceAll("\\\\$1");
     }
 
     static String escapeIdentifier(String identifier) {
