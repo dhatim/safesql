@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class SafeSqlBuilder implements SafeSqlizable {
@@ -226,6 +228,19 @@ public class SafeSqlBuilder implements SafeSqlizable {
      */
     public SafeSqlBuilder format(String query, Object... args) {
         SafeSqlUtils.formatTo(this, query, args);
+        return this;
+    }
+
+    public <E> SafeSqlBuilder joined(Iterable<E> iterable, Consumer<SafeSqlBuilder> delimiter, BiConsumer<SafeSqlBuilder, E> element) {
+        boolean first = true;
+        for (E e : iterable) {
+            if (first) {
+                first = false;
+            } else {
+                delimiter.accept(this);
+            }
+            element.accept(this, e);
+        }
         return this;
     }
 
