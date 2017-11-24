@@ -130,6 +130,16 @@ public class SafeSqlUtilsTest {
         SafeSqlUtils.format("SELECT {3}");
     }
 
+    @Test
+    public void testEscapeLikeValue() {
+        assertThat(SafeSqlUtils.escapeLikeValue("%hello%")).isEqualTo("\\%hello\\%");
+    }
+
+    @Test
+    public void testCustomEscapeLikeValue() {
+        assertThat(SafeSqlUtils.escapeLikeValue("%hello%", '/')).isEqualTo("/%hello/%");
+    }
+
     private static SafeSql safesql(String sql, Object... args) {
         return SafeSqlUtils.format(sql, args);
     }

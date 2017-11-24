@@ -14,7 +14,7 @@ public class SafeSqlBuilderTest {
         private static final String MUST_BE = "SELECT * FROM table WHERE column = ? GROUP BY id";
 
         @Override
-    public void appendTo(SafeSqlBuilder builder) {
+        public void appendTo(SafeSqlBuilder builder) {
             builder.append("SELECT * FROM table WHERE column = ")
                     .param(5)
                     .append(" GROUP BY id");
@@ -154,6 +154,15 @@ public class SafeSqlBuilderTest {
         assertThat(new SafeSqlBuilder().joinedSafeSqls(", ", Arrays.asList()).toSafeSql())
                 .hasEmptySql()
                 .hasEmptyParameters();
+    }
+
+    @Test
+    public void testLambdaJoined() {
+        List<SafeSqlizable> list = Arrays.asList(new MySafeSqlizable(), new MySafeSqlizable());
+
+        assertThat(new SafeSqlBuilder().joined(list, sb -> sb.append(", "), (sb, e) -> sb.append(e)).toSafeSql())
+                .hasSql(MySafeSqlizable.MUST_BE + ", " + MySafeSqlizable.MUST_BE)
+                .hasParameters(5, 5);
     }
 
 }
