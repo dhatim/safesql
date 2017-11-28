@@ -1,10 +1,11 @@
 package org.dhatim.safesql;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class SafeSqlBuilder implements SafeSqlizable {
@@ -24,7 +25,7 @@ public class SafeSqlBuilder implements SafeSqlizable {
     private static final String DEFAULT_SEPARATOR = ", ";
     private static final char[] HEX_CODE = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
-    protected final StringBuilder sqlBuilder;
+    protected final StringBuilder sql;
     protected final List<Object> parameters;
 
     public SafeSqlBuilder() {
@@ -36,12 +37,12 @@ public class SafeSqlBuilder implements SafeSqlizable {
     }
 
     public SafeSqlBuilder(SafeSqlBuilder other) {
-        this(new StringBuilder(other.sqlBuilder), new ArrayList<>(other.parameters));
+        this(new StringBuilder(other.sql), new ArrayList<>(other.parameters));
     }
 
     protected SafeSqlBuilder(StringBuilder stringBuilder, List<Object> parameters) {
         // Without copy buffers
-        this.sqlBuilder = stringBuilder;
+        this.sql = stringBuilder;
         this.parameters = parameters;
     }
 
@@ -169,12 +170,14 @@ public class SafeSqlBuilder implements SafeSqlizable {
     /**
      * append a {@link SafeSql} to SQL
      *
-     * @param sql {@link SafeSql} to append to the final SQL
+     * @param s {@link SafeSql} to append to the final SQL
      * @return a reference of this object
      */
-    public SafeSqlBuilder append(SafeSql sql) {
-        sqlBuilder.append(sql.asSql());
-        parameters.addAll(Arrays.asList(sql.getParameters()));
+    public SafeSqlBuilder append(SafeSql s) {
+        sql.append(s.asSql());
+        for (Object parameter : s.getParameters()) {
+            parameters.add(parameter);
+        }
         return this;
     }
 
@@ -184,22 +187,22 @@ public class SafeSqlBuilder implements SafeSqlizable {
     }
 
     public SafeSqlBuilder append(String s) {
-        sqlBuilder.append(s);
+        sql.append(s);
         return this;
     }
 
     public SafeSqlBuilder append(char ch) {
-        sqlBuilder.append(ch);
+        sql.append(ch);
         return this;
     }
 
     public SafeSqlBuilder append(int i) {
-        sqlBuilder.append(i);
+        sql.append(i);
         return this;
     }
 
     public SafeSqlBuilder append(long l) {
-        sqlBuilder.append(l);
+        sql.append(l);
         return this;
     }
 
@@ -210,21 +213,34 @@ public class SafeSqlBuilder implements SafeSqlizable {
      * @return a reference to this object.
      */
     public SafeSqlBuilder literal(String s) {
-        sqlBuilder.append(SafeSqlUtils.escapeString(s));
+        sql.append(SafeSqlUtils.escapeString(s));
         return this;
     }
 
     /**
      * Appends a formatted sql string using the specified arguments.
      *
-     * @param sql string query with some <code>{}</code> argument place. The
+     * @param query string query with some <code>{}</code> argument place. The
      * argument can have a number inside to force a argument index (start at 1).
      * The escape sequence is <code>{{.*}}</code>.
      * @param args arguments list
      * @return a reference to this object.
      */
-    public SafeSqlBuilder format(String sql, Object... args) {
-        SafeSqlUtils.formatTo(this, sql, args);
+    public SafeSqlBuilder format(String query, Object... args) {
+        SafeSqlUtils.formatTo(this, query, args);
+        return this;
+    }
+
+    public <E> SafeSqlBuilder joined(Iterable<E> iterable, Consumer<SafeSqlBuilder> delimiter, BiConsumer<SafeSqlBuilder, E> element) {
+        boolean first = true;
+        for (E e : iterable) {
+            if (first) {
+                first = false;
+            } else {
+                delimiter.accept(this);
+            }
+            element.accept(this, e);
+        }
         return this;
     }
 
@@ -337,17 +353,17 @@ public class SafeSqlBuilder implements SafeSqlizable {
      * @return a reference to this object.
      */
     public SafeSqlBuilder literal(byte[] bytes) {
-        sqlBuilder.append("'\\x");
+        sql.append("'\\x");
         for (byte b : bytes) {
-            sqlBuilder.append(HEX_CODE[(b >> 4) & 0xF]);
-            sqlBuilder.append(HEX_CODE[(b & 0xF)]);
+            sql.append(HEX_CODE[(b >> 4) & 0xF]);
+            sql.append(HEX_CODE[(b & 0xF)]);
         }
-        sqlBuilder.append('\'');
+        sql.append('\'');
         return this;
     }
 
     public SafeSqlBuilder identifier(String identifier) {
-        sqlBuilder.append(SafeSqlUtils.mayEscapeIdentifier(identifier));
+        sql.append(SafeSqlUtils.mayEscapeIdentifier(identifier));
         return this;
     }
 
@@ -355,7 +371,7 @@ public class SafeSqlBuilder implements SafeSqlizable {
         if (null == container) {
             return identifier(identifier);
         } else {
-            sqlBuilder.append(SafeSqlUtils.mayEscapeIdentifier(container)).append('.').append(SafeSqlUtils.mayEscapeIdentifier(identifier));
+            sql.append(SafeSqlUtils.mayEscapeIdentifier(container)).append('.').append(SafeSqlUtils.mayEscapeIdentifier(identifier));
             return this;
         }
     }
@@ -526,30 +542,43 @@ public class SafeSqlBuilder implements SafeSqlizable {
 
     @Override
     public SafeSql toSafeSql() {
-        return new SafeSqlImpl(sqlBuilder.toString(), parameters.toArray());
+        return new SafeSqlImpl(asSql(), getParameters());
     }
 
     @Override
     public void appendTo(SafeSqlBuilder builder) {
-        builder.sqlBuilder.append(sqlBuilder);
+        builder.sql.append(sql);
         builder.parameters.addAll(parameters);
     }
 
+    /**
+     * Returns <tt>true</tt> if this builder contains no sql and no parameters.
+     *
+     * @return <tt>true</tt> if this builder contains no sql and no parameters
+     */
     public boolean isEmpty() {
-        return sqlBuilder.length() == 0 && parameters.isEmpty();
+        return sql.length() == 0 && parameters.isEmpty();
+    }
+
+    protected String asSql() {
+        return sql.toString();
+    }
+
+    protected Object[] getParameters() {
+        return parameters.toArray();
     }
 
     private void appendObject(Object o) {
-        sqlBuilder.append('?');
+        sql.append('?');
         parameters.add(o);
     }
 
     Position getLength() {
-        return new Position(sqlBuilder.length(), parameters.size());
+        return new Position(sql.length(), parameters.size());
     }
 
     void setLength(Position position) {
-        sqlBuilder.setLength(position.sqlPosition);
+        sql.setLength(position.sqlPosition);
         int currentSize = parameters.size();
         if (position.paramPosition < currentSize) {
             parameters.subList(position.paramPosition, currentSize).clear();
@@ -557,7 +586,7 @@ public class SafeSqlBuilder implements SafeSqlizable {
     }
 
     void append(SafeSqlBuilder other, Position after) {
-        sqlBuilder.append(other.sqlBuilder, after.sqlPosition, other.sqlBuilder.length());
+        sql.append(other.sql, after.sqlPosition, other.sql.length());
         int afterLength = after.paramPosition;
         parameters.addAll(other.parameters.subList(afterLength, other.parameters.size() - afterLength));
     }
