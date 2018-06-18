@@ -4,6 +4,8 @@ import java.util.Objects;
 
 public class SafeSqlJoiner implements SafeSqlizable {
 
+    private final Dialect dialect;
+
     private final SafeSql prefix;
     private final SafeSql delimiter;
     private final SafeSql suffix;
@@ -13,13 +15,17 @@ public class SafeSqlJoiner implements SafeSqlizable {
     private SafeSql emptyValue;
 
     public SafeSqlJoiner(SafeSql delimiter) {
-        this(delimiter, SafeSqlUtils.EMPTY, SafeSqlUtils.EMPTY);
+        this(delimiter, delimiter.getDialect().empty(), delimiter.getDialect().empty());
     }
 
     public SafeSqlJoiner(SafeSql delimiter, SafeSql prefix, SafeSql suffix) {
         Objects.requireNonNull(prefix, "The prefix must not be null");
         Objects.requireNonNull(delimiter, "The delimiter must not be null");
         Objects.requireNonNull(suffix, "The suffix must not be null");
+        this.dialect = delimiter.getDialect();
+        if ((dialect != prefix.getDialect()) || (dialect != suffix.getDialect())) {
+            throw new IncompatibleDialectException();
+        }
         this.prefix = prefix;
         this.delimiter = delimiter;
         this.suffix = suffix;
@@ -42,7 +48,7 @@ public class SafeSqlJoiner implements SafeSqlizable {
     }
 
     public SafeSqlJoiner add(SafeSqlizable newElement) {
-        prepareBuilder().append(newElement.toSafeSql());
+        prepareBuilder().append(newElement);
         return this;
     }
 
@@ -67,6 +73,9 @@ public class SafeSqlJoiner implements SafeSqlizable {
      * @return This {@code SafeSqlJoiner}
      */
     public SafeSqlJoiner merge(SafeSqlJoiner other) {
+        if (dialect != other.dialect) {
+            throw new IncompatibleDialectException();
+        }
         Objects.requireNonNull(other);
         if (other.value != null) {
             SafeSqlBuilder builder = prepareBuilder();

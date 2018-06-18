@@ -17,28 +17,30 @@ public interface SafeSql {
      */
     Object[] getParameters();
 
+    Dialect getDialect();
+
     /**
      * Retrieves a version of the sql query that do not contain <code>'?'</code> parameter placeholder
      * @return the sql query with parameter inside
      */
     default String asString() {
-        return SafeSqlUtils.toString(this);
+        return getDialect().toString(this);
     }
 
     static SafeSql constant(String s) {
-        return SafeSqlUtils.fromConstant(s);
+        return Dialect.getDefault().fromConstant(s);
     }
 
     static SafeSql identifier(String identifier) {
-        return SafeSqlUtils.fromIdentifier(identifier);
+        return Dialect.getDefault().fromIdentifier(identifier);
     }
 
     static SafeSql parameter(Object parameter) {
-        return SafeSqlUtils.escape(parameter);
+        return Dialect.getDefault().fromParameter(parameter);
     }
 
     static SafeSql literal(String string) {
-        return SafeSqlUtils.fromConstant(SafeSqlUtils.escapeString(string));
+        return Dialect.getDefault().fromStringLiteral(string);
     }
 
     static SafeSql concat(SafeSql a, SafeSql b) {

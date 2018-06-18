@@ -12,6 +12,9 @@ public abstract class SafeSqlRewriter {
 
     //TODO miss $$ notation
     public void writeTo(SafeSql value, SafeSqlBuilder sb) {
+        if (value.getDialect() != sb.getDialect()) {
+            throw new IncompatibleDialectException();
+        }
         Object[] parameters = value.getParameters();
         int index = 0;
         StringTokenizer tokenizer = new StringTokenizer(value.asSql(), "\"'?", true);

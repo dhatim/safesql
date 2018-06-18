@@ -56,20 +56,6 @@ public class SafeSqlUtilsTest {
     }
 
     @Test
-    public void testEscapeIdentifier() {
-        assertThat(SafeSqlUtils.escapeIdentifier("Char string \" with double quote")).isEqualTo("\"Char string \"\" with double quote\"");
-    }
-
-    @Test
-    public void testMustEscapeIdentifier() {
-        assertThat(SafeSqlUtils.mustEscapeIdentifier("aA")).as("Upper").isTrue();
-        assertThat(SafeSqlUtils.mustEscapeIdentifier("aa")).as("Lower").isFalse();
-        assertThat(SafeSqlUtils.mustEscapeIdentifier("a\"a")).as("Double quote").isTrue();
-        assertThat(SafeSqlUtils.mustEscapeIdentifier("Étant")).as("no identifier character").isTrue();
-        assertThat(SafeSqlUtils.mustEscapeIdentifier("%aA")).as("no identifier character (special)").isTrue();
-    }
-
-    @Test
     public void testToString() {
         assertThat(SafeSqlUtils.toString(safesql("SELECT {} FROM table", new Object[] {null}))).isEqualTo("SELECT NULL FROM table");
 

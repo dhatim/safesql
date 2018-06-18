@@ -2,8 +2,10 @@ package org.dhatim.safesql;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -23,27 +25,40 @@ public class SafeSqlBuilder implements SafeSqlizable {
     }
 
     private static final String DEFAULT_SEPARATOR = ", ";
-    private static final char[] HEX_CODE = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
+    protected final Dialect dialect;
     protected final StringBuilder sql;
     protected final List<Object> parameters;
 
     public SafeSqlBuilder() {
-        this(new StringBuilder(), new ArrayList<>());
+        this(Dialect.getDefault(), new StringBuilder(), new ArrayList<>());
+    }
+
+    public SafeSqlBuilder(Dialect dialect) {
+        this(Objects.requireNonNull(dialect), new StringBuilder(), new ArrayList<>());
     }
 
     public SafeSqlBuilder(String query) {
-        this(new StringBuilder(query), new ArrayList<>());
+        this(Dialect.getDefault(), new StringBuilder(query), new ArrayList<>());
+    }
+
+    public SafeSqlBuilder(Dialect dialect, String query) {
+        this(Objects.requireNonNull(dialect), new StringBuilder(query), new ArrayList<>());
     }
 
     public SafeSqlBuilder(SafeSqlBuilder other) {
-        this(new StringBuilder(other.sql), new ArrayList<>(other.parameters));
+        this(other.dialect, new StringBuilder(other.sql), new ArrayList<>(other.parameters));
     }
 
-    protected SafeSqlBuilder(StringBuilder stringBuilder, List<Object> parameters) {
+    protected SafeSqlBuilder(Dialect dialect, StringBuilder stringBuilder, List<Object> parameters) {
         // Without copy buffers
         this.sql = stringBuilder;
         this.parameters = parameters;
+        this.dialect = dialect;
+    }
+
+    public Dialect getDialect() {
+        return dialect;
     }
 
     /**
@@ -174,15 +189,22 @@ public class SafeSqlBuilder implements SafeSqlizable {
      * @return a reference of this object
      */
     public SafeSqlBuilder append(SafeSql s) {
-        sql.append(s.asSql());
-        for (Object parameter : s.getParameters()) {
-            parameters.add(parameter);
+        if (s.getDialect() != dialect) {
+            throw new IncompatibleDialectException();
         }
+        sql.append(s.asSql());
+        Collections.addAll(parameters, s.getParameters());
         return this;
     }
 
     public SafeSqlBuilder append(SafeSqlizable sqlizable) {
         sqlizable.appendTo(this);
+        return this;
+    }
+
+    public SafeSqlBuilder append(SafeSqlBuilder builder) {
+        sql.append(builder.sql);
+        parameters.addAll(builder.parameters);
         return this;
     }
 
@@ -213,7 +235,7 @@ public class SafeSqlBuilder implements SafeSqlizable {
      * @return a reference to this object.
      */
     public SafeSqlBuilder literal(String s) {
-        sql.append(SafeSqlUtils.escapeString(s));
+        dialect.escapeStringLiteral(sql, s);
         return this;
     }
 
@@ -353,31 +375,24 @@ public class SafeSqlBuilder implements SafeSqlizable {
      * @return a reference to this object.
      */
     public SafeSqlBuilder literal(byte[] bytes) {
-        sql.append("'\\x");
-        for (byte b : bytes) {
-            sql.append(HEX_CODE[(b >> 4) & 0xF]);
-            sql.append(HEX_CODE[(b & 0xF)]);
-        }
-        sql.append('\'');
+        dialect.escapeBytesLiteral(sql, bytes);
         return this;
     }
 
     public SafeSqlBuilder identifier(String identifier) {
-        sql.append(SafeSqlUtils.mayEscapeIdentifier(identifier));
+        dialect.escapeIdentifier(sql, identifier);
         return this;
     }
 
     public SafeSqlBuilder identifier(String container, String identifier) {
         if (null == container) {
-            return identifier(identifier);
+            dialect.escapeIdentifier(sql, identifier);
         } else {
-            sql.append(SafeSqlUtils.mayEscapeIdentifier(container)).append('.').append(SafeSqlUtils.mayEscapeIdentifier(identifier));
-            return this;
+            dialect.escapeIdentifier(sql, container);
+            sql.append('.');
+            dialect.escapeIdentifier(sql, identifier);
         }
-    }
-
-    protected final String mayEscapeIdentifier(String identifier) {
-        return SafeSqlUtils.mayEscapeIdentifier(identifier);
+        return this;
     }
 
     /**
@@ -542,13 +557,12 @@ public class SafeSqlBuilder implements SafeSqlizable {
 
     @Override
     public SafeSql toSafeSql() {
-        return new SafeSqlImpl(asSql(), getParameters());
+        return new SafeSqlImpl(dialect, asSql(), getParameters());
     }
 
     @Override
     public void appendTo(SafeSqlBuilder builder) {
-        builder.sql.append(sql);
-        builder.parameters.addAll(parameters);
+        builder.append(this);
     }
 
     /**
