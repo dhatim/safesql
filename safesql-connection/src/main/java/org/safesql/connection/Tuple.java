@@ -13,7 +13,10 @@ public interface Tuple {
 
     boolean contains(String columnLabel);
     int size();
+    String getColumnLabel(int index);
+
     <T> T get(String columnLabel);
+    <T> T get(int index);
 
     /**
      * Retrieves the value of the designated column in the current row
@@ -23,10 +26,22 @@ public interface Tuple {
      * @param columnLabel the column name
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
-     * @exception DatabaseAccessorException if the columnName is not found
+     * @exception SafeConnectionException if the columnName is not found
      */
     String getString(String columnLabel);
 
+    /**
+     * Retrieves the value of the designated column in the current row
+     * of this {@link Tuple} object as
+     * an {@link Boolean} in the Java programming language.
+     *
+     * <p>Used for PostgreSQL data types {@code boolean}.
+     *
+     * @param columnLabel the column name
+     * @return the column value; if the value is SQL <code>NULL</code>, the
+     * value returned is <code>null</code>
+     * @exception SafeConnectionException if the columnName is not found
+     */
     Boolean getBoolean(String columnLabel);
 
     /**
@@ -39,7 +54,7 @@ public interface Tuple {
      * @param columnLabel the column name
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
-     * @exception DatabaseAccessorException if the columnName is not found
+     * @exception SafeConnectionException if the columnName is not found
      */
     Integer getInt(String columnLabel);
 
@@ -55,7 +70,7 @@ public interface Tuple {
      * @param columnLabel the column name
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
-     * @exception DatabaseAccessorException if the columnName is not found
+     * @exception SafeConnectionException if the columnName is not found
      */
     Long getLong(String columnLabel);
 
@@ -71,7 +86,7 @@ public interface Tuple {
      * @param columnLabel the column name
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
-     * @exception DatabaseAccessorException if the columnName is not found
+     * @exception SafeConnectionException if the columnName is not found
      */
     Float getFloat(String columnLabel);
 
@@ -87,7 +102,7 @@ public interface Tuple {
      * @param columnLabel the column name
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
-     * @exception DatabaseAccessorException if the columnName is not found
+     * @exception SafeConnectionException if the columnName is not found
      */
     Double getDouble(String columnLabel);
 
@@ -104,7 +119,7 @@ public interface Tuple {
      * @param columnLabel the column name
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
-     * @exception DatabaseAccessorException if the columnName is not found
+     * @exception SafeConnectionException if the columnName is not found
      */
     BigDecimal getBigDecimal(String columnLabel);
 
@@ -118,7 +133,7 @@ public interface Tuple {
      * @param columnLabel the column name
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
-     * @exception DatabaseAccessorException if the columnName is not found
+     * @exception SafeConnectionException if the columnName is not found
      */
     LocalDate getDate(String columnLabel);
 
@@ -132,7 +147,7 @@ public interface Tuple {
      * @param columnLabel the column name
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
-     * @exception DatabaseAccessorException if the columnName is not found
+     * @exception SafeConnectionException if the columnName is not found
      */
     LocalTime getTime(String columnLabel);
 
@@ -146,7 +161,7 @@ public interface Tuple {
      * @param columnLabel the column name
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
-     * @exception DatabaseAccessorException if the columnName is not found
+     * @exception SafeConnectionException if the columnName is not found
      */
     LocalDateTime getDateTime(String columnLabel);
 
@@ -160,7 +175,7 @@ public interface Tuple {
      * @param columnLabel the column name
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
-     * @exception DatabaseAccessorException if the columnName is not found
+     * @exception SafeConnectionException if the columnName is not found
      */
     OffsetDateTime getTimestamp(String columnLabel);
 
@@ -172,7 +187,7 @@ public interface Tuple {
      * @param columnLabel the column name
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
-     * @exception DatabaseAccessorException if the columnName is not found
+     * @exception SafeConnectionException if the columnName is not found
      */
     UUID getUUID(String columnLabel);
 
@@ -183,7 +198,7 @@ public interface Tuple {
      * @param columnLabel the column name
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
-     * @exception DatabaseAccessorException if the columnName is not found
+     * @exception SafeConnectionException if the columnName is not found
      */
     Object getObject(String columnLabel);
 
@@ -196,7 +211,7 @@ public interface Tuple {
      * @param valueClass required type of retrieved value
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
-     * @exception DatabaseAccessorException if the columnName is not found
+     * @exception SafeConnectionException if the columnName is not found
      */
     <T> T getObject(String columnLabel, Class<T> valueClass);
 

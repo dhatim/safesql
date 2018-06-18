@@ -1,6 +1,7 @@
 package org.safesql.connection;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface Query extends Result<Tuple> {
@@ -8,6 +9,32 @@ public interface Query extends Result<Tuple> {
     <T> Result<T> as(Class<T> requiredType);
 
     Query withFetchSize(int fetchSize);
+
+    Query withQueryTimeout(int queryTimeout);
+
+    default Result<Boolean> asBoolean() {
+        return as(Boolean.class);
+    }
+
+    default Result<Integer> asInteger() {
+        return as(Integer.class);
+    }
+
+    default Result<Long> asLong() {
+        return as(Long.class);
+    }
+
+    default Result<String> asString() {
+        return as(String.class);
+    }
+
+    default Result<BigDecimal> asBigDecimal() {
+        return as(BigDecimal.class);
+    }
+
+    default Result<UUID> asUUID() {
+        return as(UUID.class);
+    }
 
     default Boolean toBoolean() {
         return as(Boolean.class).toObject();
@@ -33,28 +60,28 @@ public interface Query extends Result<Tuple> {
         return as(String.class).toObject();
     }
 
-    default Result<Boolean> asBoolean() {
-        return as(Boolean.class);
+    default Optional<Boolean> toOptionalBoolean() {
+        return as(Boolean.class).toOptional();
     }
 
-    default Result<Integer> asInteger() {
-        return as(Integer.class);
+    default Optional<Integer> toOptionalInteger() {
+        return as(Integer.class).toOptional();
     }
 
-    default Result<Long> asLong() {
-        return as(Long.class);
+    default Optional<Long> toOptionalLong() {
+        return as(Long.class).toOptional();
     }
 
-    default Result<String> asString() {
-        return as(String.class);
+    default Optional<BigDecimal> toOptionalBigDecimal() {
+        return as(BigDecimal.class).toOptional();
     }
 
-    default Result<BigDecimal> asBigDecimal() {
-        return as(BigDecimal.class);
+    default Optional<UUID> toOptionalUUID() {
+        return as(UUID.class).toOptional();
     }
 
-    default Result<UUID> asUUID() {
-        return as(UUID.class);
+    default Optional<String> toOptionalString() {
+        return as(String.class).toOptional();
     }
 
 }

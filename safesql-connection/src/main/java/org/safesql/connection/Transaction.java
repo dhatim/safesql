@@ -2,11 +2,11 @@ package org.safesql.connection;
 
 public interface Transaction<T> {
 
-    public static interface Status {
-        void setRollbackOnly();
-        boolean isRollbackOnly();
-        boolean isCompleted();
+    interface Status {
+        void rollBack();
+        boolean isRolledback();
+        boolean isCommited();
     }
 
-    T execute(Status status);
+    T executeInTransaction(Status status);
 }
