@@ -2,6 +2,7 @@ package org.dhatim.safesql;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.dhatim.safesql.assertion.Assertions.*;
@@ -163,6 +164,27 @@ public class SafeSqlBuilderTest {
         assertThat(new SafeSqlBuilder().joined(list, sb -> sb.append(", "), (sb, e) -> sb.append(e)).toSafeSql())
                 .hasSql(MySafeSqlizable.MUST_BE + ", " + MySafeSqlizable.MUST_BE)
                 .hasParameters(5, 5);
+    }
+
+    @Test
+    public void testArray() {
+        assertThat(new SafeSqlBuilder().array("VARCHAR", "1", "a", "b", null, "2").toSafeSql())
+                .hasSql("?::VARCHAR[]")
+                .hasParameters("{\"1\",\"a\",\"b\",NULL,\"2\"}");
+        assertThat(new SafeSqlBuilder().array("INT", 1, 2, 3, null, 4).toSafeSql())
+                .hasSql("?::INT[]")
+                .hasParameters("{1,2,3,NULL,4}");
+        assertThat(new SafeSqlBuilder().array("BOOLEAN", true, false, true, null, false).toSafeSql())
+                .hasSql("?::BOOLEAN[]")
+                .hasParameters("{TRUE,FALSE,TRUE,NULL,FALSE}");
+        UUID u1 = UUID.randomUUID();
+        UUID u2 = UUID.randomUUID();
+        assertThat(new SafeSqlBuilder().array("UUID", u1, null, u2).toSafeSql())
+                .hasSql("?::UUID[]")
+                .hasParameters("{\"" + u1 + "\",NULL,\"" + u2 + "\"}");
+        assertThat(new SafeSqlBuilder().array("BYTEA", new byte[] {1, 2, 3}).toSafeSql())
+                .hasSql("?::BYTEA[]")
+                .hasParameters("{\"\\x010203\"}");
     }
 
 }
