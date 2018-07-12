@@ -2,6 +2,7 @@ package org.dhatim.safesql;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -23,7 +24,6 @@ public class SafeSqlBuilder implements SafeSqlizable {
     }
 
     private static final String DEFAULT_SEPARATOR = ", ";
-    private static final char[] HEX_CODE = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
     protected final StringBuilder sql;
     protected final List<Object> parameters;
@@ -167,6 +167,19 @@ public class SafeSqlBuilder implements SafeSqlizable {
         }
     }
 
+    @SafeVarargs
+    public final <T> SafeSqlBuilder array(String type, T... elements) {
+        appendObject(ArraySupport.toString(elements));
+        sql.append("::").append(type).append("[]");
+        return this;
+    }
+
+    public <T> SafeSqlBuilder array(String type, Iterable<T> elements) {
+        appendObject(ArraySupport.toString(elements));
+        sql.append("::").append(type).append("[]");
+        return this;
+    }
+
     /**
      * append a {@link SafeSql} to SQL
      *
@@ -175,9 +188,7 @@ public class SafeSqlBuilder implements SafeSqlizable {
      */
     public SafeSqlBuilder append(SafeSql s) {
         sql.append(s.asSql());
-        for (Object parameter : s.getParameters()) {
-            parameters.add(parameter);
-        }
+        Collections.addAll(parameters, s.getParameters());
         return this;
     }
 
@@ -354,10 +365,7 @@ public class SafeSqlBuilder implements SafeSqlizable {
      */
     public SafeSqlBuilder literal(byte[] bytes) {
         sql.append("'\\x");
-        for (byte b : bytes) {
-            sql.append(HEX_CODE[(b >> 4) & 0xF]);
-            sql.append(HEX_CODE[(b & 0xF)]);
-        }
+        ArraySupport.appendHexBytes(sql, bytes);
         sql.append('\'');
         return this;
     }
