@@ -147,6 +147,15 @@ public final class SafeSqlUtils {
         return DEFAULT_LIKE_VALUE_ESCAPE.matcher(s).replaceAll("\\\\$1");
     }
 
+    @SafeVarargs
+    public static <T> String arrayAsString(T... elements) {
+        return ArraySupport.toString(elements);
+    }
+
+    public static String arrayAsString(Iterable<?> iterable) {
+        return ArraySupport.toString(iterable);
+    }
+
     static String escapeIdentifier(String identifier) {
         return IDENTIFIER_QUOTE_CHAR + identifier.replace(IDENTIFIER_QUOTE, ESCAPED_IDENTIFIER_QUOTE) + IDENTIFIER_QUOTE_CHAR;
     }
