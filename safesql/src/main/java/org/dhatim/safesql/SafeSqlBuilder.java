@@ -169,14 +169,12 @@ public class SafeSqlBuilder implements SafeSqlizable {
 
     @SafeVarargs
     public final <T> SafeSqlBuilder array(String type, T... elements) {
-        appendObject(ArraySupport.toString(elements));
-        sql.append("::").append(type).append("[]");
+        appendObject(new PGArrayParameter(type, elements));
         return this;
     }
 
     public <T> SafeSqlBuilder array(String type, Iterable<T> elements) {
-        appendObject(ArraySupport.toString(elements));
-        sql.append("::").append(type).append("[]");
+        appendObject(new PGArrayParameter(type, elements));
         return this;
     }
 

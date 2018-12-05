@@ -3,6 +3,7 @@ package org.dhatim.safesql.assertion;
 import java.util.Arrays;
 import java.util.Objects;
 import org.assertj.core.api.AbstractAssert;
+import org.dhatim.safesql.PGArrayParameter;
 import org.dhatim.safesql.SafeSql;
 
 public class SafeSqlAssert extends AbstractAssert<SafeSqlAssert, SafeSql> {
@@ -45,6 +46,9 @@ public class SafeSqlAssert extends AbstractAssert<SafeSqlAssert, SafeSql> {
         for (int i = 0; i < actualLength; i++) {
             Object actualElement = actualParameters[i];
             Object expectedElement = parameters[i];
+            if (actualElement instanceof PGArrayParameter) {
+                actualElement = actualElement.toString();
+            }
             if (!Objects.equals(actualElement, expectedElement)) {
                 failWithMessage("%nActual paremeters and expected parameters have not the same elements, at index %d actual elements was:%n <%s>%nwhereas expected element was:%n <%s>%nfor SafeSql <%s>",
                         i, actualElement, expectedElement, toString(actual));

@@ -169,21 +169,21 @@ public class SafeSqlBuilderTest {
     @Test
     public void testArray() {
         assertThat(new SafeSqlBuilder().array("VARCHAR", "1", "a", "b", null, "2").toSafeSql())
-                .hasSql("?::VARCHAR[]")
+                .hasSql("?")
                 .hasParameters("{\"1\",\"a\",\"b\",NULL,\"2\"}");
         assertThat(new SafeSqlBuilder().array("INT", 1, 2, 3, null, 4).toSafeSql())
-                .hasSql("?::INT[]")
+                .hasSql("?")
                 .hasParameters("{1,2,3,NULL,4}");
         assertThat(new SafeSqlBuilder().array("BOOLEAN", true, false, true, null, false).toSafeSql())
-                .hasSql("?::BOOLEAN[]")
+                .hasSql("?")
                 .hasParameters("{TRUE,FALSE,TRUE,NULL,FALSE}");
         UUID u1 = UUID.randomUUID();
         UUID u2 = UUID.randomUUID();
         assertThat(new SafeSqlBuilder().array("UUID", u1, null, u2).toSafeSql())
-                .hasSql("?::UUID[]")
+                .hasSql("?")
                 .hasParameters("{\"" + u1 + "\",NULL,\"" + u2 + "\"}");
         assertThat(new SafeSqlBuilder().array("BYTEA", new byte[] {1, 2, 3}).toSafeSql())
-                .hasSql("?::BYTEA[]")
+                .hasSql("?")
                 .hasParameters("{\"\\x010203\"}");
     }
 
