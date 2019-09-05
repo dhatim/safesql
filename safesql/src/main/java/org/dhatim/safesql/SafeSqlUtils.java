@@ -21,16 +21,8 @@ public final class SafeSqlUtils {
 
     static final DateTimeFormatter TIMESTAMP_FORMATTER_WITH_TZ = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSX");
 
-    static final DateFormat TIME_FORMAT_WITH_TZ = new SimpleDateFormat("hh:mm:ss:SSSXXX");
-    static final DateFormat TIMESTAMP_FORMAT_WITH_TZ = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSSXXX");
-
-    private static final char STRING_QUOTE_CHAR = '\'';
-    private static final String STRING_QUOTE = "'";
-    private static final String ESCAPED_STRING_QUOTE = "''";
-
-    private static final char IDENTIFIER_QUOTE_CHAR = '"';
-    private static final String IDENTIFIER_QUOTE = "\"";
-    private static final String ESCAPED_IDENTIFIER_QUOTE = "\"\"";
+    static final DateFormat TIME_FORMAT_WITH_TZ = new SimpleDateFormat("hh:mm:ss.SSSXXX");
+    static final DateFormat TIMESTAMP_FORMAT_WITH_TZ = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSXXX");
 
     public static final SafeSql EMPTY = new StringSafeSqlImpl("");
 
@@ -74,9 +66,9 @@ public final class SafeSqlUtils {
     /**
      * Returns a formatted sql string using the specified arguments.
      *
-     * @param sql string query with some <code>{}</code> argument place. The
-     * argument can have a number inside to force a argument index (start at 1).
-     * The escape sequence is <code>{{.*}}</code>.
+     * @param sql       string query with some <code>{}</code> argument place. The
+     *                  argument can have a number inside to force a argument index (start at 1).
+     *                  The escape sequence is <code>{{.*}}</code>.
      * @param arguments arguments list
      * @return <code>SafeSql</code> with parameters
      */
@@ -90,10 +82,10 @@ public final class SafeSqlUtils {
      * Appends to a {@code SafeSqlBuilder} a formatted sql string using the
      * specified arguments.
      *
-     * @param builder {@code SafeSqlBuilder} where is appened the formatted sql
-     * @param sql string query with some <code>{}</code> argument place. The
-     * argument can have a number inside to force a argument index (start at 1).
-     * The escape sequence is <code>{{.*}}</code>.
+     * @param builder   {@code SafeSqlBuilder} where is appened the formatted sql
+     * @param sql       string query with some <code>{}</code> argument place. The
+     *                  argument can have a number inside to force a argument index (start at 1).
+     *                  The escape sequence is <code>{{.*}}</code>.
      * @param arguments arguments list
      */
     public static void formatTo(SafeSqlBuilder builder, String sql, Object... arguments) {
@@ -157,16 +149,16 @@ public final class SafeSqlUtils {
     }
 
     static String escapeIdentifier(String identifier) {
-        return IDENTIFIER_QUOTE_CHAR + identifier.replace(IDENTIFIER_QUOTE, ESCAPED_IDENTIFIER_QUOTE) + IDENTIFIER_QUOTE_CHAR;
+        return '"' + identifier.replace("\"", "\"\"") + '"';
     }
 
     static String escapeString(String string) {
-        return STRING_QUOTE_CHAR + string.replace(STRING_QUOTE, ESCAPED_STRING_QUOTE) + STRING_QUOTE_CHAR;
+        return '\'' + string.replace("'", "''") + '\'';
     }
 
     static boolean mustEscapeIdentifier(String identifier) {
         Objects.requireNonNull(identifier, "null identifier");
-        for (int i=0; i<identifier.length(); i++) {
+        for (int i = 0; i < identifier.length(); i++) {
             char ch = identifier.charAt(i);
             if (i == 0) {
                 if (!(Character.isLetter(ch) || ch == '_')) {
@@ -202,34 +194,38 @@ public final class SafeSqlUtils {
         } else if (obj instanceof Number) {
             sb.append(((Number) obj).toString());
         } else if (obj instanceof Timestamp) {
-            sb.append("TIMESTAMP WITH TIME ZONE ").append(STRING_QUOTE);
-            sb.append(TIMESTAMP_FORMAT_WITH_TZ.format((Timestamp) obj));
-            sb.append(STRING_QUOTE);
+            sb.append("TIMESTAMP WITH TIME ZONE ").append("'");
+            synchronized (TIMESTAMP_FORMAT_WITH_TZ) {
+                sb.append(TIMESTAMP_FORMAT_WITH_TZ.format((Timestamp) obj));
+            }
+            sb.append("'");
         } else if (obj instanceof Time) {
-            sb.append("TIME WITH TIME ZONE ").append(STRING_QUOTE);
-            sb.append(TIME_FORMAT_WITH_TZ.format((Time) obj));
-            sb.append(STRING_QUOTE);
+            sb.append("TIME WITH TIME ZONE ").append("'");
+            synchronized (TIME_FORMAT_WITH_TZ) {
+                sb.append(TIME_FORMAT_WITH_TZ.format((Time) obj));
+            }
+            sb.append("'");
         } else if (obj instanceof java.sql.Date) {
-            sb.append("DATE ").append(STRING_QUOTE);
+            sb.append("DATE ").append("'");
             sb.append(((java.sql.Date) obj).toLocalDate().toString());
-            sb.append(STRING_QUOTE);
+            sb.append("'");
         } else if (obj instanceof LocalDate) {
-            sb.append("DATE ").append(STRING_QUOTE);
+            sb.append("DATE ").append("'");
             sb.append(((LocalDate) obj).toString());
-            sb.append(STRING_QUOTE);
+            sb.append("'");
         } else if (obj instanceof LocalTime) {
-            sb.append("TIME ").append(STRING_QUOTE);
+            sb.append("TIME ").append("'");
             sb.append(((LocalTime) obj).toString());
-            sb.append(STRING_QUOTE);
+            sb.append("'");
         } else if (obj instanceof LocalDateTime) {
-            sb.append("TIMESTAMP ").append(STRING_QUOTE);
+            sb.append("TIMESTAMP ").append("'");
             LocalDateTime other = (LocalDateTime) obj;
             sb.append(other.toLocalDate().toString()).append(' ').append(other.toLocalTime().toString());
-            sb.append(STRING_QUOTE);
+            sb.append("'");
         } else if (obj instanceof OffsetDateTime) {
-            sb.append("TIMESTAMP WITH TIME ZONE ").append(STRING_QUOTE);
+            sb.append("TIMESTAMP WITH TIME ZONE ").append("'");
             sb.append(TIMESTAMP_FORMATTER_WITH_TZ.format((OffsetDateTime) obj));
-            sb.append(STRING_QUOTE);
+            sb.append("'");
         } else if (obj instanceof UUID) {
             sb.append("UUID ").literal(obj.toString());
         } else if (obj instanceof SafeSqlLiteralizable) {
