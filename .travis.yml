@@ -4,7 +4,7 @@ jdk:
   - oraclejdk8
 after_success:
   - mvn -B jacoco:report coveralls:report
-  - bash .deploy.sh
+  - travis_wait 60 bash .deploy.sh
 cache:
   directories:
     - $HOME/.m2
