@@ -34,8 +34,8 @@ public class SafeSqlUtilsTest {
 
     }
 
-    private static final DateFormat TIME_FORMAT_WITH_TZ = new SimpleDateFormat("hh:mm:ss:SSSXXX");
-    private static final DateFormat TIMESTAMP_FORMAT_WITH_TZ = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSSXXX");
+    private static final DateFormat TIME_FORMAT_WITH_TZ = new SimpleDateFormat("hh:mm:ss.SSSXXX");
+    private static final DateFormat TIMESTAMP_FORMAT_WITH_TZ = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSXXX");
 
     @Test
     public void testFromConstant() {
