@@ -15,7 +15,6 @@ final class ArraySupport {
 
     static {
         Map<Character, String> m = new HashMap<>();
-        m.put('\'', "''");
         m.put('"', "\\\"");
         m.put('\\', "\\\\");
         m.put('\b', "\\b");

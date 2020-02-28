@@ -168,9 +168,9 @@ public class SafeSqlBuilderTest {
 
     @Test
     public void testArray() {
-        assertThat(new SafeSqlBuilder().array("VARCHAR", "1", "a", "b", null, "2").toSafeSql())
+        assertThat(new SafeSqlBuilder().array("VARCHAR", "1", "a", "b", null, "2", "l'olivier").toSafeSql())
                 .hasSql("?")
-                .hasParameters("{\"1\",\"a\",\"b\",NULL,\"2\"}");
+                .hasParameters("{\"1\",\"a\",\"b\",NULL,\"2\",\"l'olivier\"}");
         assertThat(new SafeSqlBuilder().array("INT", 1, 2, 3, null, 4).toSafeSql())
                 .hasSql("?")
                 .hasParameters("{1,2,3,NULL,4}");
