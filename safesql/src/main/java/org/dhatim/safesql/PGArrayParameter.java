@@ -18,7 +18,7 @@ public class PGArrayParameter<T> extends PGobject implements SafeSqlLiteralizabl
 
     @Override
     public void appendLiteralized(SafeSqlBuilder sb) {
-        sb.literal(getValue()).append("::").append(type);
+        sb.append("'").append(getValue()).append("'::").append(type);
     }
 
     private String asValue(Object[] values) {
