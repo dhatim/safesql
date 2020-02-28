@@ -558,9 +558,9 @@ public class SafeSqlBuilder implements SafeSqlizable {
     }
 
     /**
-     * Returns <tt>true</tt> if this builder contains no sql and no parameters.
+     * Returns {@code true} if this builder contains no sql and no parameters.
      *
-     * @return <tt>true</tt> if this builder contains no sql and no parameters
+     * @return {@code true} if this builder contains no sql and no parameters
      */
     public boolean isEmpty() {
         return sql.length() == 0 && parameters.isEmpty();
