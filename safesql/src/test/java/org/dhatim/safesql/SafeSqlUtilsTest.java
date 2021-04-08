@@ -1,21 +1,18 @@
 package org.dhatim.safesql;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.dhatim.safesql.assertion.Assertions.assertThat;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.MissingFormatArgumentException;
 import java.util.UUID;
-import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.dhatim.safesql.assertion.Assertions.assertThat;
 
 public class SafeSqlUtilsTest {
 
@@ -71,7 +68,7 @@ public class SafeSqlUtilsTest {
 
     @Test
     public void testToString() {
-        assertThat(SafeSqlUtils.toString(safesql("SELECT {} FROM table", new Object[] {null}))).isEqualTo("SELECT NULL FROM table");
+        assertThat(SafeSqlUtils.toString(safesql("SELECT {} FROM table", new Object[]{null}))).isEqualTo("SELECT NULL FROM table");
 
         assertThat(SafeSqlUtils.toString(safesql("SELECT {} FROM table", 5))).isEqualTo("SELECT 5 FROM table");
         assertThat(SafeSqlUtils.toString(safesql("SELECT {} FROM table", "Cheveux d'ange"))).isEqualTo("SELECT 'Cheveux d''ange' FROM table");
@@ -94,7 +91,7 @@ public class SafeSqlUtilsTest {
         assertThat(SafeSqlUtils.toString(safesql("SELECT {}", OffsetDateTime.of(1970, 1, 1, 1, 10, 0, 0, ZoneOffset.UTC)))).as("OffsetDateTime").isEqualTo("SELECT TIMESTAMP WITH TIME ZONE '1970-01-01 01:10:00.000Z'");
 
         assertThat(SafeSqlUtils.toString(safesql("SELECT {}", new UUID(0, 0)))).as("UUID").isEqualTo("SELECT UUID '00000000-0000-0000-0000-000000000000'");
-        assertThat(SafeSqlUtils.toString(safesql("SELECT {}", new byte[] {1, 2, 3, 4}))).as("byte[]").isEqualTo("SELECT BYTEA '\\x01020304'");
+        assertThat(SafeSqlUtils.toString(safesql("SELECT {}", new byte[]{1, 2, 3, 4}))).as("byte[]").isEqualTo("SELECT BYTEA '\\x01020304'");
         assertThat(SafeSqlUtils.toString(safesql("SELECT {}", new MyData("Hello")))).as("SafeSqlLiteralizable").isEqualTo("SELECT 'Hello'");
     }
 
@@ -103,6 +100,13 @@ public class SafeSqlUtilsTest {
         assertThat(SafeSqlUtils.literalize(safesql("SELECT * FORM table WHERE column = {}", "Hello the world")))
                 .hasSql("SELECT * FORM table WHERE column = 'Hello the world'")
                 .hasEmptyParameters();
+    }
+
+    @Test
+    public void testLiteralizeWithEscapedQuotationMark() {
+        assertThat(SafeSqlUtils.literalize(new SafeSqlBuilder()
+                .append("SELECT '{\"foo\":\"bar\"}' ?? ").param("foo")
+                .toSafeSql())).hasSql("SELECT '{\"foo\":\"bar\"}' ? 'foo'");
     }
 
     @Test
@@ -120,12 +124,12 @@ public class SafeSqlUtilsTest {
                 .hasParameters(5);
     }
 
-    @Test(expected=MissingFormatArgumentException.class)
+    @Test(expected = MissingFormatArgumentException.class)
     public void testFormatMissing() {
         SafeSqlUtils.format("SELECT {}");
     }
 
-    @Test(expected=MissingFormatArgumentException.class)
+    @Test(expected = MissingFormatArgumentException.class)
     public void testFormatMissingCustom() {
         SafeSqlUtils.format("SELECT {3}");
     }
