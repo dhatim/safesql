@@ -66,14 +66,13 @@ public abstract class SafeSqlRewriter {
         }
     }
 
-    private int writeParameter(SafeSqlBuilder sb, Object[] parameters, int index) {
-        int idx = index++;
+    private int writeParameter(SafeSqlBuilder sb, Object[] parameters, int idx) {
         if (idx >= parameters.length) {
             throw new IndexOutOfBoundsException("Parameter: " + idx + ", size: " + parameters.length);
         }
         Object parameter = parameters[idx];
         processParameter(sb, parameter);
-        return idx;
+        return idx + 1;
     }
 
     public SafeSql write(SafeSql value) {
