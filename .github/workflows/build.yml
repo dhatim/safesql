@@ -31,8 +31,8 @@ jobs:
                         echo ${GPG_SECRET_KEY} | base64 --decode | gpg --import --no-tty --batch --yes
                         echo ${GPG_OWNERTRUST} | base64 --decode | gpg --import-ownertrust --no-tty --batch --yes
                         mvn -ntp versions:set -DnewVersion=${TAG}
-                        mvn -ntp -s .github/settings.xml -Prelease jacoco:report coveralls:report deploy -DrepoToken=${{ secrets.GITHUB_TOKEN }}
+                        mvn -ntp -s .github/settings.xml -Prelease
                     else
                         # this is a regular build
-                        mvn -ntp install jacoco:report coveralls:report -DrepoToken=${{ secrets.GITHUB_TOKEN }}
+                        mvn -ntp install
                     fi
